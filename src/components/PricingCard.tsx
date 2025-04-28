@@ -12,7 +12,7 @@ interface PricingFeature {
 interface PricingCardProps {
   title: string;
   description: string;
-  price: number;
+  price: string | number;
   period: string;
   features: PricingFeature[];
   popular?: boolean;

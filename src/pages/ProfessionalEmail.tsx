@@ -69,7 +69,7 @@ const ProfessionalEmail = () => {
             <PricingCard
               key={index}
               {...plan}
-              price={Number(calculatePrice(plan.basePrice))}
+              price={calculatePrice(plan.basePrice)}
               period={`${period} ${parseInt(period) === 1 ? 'ano' : 'anos'}`}
               ctaText="Comprar"
               onAction={() => handlePurchase(plan)}

@@ -1,3 +1,4 @@
+
 import React from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
@@ -61,7 +62,7 @@ const CpanelHosting = () => {
 
   const annualHostingPlans = hostingPlans.map(plan => ({
     ...plan,
-    price: Number((plan.price * 10).toFixed(2)), // 2 months free with annual billing
+    price: formatPrice(Number(plan.price.replace(/[^\d]/g, '')) * 10), // 2 months free with annual billing
     period: "ano"
   }));
 
