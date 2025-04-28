@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ProfilePage from "@/components/client/ProfilePage";
@@ -10,6 +9,7 @@ import PaymentMethodsPage from "@/components/client/PaymentMethodsPage";
 import SupportPage from "@/components/client/SupportPage";
 import NotificationsPage from "@/components/client/NotificationsPage";
 import PromotionsPage from "@/components/client/PromotionsPage";
+import OrdersPage from "@/components/client/OrdersPage";
 
 interface ClientRoute {
   path: string;
@@ -58,16 +58,17 @@ export const useClientRoutes = () => {
         path: "/client/promotions",
         component: <PromotionsPage />,
       },
+      {
+        path: "/client/orders",
+        component: <OrdersPage />,
+      },
     ];
     
-    // Find matching route
     const currentRoute = clientRoutes.find(route => location.pathname === route.path);
     
-    // If found, set the component
     if (currentRoute) {
       setCurrentComponent(currentRoute.component);
     } else if (location.pathname.startsWith("/client")) {
-      // Default to dashboard for any unimplemented client paths
       setCurrentComponent(<ClientDashboard />);
     }
   }, [location.pathname]);
