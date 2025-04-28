@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
@@ -10,11 +11,13 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const ProfessionalEmail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [userCount, setUserCount] = useState(1);
+  const [period, setPeriod] = useState("1");
   const [selectedPlan, setSelectedPlan] = useState<null | {
     title: string;
     basePrice: number;
@@ -23,22 +26,22 @@ const ProfessionalEmail = () => {
 
   const basePlans = [
     {
-      title: "Email Basic",
+      title: "Email Premium",
       description: "Para pequenas empresas",
-      basePrice: 4.99,
+      basePrice: 12000,
       features: [
-        { text: "10GB por usuário", included: true },
+        { text: "5GB por usuário", included: true },
         { text: "Webmail responsivo", included: true },
         { text: "Antispam", included: true },
         { text: "Antivírus", included: true },
         { text: "Suporte 24/7", included: true },
-        { text: "Backup diário", included: false },
+        { text: "Backup diário", included: true },
       ],
     },
     {
-      title: "Email Pro",
+      title: "Avançado Pro",
       description: "Para médias empresas",
-      basePrice: 9.99,
+      basePrice: 40000,
       popular: true,
       features: [
         { text: "25GB por usuário", included: true },
@@ -50,9 +53,9 @@ const ProfessionalEmail = () => {
       ],
     },
     {
-      title: "Email Enterprise",
+      title: "Business",
       description: "Para grandes empresas",
-      basePrice: 14.99,
+      basePrice: 30000,
       features: [
         { text: "50GB por usuário", included: true },
         { text: "Webmail responsivo", included: true },
@@ -72,7 +75,7 @@ const ProfessionalEmail = () => {
   };
 
   const calculatePrice = (basePrice: number) => {
-    return (basePrice * userCount).toFixed(2);
+    return (basePrice * userCount * parseInt(period)).toFixed(2);
   };
 
   const handlePurchase = (plan: { title: string; basePrice: number }) => {
@@ -84,10 +87,11 @@ const ProfessionalEmail = () => {
     if (!selectedPlan) return;
 
     const price = Number(calculatePrice(selectedPlan.basePrice));
+    const years = parseInt(period);
     
     addToCart({
       id: `${selectedPlan.title}-${Date.now()}`,
-      title: `${selectedPlan.title} (${userCount} usuários)`,
+      title: `${selectedPlan.title} (${userCount} usuários por ${years} ${years === 1 ? 'ano' : 'anos'})`,
       quantity: userCount,
       price: price,
       basePrice: selectedPlan.basePrice,
@@ -112,7 +116,7 @@ const ProfessionalEmail = () => {
               key={index}
               {...plan}
               price={Number(calculatePrice(plan.basePrice))}
-              period="mês"
+              period={`${period} ${parseInt(period) === 1 ? 'ano' : 'anos'}`}
               ctaText="Comprar"
               onAction={() => handlePurchase(plan)}
             />
@@ -122,24 +126,41 @@ const ProfessionalEmail = () => {
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Configurar quantidade de usuários</DialogTitle>
+              <DialogTitle>Configurar plano</DialogTitle>
             </DialogHeader>
-            <div className="py-4">
-              <Label htmlFor="userCountDialog">Número de usuários (1-1000)</Label>
-              <Input
-                id="userCountDialog"
-                type="number"
-                min="1"
-                max="1000"
-                value={userCount}
-                onChange={handleUserCountChange}
-                className="mt-2"
-              />
+            <div className="py-4 space-y-4">
+              <div>
+                <Label htmlFor="userCountDialog">Número de usuários (1-1000)</Label>
+                <Input
+                  id="userCountDialog"
+                  type="number"
+                  min="1"
+                  max="1000"
+                  value={userCount}
+                  onChange={handleUserCountChange}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="period">Período de contratação</Label>
+                <Select value={period} onValueChange={setPeriod}>
+                  <SelectTrigger id="period" className="mt-2">
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 ano</SelectItem>
+                    <SelectItem value="2">2 anos</SelectItem>
+                    <SelectItem value="3">3 anos</SelectItem>
+                    <SelectItem value="4">4 anos</SelectItem>
+                    <SelectItem value="5">5 anos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               {selectedPlan && (
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Preço total:</p>
                   <p className="text-lg font-semibold">
-                    {calculatePrice(selectedPlan.basePrice)} kz/mês
+                    {calculatePrice(selectedPlan.basePrice)} kz/{period} {parseInt(period) === 1 ? 'ano' : 'anos'}
                   </p>
                 </div>
               )}
