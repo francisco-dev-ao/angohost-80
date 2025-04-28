@@ -1,277 +1,329 @@
 
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { ExternalLink, Server, Mail, Globe, Loader2, AlertTriangle } from "lucide-react";
-import { Service } from "@/types/client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { formatDistanceToNow, format, isBefore, addDays } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { ExternalLink, Server } from 'lucide-react';
+import { useClientServices } from '@/hooks/useClientServices';
+import { formatPrice } from '@/utils/formatters';
 
 const ServicesPage = () => {
-  const { user } = useSupabaseAuth();
-  const navigate = useNavigate();
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { services, loading, renewService, toggleAutoRenew } = useClientServices();
+  const [detailsService, setDetailsService] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      if (!user) return;
-
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const { data, error } = await supabase
-          .from('client_services')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        setServices(data as Service[] || []);
-      } catch (error: any) {
-        console.error('Error fetching services:', error);
-        setError('Erro ao carregar serviços. Por favor, tente novamente.');
-        toast.error('Erro ao carregar serviços');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchServices();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('client_services_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'client_services',
-          filter: `user_id=eq.${user?.id}`
-        },
-        (payload) => {
-          console.log('Real-time service update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            setServices(prev => [payload.new as Service, ...prev]);
-            toast.success('Novo serviço adicionado');
-          } else if (payload.eventType === 'UPDATE') {
-            setServices(prev => prev.map(service => 
-              service.id === payload.new.id ? payload.new as Service : service
-            ));
-            toast.success('Informações de serviço atualizadas');
-          } else if (payload.eventType === 'DELETE') {
-            setServices(prev => prev.filter(service => service.id !== payload.old.id));
-            toast.info('Serviço removido');
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
-
-  const handleRenewService = async (serviceId: string) => {
-    toast.info('Processando renovação...', { duration: 2000 });
-    // In a real app, this would initiate the renewal workflow
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusColors = {
-      'active': 'bg-green-500',
-      'suspended': 'bg-yellow-500',
-      'pending': 'bg-blue-500',
-      'cancelled': 'bg-red-500',
-      'default': 'bg-gray-500'
-    };
-
-    return (
-      <Badge className={statusColors[status as keyof typeof statusColors] || statusColors.default}>
-        {status}
-      </Badge>
-    );
-  };
-
-  const getServiceIcon = (serviceType: string) => {
-    switch (serviceType) {
-      case 'hosting':
-        return <Server className="text-blue-500" size={24} />;
-      case 'email':
-        return <Mail className="text-green-500" size={24} />;
-      case 'domain':
-        return <Globe className="text-purple-500" size={24} />;
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'suspended':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      case 'pending':
+        return 'bg-blue-100 text-blue-800';
       default:
-        return <Server className="text-gray-500" size={24} />;
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const formatBytes = (bytes?: number) => {
-    if (!bytes) return 'N/A';
-    
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let value = bytes;
-    let unitIndex = 0;
-    
-    while (value >= 1024 && unitIndex < units.length - 1) {
-      value /= 1024;
-      unitIndex++;
-    }
-    
-    return `${value.toFixed(2)} ${units[unitIndex]}`;
+  const handleViewDetails = (service: any) => {
+    setDetailsService(service);
+    setDialogOpen(true);
   };
 
-  if (error) {
-    return (
-      <Alert variant="destructive" className="mb-6">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
+  const getRemainingDays = (renewalDate: string) => {
+    const renewalDay = new Date(renewalDate);
+    const today = new Date();
+    const diffTime = renewalDay.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const isExpiringSoon = (renewalDate: string) => {
+    return getRemainingDays(renewalDate) <= 30;
+  };
+
+  const isPaymentDue = (renewalDate: string) => {
+    // Check if renewal is due within 3 days
+    const renewalDay = new Date(renewalDate);
+    const dueDate = addDays(new Date(), 3);
+    return isBefore(renewalDay, dueDate);
+  };
+
+  if (loading) {
+    return <div className="py-8 text-center">Carregando serviços...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Meus Serviços</h1>
-        <Button onClick={() => navigate("/")}>
-          Contratar Novos Serviços
-        </Button>
-      </div>
-      
-      {loading ? (
-        <div className="text-center py-8 flex flex-col items-center">
-          <Loader2 className="h-8 w-8 animate-spin mb-2" />
-          <p>Carregando serviços...</p>
-        </div>
-      ) : services.length > 0 ? (
-        <div className="space-y-4">
-          {services.map((service) => (
-            <Card key={service.id} className="transition-all hover:shadow-md">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-3">
-                    {getServiceIcon(service.service_type)}
-                    <div>
-                      <CardTitle>{service.name}</CardTitle>
-                      <CardDescription>
-                        {service.description || `Serviço de ${service.service_type}`}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    {getStatusBadge(service.status)}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Data de Renovação:</span>
-                      <span className="font-medium">
-                        {format(new Date(service.renewal_date), 'dd/MM/yyyy', { locale: ptBR })}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Preço Mensal:</span>
-                      <span className="font-medium">
-                        {new Intl.NumberFormat('pt-AO', {
-                          style: 'currency',
-                          currency: 'AOA'
-                        }).format(service.price_monthly)}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Preço Anual:</span>
-                      <span className="font-medium">
-                        {new Intl.NumberFormat('pt-AO', {
-                          style: 'currency',
-                          currency: 'AOA'
-                        }).format(service.price_yearly)}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {(service.disk_space || service.bandwidth || service.control_panel_url) && (
-                    <div className="space-y-2">
-                      {service.disk_space && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Espaço em Disco:</span>
-                          <span className="font-medium">{formatBytes(service.disk_space)}</span>
+      <h1 className="text-3xl font-bold">Meus Serviços</h1>
+
+      {services.length > 0 ? (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Serviços de Hospedagem</CardTitle>
+              <CardDescription>
+                Lista de todos os seus serviços contratados
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome do Serviço</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Data de Renovação</TableHead>
+                    <TableHead>Renovação Automática</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {services.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell className="font-medium">{service.name}</TableCell>
+                      <TableCell>
+                        {service.service_type === 'hosting' && 'Hospedagem'}
+                        {service.service_type === 'email' && 'Email'}
+                        {service.service_type === 'vps' && 'Servidor VPS'}
+                        {service.service_type === 'dedicated' && 'Servidor Dedicado'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getStatusColor(service.status)}>
+                          {service.status === 'active' && 'Ativo'}
+                          {service.status === 'suspended' && 'Suspenso'}
+                          {service.status === 'cancelled' && 'Cancelado'}
+                          {service.status === 'pending' && 'Pendente'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          {format(new Date(service.renewal_date), 'dd/MM/yyyy')}
                         </div>
-                      )}
-                      
-                      {service.bandwidth && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Largura de Banda:</span>
-                          <span className="font-medium">{formatBytes(service.bandwidth)}</span>
+                        <div className={`text-xs ${isExpiringSoon(service.renewal_date) ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+                          {isExpiringSoon(service.renewal_date)
+                            ? `Expira em ${getRemainingDays(service.renewal_date)} dias`
+                            : `Expira em ${formatDistanceToNow(new Date(service.renewal_date), { locale: ptBR })}`
+                          }
                         </div>
-                      )}
-                      
-                      {service.control_panel_url && service.control_panel_username && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Usuário do Painel:</span>
-                          <span className="font-medium">{service.control_panel_username}</span>
+                        {isPaymentDue(service.renewal_date) && (
+                          <div className="text-xs text-red-500 font-medium mt-1">
+                            Pagamento em até 3 dias!
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={service.auto_renew}
+                          onCheckedChange={() => toggleAutoRenew(service.id, service.auto_renew)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleViewDetails(service)}
+                          >
+                            Detalhes
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => renewService(service.id)}
+                            disabled={service.status !== 'active'}
+                          >
+                            Renovar
+                          </Button>
+                          {service.control_panel_url && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              asChild
+                            >
+                              <a 
+                                href={service.control_panel_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" /> Painel
+                              </a>
+                            </Button>
+                          )}
                         </div>
-                      )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent className="max-w-lg">
+              {detailsService && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center">
+                      <Server className="mr-2 h-5 w-5" />
+                      {detailsService.name}
+                    </DialogTitle>
+                    <DialogDescription>
+                      Detalhes do serviço
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium mb-1">Tipo de Serviço</p>
+                        <p>
+                          {detailsService.service_type === 'hosting' && 'Hospedagem'}
+                          {detailsService.service_type === 'email' && 'Email'}
+                          {detailsService.service_type === 'vps' && 'Servidor VPS'}
+                          {detailsService.service_type === 'dedicated' && 'Servidor Dedicado'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium mb-1">Status</p>
+                        <Badge variant="outline" className={getStatusColor(detailsService.status)}>
+                          {detailsService.status === 'active' && 'Ativo'}
+                          {detailsService.status === 'suspended' && 'Suspenso'}
+                          {detailsService.status === 'cancelled' && 'Cancelado'}
+                          {detailsService.status === 'pending' && 'Pendente'}
+                        </Badge>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" size="sm" onClick={() => handleRenewService(service.id)}>
-                  Renovar Serviço
-                </Button>
-                
-                {service.control_panel_url && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => window.open(service.control_panel_url, '_blank')}
-                    className="flex items-center gap-1"
-                  >
-                    <ExternalLink size={16} />
-                    <span>Acessar Painel</span>
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
-          ))}
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium mb-1">Data de Renovação</p>
+                        <p>{format(new Date(detailsService.renewal_date), 'dd/MM/yyyy')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium mb-1">Última Renovação</p>
+                        <p>
+                          {detailsService.last_renewed_at
+                            ? format(new Date(detailsService.last_renewed_at), 'dd/MM/yyyy')
+                            : 'N/A'
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium mb-1">Preço Mensal</p>
+                        <p>{formatPrice(detailsService.price_monthly)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium mb-1">Preço Anual</p>
+                        <p>{formatPrice(detailsService.price_yearly)}</p>
+                      </div>
+                    </div>
+
+                    {(detailsService.disk_space || detailsService.bandwidth) && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {detailsService.disk_space && (
+                          <div>
+                            <p className="text-sm font-medium mb-1">Espaço em Disco</p>
+                            <p>
+                              {detailsService.disk_space < 1024
+                                ? `${detailsService.disk_space} MB`
+                                : `${detailsService.disk_space / 1024} GB`
+                              }
+                            </p>
+                          </div>
+                        )}
+                        {detailsService.bandwidth && (
+                          <div>
+                            <p className="text-sm font-medium mb-1">Largura de Banda</p>
+                            <p>
+                              {detailsService.bandwidth < 1024
+                                ? `${detailsService.bandwidth} MB`
+                                : `${detailsService.bandwidth / 1024} GB`
+                              }
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {detailsService.control_panel_url && (
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">Painel de Controle</p>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">URL</p>
+                            <a 
+                              href={detailsService.control_panel_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center"
+                            >
+                              Acessar <ExternalLink className="ml-1 h-3 w-3" />
+                            </a>
+                          </div>
+                          {detailsService.control_panel_username && (
+                            <div>
+                              <p className="text-sm text-muted-foreground">Usuário</p>
+                              <p>{detailsService.control_panel_username}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {detailsService.description && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">Descrição</p>
+                        <p className="text-sm">{detailsService.description}</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       ) : (
         <Card>
-          <CardHeader className="text-center">
+          <CardHeader>
             <CardTitle>Nenhum serviço encontrado</CardTitle>
             <CardDescription>
               Você ainda não possui serviços contratados.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center pb-6">
-            <Button onClick={() => navigate("/")}>
-              Contratar Serviços
+          <CardFooter>
+            <Button asChild>
+              <a href="/products/cpanel">Contratar serviço de hospedagem</a>
             </Button>
-          </CardContent>
+          </CardFooter>
         </Card>
       )}
     </div>

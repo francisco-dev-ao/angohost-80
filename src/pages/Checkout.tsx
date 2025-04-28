@@ -1,90 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+
+import React from 'react';
 import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
-import { formatPrice } from '@/utils/formatters';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, CreditCard } from 'lucide-react';
-import { toast } from 'sonner';
+import CheckoutForm from '@/components/checkout/CheckoutForm';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatPrice } from '@/utils/formatters';
 
 const Checkout = () => {
-  const { user } = useSupabaseAuth();
   const navigate = useNavigate();
-  const { items, clearCart, isLoading, isAuthenticated } = useCart();
-  
-  useEffect(() => {
-    if (!isAuthenticated) {
-      toast.error('Faça login para finalizar a compra');
-      navigate('/register', { state: { returnUrl: '/checkout' } });
-    }
-  }, [isAuthenticated, navigate]);
+  const { items, isLoading } = useCart();
 
-  const [paymentMethod, setPaymentMethod] = useState('credit-card');
-  const [loading, setLoading] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    name: user?.user_metadata?.full_name || '',
-    email: user?.email || '',
-    phone: '',
-    address: '',
-    creditCardNumber: '',
-    expiryDate: '',
-    cvv: '',
-  });
-
-  useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.user_metadata?.full_name || '',
-        email: user.email || ''
-      }));
-    }
-  }, [user]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-  
-  const calculateTotal = () => {
-    const subtotal = items.reduce((acc, item) => acc + item.price, 0);
-    
-    let discount = 0;
-    if (subtotal >= 500000) discount = 0.1;
-    else if (subtotal >= 250000) discount = 0.05;
-    
-    return subtotal - (subtotal * discount);
-  };
-
-  const handleSubmitPayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!isAuthenticated) {
-      toast.error('Você precisa estar logado para finalizar a compra');
-      navigate('/register');
-      return;
-    }
-    
-    setLoading(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      clearCart();
-      toast.success('Pagamento processado com sucesso!');
-      navigate('/client', { replace: true });
-    }, 2000);
-  };
-  
   if (isLoading) {
     return (
       <Layout>
@@ -92,7 +19,6 @@ const Checkout = () => {
           <h1 className="text-3xl font-bold mb-8">Finalizar Compra</h1>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
-              <Skeleton className="w-full h-64" />
               <Skeleton className="w-full h-64" />
               <Skeleton className="w-full h-64" />
             </div>
@@ -123,212 +49,33 @@ const Checkout = () => {
         <h1 className="text-3xl font-bold mb-8">Finalizar Compra</h1>
         
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Seus Dados</CardTitle>
-                <CardDescription>Informe seus dados para a fatura</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nome Completo</Label>
-                      <Input 
-                        id="name" 
-                        name="name" 
-                        placeholder="Nome completo" 
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email" 
-                        placeholder="seu@email.com" 
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required 
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Telefone</Label>
-                      <Input 
-                        id="phone" 
-                        name="phone" 
-                        placeholder="+244 999 999 999"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Endereço</Label>
-                      <Input 
-                        id="address" 
-                        name="address" 
-                        placeholder="Seu endereço" 
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        required 
-                      />
-                    </div>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Método de Pagamento</CardTitle>
-                <CardDescription>
-                  Escolha o método de pagamento
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="credit-card" onValueChange={(value) => setPaymentMethod(value)}>
-                  <TabsList className="grid grid-cols-3 mb-6">
-                    <TabsTrigger value="credit-card">Cartão</TabsTrigger>
-                    <TabsTrigger value="bank-transfer">Transferência</TabsTrigger>
-                    <TabsTrigger value="paypal">PayPal</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="credit-card" className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="card-number">Número do Cartão</Label>
-                      <Input 
-                        id="card-number"
-                        name="creditCardNumber" 
-                        placeholder="0000 0000 0000 0000" 
-                        value={formData.creditCardNumber}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="expiry">Data de Validade</Label>
-                        <Input 
-                          id="expiry" 
-                          name="expiryDate" 
-                          placeholder="MM/AA" 
-                          value={formData.expiryDate}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="cvv">CVV</Label>
-                        <Input 
-                          id="cvv" 
-                          name="cvv"  
-                          placeholder="123" 
-                          value={formData.cvv}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="bank-transfer">
-                    <div className="space-y-4">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="font-medium">Dados bancários para transferência:</p>
-                        <p>Banco: Banco de Angola</p>
-                        <p>Conta: 1234567890</p>
-                        <p>NIB: AO012345678901234567890123</p>
-                        <p>Titular: Empresa de Hosting</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Após realizar a transferência, envie o comprovante para o email financeiro@empresa.com
-                      </p>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="paypal">
-                    <div className="text-center p-6">
-                      <p className="mb-4">
-                        Você será redirecionado para o site do PayPal para concluir o pagamento.
-                      </p>
-                      <Button className="w-full">
-                        Pagar com PayPal
-                      </Button>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Itens do Pedido</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-4">
-                  {items.map((item) => (
-                    <li key={item.id} className="flex justify-between items-center py-2 border-b">
-                      <div>
-                        <h3 className="font-semibold">{item.title}</h3>
-                        {item.quantity > 1 && (
-                          <p className="text-sm text-muted-foreground">
-                            {item.quantity} x {formatPrice(item.basePrice)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        {formatPrice(item.price)}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+          <div className="md:col-span-2">
+            <CheckoutForm />
           </div>
 
           <div className="border rounded-lg p-6 h-fit sticky top-8">
             <h2 className="text-xl font-semibold mb-4">Resumo do Pedido</h2>
-            <div className="space-y-2 mb-6">
-              <div className="flex justify-between">
+            <ul className="space-y-4 mb-6">
+              {items.map((item) => (
+                <li key={item.id} className="flex justify-between items-center py-2 border-b">
+                  <div>
+                    <h3 className="font-semibold">{item.title}</h3>
+                    {item.quantity > 1 && (
+                      <p className="text-sm text-muted-foreground">
+                        {item.quantity} x {formatPrice(item.basePrice)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    {formatPrice(item.price * item.quantity)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="space-y-2 mb-6 pt-4 border-t">
+              <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>{formatPrice(calculateTotal())}</span>
-              </div>
-            </div>
-            
-            <Button 
-              className="w-full" 
-              disabled={loading || !isAuthenticated}
-              onClick={handleSubmitPayment}
-            >
-              {loading ? (
-                <>Processando...</>
-              ) : (
-                <>
-                  <CreditCard className="mr-2 h-4 w-4" /> 
-                  Finalizar Pagamento
-                </>
-              )}
-            </Button>
-            
-            <div className="mt-4 text-center">
-              <Button 
-                variant="ghost" 
-                className="text-muted-foreground"
-                onClick={() => navigate('/cart')}
-              >
-                Voltar para o carrinho
-              </Button>
-            </div>
-            
-            <div className="mt-6 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Check className="h-3 w-3" />
-                <span>Pagamento seguro</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Check className="h-3 w-3" />
-                <span>Suporte técnico 24/7</span>
+                <span>{formatPrice(items.reduce((acc, item) => acc + item.price * item.quantity, 0))}</span>
               </div>
             </div>
           </div>

@@ -64,6 +64,7 @@ const App = () => (
               <Route path="/client/support" element={<ClientArea />} />
               <Route path="/client/notifications" element={<ClientArea />} />
               <Route path="/client/promotions" element={<ClientArea />} />
+              <Route path="/client/contact-profiles" element={<ClientArea />} />
               <Route path="/register" element={<Register />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
@@ -84,6 +85,7 @@ const App = () => (
               <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/payment-methods" element={<AdminPaymentMethods />} />
+              <Route path="/admin/services" element={<AdminHosting />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>
