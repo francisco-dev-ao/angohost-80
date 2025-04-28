@@ -25,6 +25,7 @@ export default function Register() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [registerFullName, setRegisterFullName] = useState(''); // Added full name state
   const [isRegistering, setIsRegistering] = useState(false);
   
   const { signIn, signUp, user } = useSupabaseAuth();
@@ -63,7 +64,7 @@ export default function Register() {
     setIsRegistering(true);
     
     try {
-      await signUp(registerEmail, registerPassword);
+      await signUp(registerEmail, registerPassword, registerFullName); // Added the full name parameter
       toast.success('Cadastro realizado com sucesso');
       navigate(returnUrl);
     } catch (error) {
@@ -154,6 +155,20 @@ export default function Register() {
               
               <TabsContent value="register">
                 <form onSubmit={handleRegister} className="space-y-6">
+                  {/* Added full name field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="register-fullname" className="text-white">Nome Completo</Label>
+                    <Input 
+                      id="register-fullname" 
+                      type="text" 
+                      placeholder="Seu nome completo"
+                      value={registerFullName}
+                      onChange={(e) => setRegisterFullName(e.target.value)}
+                      className="bg-white/10 border-white/10 text-white placeholder:text-white/50"
+                      required
+                    />
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="register-email" className="text-white">Email</Label>
                     <Input 
