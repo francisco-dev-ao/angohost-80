@@ -3,6 +3,7 @@ export type AdminUser = {
   email: string;
   fullName: string;
   role: 'admin' | 'support' | 'finance' | 'customer';
+  isActive?: boolean;
   createdAt: string;
 };
 
