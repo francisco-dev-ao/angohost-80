@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -23,20 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { CreditCard, Plus, Trash } from "lucide-react";
-
-interface PaymentMethod {
-  id: string;
-  payment_type: 'credit_card' | 'debit_card' | 'bank_transfer' | 'paypal' | 'other';
-  is_default: boolean;
-  card_brand?: string;
-  card_last_four?: string;
-  card_expiry?: string;
-  billing_name?: string;
-  billing_address?: string;
-  is_active: boolean;
-}
+import { PaymentMethod } from "@/types/client";
 
 const PaymentMethodsPage = () => {
   const { user } = useSupabaseAuth();
@@ -67,7 +55,7 @@ const PaymentMethodsPage = () => {
           
         if (error) throw error;
         
-        setPaymentMethods(data || []);
+        setPaymentMethods(data as PaymentMethod[] || []);
       } catch (error: any) {
         console.error('Error fetching payment methods:', error);
         toast.error('Erro ao carregar métodos de pagamento');
@@ -83,13 +71,11 @@ const PaymentMethodsPage = () => {
     if (!user) return;
     
     try {
-      // First, set all payment methods to not default
       await supabase
         .from('payment_methods')
         .update({ is_default: false })
         .eq('user_id', user.id);
         
-      // Then, set the selected one as default
       const { error } = await supabase
         .from('payment_methods')
         .update({ is_default: true })
@@ -97,7 +83,6 @@ const PaymentMethodsPage = () => {
         
       if (error) throw error;
       
-      // Update local state
       setPaymentMethods(paymentMethods.map(method => ({
         ...method,
         is_default: method.id === id
@@ -114,7 +99,6 @@ const PaymentMethodsPage = () => {
     if (!user) return;
     
     try {
-      // Instead of deleting, just set is_active to false
       const { error } = await supabase
         .from('payment_methods')
         .update({ is_active: false })
@@ -122,7 +106,6 @@ const PaymentMethodsPage = () => {
         
       if (error) throw error;
       
-      // Update local state
       setPaymentMethods(paymentMethods.filter(method => method.id !== id));
       
       toast.success('Método de pagamento removido');
@@ -136,8 +119,6 @@ const PaymentMethodsPage = () => {
     if (!user) return;
     
     try {
-      // In a real application, you would validate the card with a payment processor
-      // and get a token. Here we'll simulate it
       const lastFour = newPaymentMethod.cardNumber.slice(-4);
       const brand = getCardBrand(newPaymentMethod.cardNumber);
       
@@ -151,13 +132,12 @@ const PaymentMethodsPage = () => {
           card_expiry: newPaymentMethod.cardExpiry,
           billing_name: newPaymentMethod.cardName,
           billing_address: newPaymentMethod.billingAddress,
-          is_default: paymentMethods.length === 0, // Make default if it's the first one
+          is_default: paymentMethods.length === 0,
           is_active: true,
         });
         
       if (error) throw error;
       
-      // Refresh the payment methods
       const { data } = await supabase
         .from('payment_methods')
         .select('*')
@@ -165,9 +145,8 @@ const PaymentMethodsPage = () => {
         .eq('is_active', true)
         .order('is_default', { ascending: false });
         
-      setPaymentMethods(data || []);
+      setPaymentMethods(data as PaymentMethod[] || []);
       
-      // Reset form and close dialog
       setNewPaymentMethod({
         cardNumber: "",
         cardName: "",
@@ -184,7 +163,6 @@ const PaymentMethodsPage = () => {
     }
   };
 
-  // Helper function to identify card brand by card number
   const getCardBrand = (cardNumber: string) => {
     const firstDigit = cardNumber.charAt(0);
     const firstTwoDigits = parseInt(cardNumber.substring(0, 2), 10);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,27 +10,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
-interface Domain {
-  id: string;
-  domain_name: string;
-  registration_date: string;
-  expiry_date: string;
-  status: string;
-  is_locked: boolean;
-  auto_renew?: boolean;
-  whois_privacy?: boolean;
-  nameservers?: {
-    ns1?: string;
-    ns2?: string;
-    ns3?: string;
-    ns4?: string;
-  };
-}
+import { Domain } from "@/types/client";
 
 const DomainsPage = () => {
   const { user } = useSupabaseAuth();
@@ -54,7 +38,7 @@ const DomainsPage = () => {
           
         if (error) throw error;
         
-        setDomains(data || []);
+        setDomains(data as Domain[] || []);
       } catch (error: any) {
         console.error('Error fetching domains:', error);
         toast.error('Erro ao carregar domínios');

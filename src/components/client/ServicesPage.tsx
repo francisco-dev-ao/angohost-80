@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,24 +13,10 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ExternalLink, Server, Mail, Globe } from "lucide-react";
-
-interface Service {
-  id: string;
-  name: string;
-  service_type: 'hosting' | 'email' | 'vps' | 'dedicated' | 'domain' | 'other';
-  status: string;
-  renewal_date: string;
-  price_monthly: number;
-  price_yearly: number;
-  control_panel_url?: string;
-  control_panel_username?: string;
-  description?: string;
-  disk_space?: number;
-  bandwidth?: number;
-}
+import { Service } from "@/types/client";
 
 const ServicesPage = () => {
   const { user } = useSupabaseAuth();
@@ -54,7 +39,7 @@ const ServicesPage = () => {
           
         if (error) throw error;
         
-        setServices(data || []);
+        setServices(data as Service[] || []);
       } catch (error: any) {
         console.error('Error fetching services:', error);
         toast.error('Erro ao carregar serviços');

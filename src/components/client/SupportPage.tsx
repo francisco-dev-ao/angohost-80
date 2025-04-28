@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -35,29 +34,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TicketIcon, MessageSquare, Plus } from "lucide-react";
-
-interface Ticket {
-  id: string;
-  ticket_number: string;
-  subject: string;
-  content: string;
-  status: 'open' | 'closed' | 'in-progress';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  department?: string;
-  created_at: string;
-  updated_at: string;
-  closed_at?: string;
-}
-
-interface TicketMessage {
-  id: string;
-  ticket_id: string;
-  content: string;
-  user_id: string;
-  is_staff: boolean;
-  created_at: string;
-  attachments?: any[];
-}
+import { Ticket, TicketMessage } from "@/types/client";
 
 const SupportPage = () => {
   const { user } = useSupabaseAuth();
@@ -72,7 +49,7 @@ const SupportPage = () => {
   
   const [newTicket, setNewTicket] = useState({
     subject: "",
-    priority: "medium" as 'low' | 'medium' | 'high' | 'urgent',
+    priority: "medium",
     department: "",
     content: "",
   });
@@ -92,7 +69,7 @@ const SupportPage = () => {
           
         if (error) throw error;
         
-        setTickets(data || []);
+        setTickets(data as Ticket[] || []);
       } catch (error: any) {
         console.error('Error fetching tickets:', error);
         toast.error('Erro ao carregar tickets de suporte');
@@ -118,7 +95,7 @@ const SupportPage = () => {
         
       if (error) throw error;
       
-      setTicketMessages(data || []);
+      setTicketMessages(data as TicketMessage[] || []);
     } catch (error: any) {
       console.error('Error fetching ticket messages:', error);
       toast.error('Erro ao carregar mensagens do ticket');
@@ -137,7 +114,6 @@ const SupportPage = () => {
     if (!user) return;
     
     try {
-      // Generate a ticket number
       const ticketNumber = `TK-${Date.now().toString().slice(-6)}`;
       
       const { data, error } = await supabase
@@ -155,12 +131,10 @@ const SupportPage = () => {
         
       if (error) throw error;
       
-      // Add the new ticket to the list
       if (data && data[0]) {
         setTickets([data[0], ...tickets]);
       }
       
-      // Reset form and close dialog
       setNewTicket({
         subject: "",
         priority: "medium",
@@ -191,14 +165,12 @@ const SupportPage = () => {
         
       if (error) throw error;
       
-      // Update ticket status if it was closed
       if (selectedTicket.status === 'closed') {
         await supabase
           .from('client_tickets')
           .update({ status: 'open', updated_at: new Date().toISOString() })
           .eq('id', selectedTicket.id);
           
-        // Update local state
         setSelectedTicket({
           ...selectedTicket,
           status: 'open',
@@ -212,10 +184,8 @@ const SupportPage = () => {
         ));
       }
       
-      // Refresh messages
       await fetchTicketMessages(selectedTicket.id);
       
-      // Reset input
       setNewMessage("");
       
       toast.success('Resposta enviada com sucesso');
@@ -405,7 +375,6 @@ const SupportPage = () => {
         </Card>
       )}
       
-      {/* View Ticket Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
@@ -430,13 +399,11 @@ const SupportPage = () => {
             </DialogDescription>
           </DialogHeader>
           
-          {/* Messages Area - Scrollable */}
           <div className="flex-1 overflow-y-auto py-4 space-y-6">
             {loadingMessages ? (
               <div className="text-center py-4">Carregando mensagens...</div>
             ) : (
               <>
-                {/* Initial ticket message */}
                 {selectedTicket && (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-start gap-2">
@@ -458,7 +425,6 @@ const SupportPage = () => {
                   </div>
                 )}
                 
-                {/* Ticket replies */}
                 {ticketMessages.map((message) => (
                   <div key={message.id} className="flex flex-col gap-2">
                     <div className="flex items-start gap-2">
@@ -481,7 +447,6 @@ const SupportPage = () => {
                         } rounded-lg`}>
                           <p className="whitespace-pre-wrap">{message.content}</p>
                           
-                          {/* Show attachments if any */}
                           {message.attachments && message.attachments.length > 0 && (
                             <div className="mt-2 space-y-1">
                               <p className="text-xs font-medium">Anexos:</p>
@@ -512,7 +477,6 @@ const SupportPage = () => {
             )}
           </div>
           
-          {/* Reply area */}
           <div className="border-t pt-4">
             <div className="flex gap-2">
               <Textarea 

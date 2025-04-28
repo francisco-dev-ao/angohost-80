@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Button } from "@/components/ui/button";
@@ -16,26 +16,11 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Copy, AlertCircle, CheckCircle, Calendar } from "lucide-react";
-
-interface Promotion {
-  id: string;
-  code: string;
-  description: string;
-  discount_amount?: number;
-  discount_percent?: number;
-  start_date?: string;
-  end_date?: string;
-  is_active: boolean;
-  minimum_order_value?: number;
-  applies_to?: {
-    product_ids?: string[];
-    categories?: string[];
-  };
-  created_at: string;
-}
+import { Promotion } from "@/types/client";
 
 const PromotionsPage = () => {
   const { user } = useSupabaseAuth();
+  const navigate = useNavigate();
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [promoCode, setPromoCode] = useState("");
@@ -64,7 +49,7 @@ const PromotionsPage = () => {
           return startDateValid && endDateValid;
         }) || [];
         
-        setPromotions(validPromotions);
+        setPromotions(validPromotions as Promotion[]);
       } catch (error: any) {
         console.error('Error fetching promotions:', error);
         toast.error('Erro ao carregar promoções');
