@@ -1,27 +1,10 @@
 
 import React, { useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ChevronDown, ExternalLink, Pause, Play, Trash, Edit } from 'lucide-react';
+import ServiceActionMenu from './hosting/ServiceActionMenu';
+import StatusConfirmDialog from './hosting/StatusConfirmDialog';
+import DeleteConfirmDialog from './hosting/DeleteConfirmDialog';
 
 interface ServiceActionsProps {
   serviceId: string;
@@ -78,85 +61,27 @@ const ServiceActions = ({ serviceId, status, controlPanelUrl }: ServiceActionsPr
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Abrir menu</span>
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Ações</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {controlPanelUrl && (
-            <DropdownMenuItem onClick={accessControlPanel}>
-              <ExternalLink className="mr-2 h-4 w-4" /> Acessar cPanel
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem onClick={() => window.location.href = `/admin/hosting/edit/${serviceId}`}>
-            <Edit className="mr-2 h-4 w-4" /> Editar Serviço
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSuspendDialogOpen(true)}>
-            {status === 'active' ? (
-              <>
-                <Pause className="mr-2 h-4 w-4" /> Suspender
-              </>
-            ) : (
-              <>
-                <Play className="mr-2 h-4 w-4" /> Ativar
-              </>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem 
-            onClick={() => setDeleteDialogOpen(true)}
-            className="text-red-600 focus:text-red-600"
-          >
-            <Trash className="mr-2 h-4 w-4" /> Excluir Serviço
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ServiceActionMenu
+        serviceId={serviceId}
+        status={status}
+        controlPanelUrl={controlPanelUrl}
+        onToggleStatus={() => setSuspendDialogOpen(true)}
+        onDelete={() => setDeleteDialogOpen(true)}
+        onAccessControlPanel={accessControlPanel}
+      />
 
-      <AlertDialog open={suspendDialogOpen} onOpenChange={setSuspendDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {status === 'active' ? 'Suspender serviço?' : 'Ativar serviço?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {status === 'active' 
-                ? 'O serviço será temporariamente suspenso e o cliente não terá acesso.'
-                : 'O serviço será reativado e o cliente terá acesso novamente.'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleToggleStatus}>
-              {status === 'active' ? 'Suspender' : 'Ativar'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <StatusConfirmDialog
+        isOpen={suspendDialogOpen}
+        onOpenChange={setSuspendDialogOpen}
+        onConfirm={handleToggleStatus}
+        status={status}
+      />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O serviço será permanentemente excluído.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteService}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteService}
+      />
     </>
   );
 };
