@@ -28,6 +28,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminDomains from "./pages/admin/AdminDomains";
 import AdminHosting from "./pages/admin/AdminHosting";
+import CreateHosting from "./pages/admin/CreateHosting";
+import EditHosting from "./pages/admin/EditHosting";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminInvoices from "./pages/admin/AdminInvoices";
 import AdminTickets from "./pages/admin/AdminTickets";
@@ -79,6 +81,8 @@ const App = () => (
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/domains" element={<AdminDomains />} />
               <Route path="/admin/hosting" element={<AdminHosting />} />
+              <Route path="/admin/hosting/create" element={<CreateHosting />} />
+              <Route path="/admin/hosting/edit/:id" element={<EditHosting />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/invoices" element={<AdminInvoices />} />
               <Route path="/admin/tickets" element={<AdminTickets />} />

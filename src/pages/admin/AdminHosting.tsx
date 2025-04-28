@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useAdminHosting } from "@/hooks/useAdminHosting";
 import {
   Table,
   TableBody,
@@ -18,83 +19,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronDown, Server } from "lucide-react";
+import { Search, Server } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-// Sample data for hosting services
-const hostingServices = [
-  {
-    id: "1",
-    name: "cPanel Hosting Básico",
-    username: "cliente1",
-    domain: "example.com",
-    plan: "Starter",
-    status: "active",
-    expiryDate: "2025-10-15",
-    creationDate: "2023-10-15",
-  },
-  {
-    id: "2",
-    name: "cPanel Hosting Premium",
-    username: "cliente2",
-    domain: "mywebsite.com",
-    plan: "Business",
-    status: "active",
-    expiryDate: "2026-02-28",
-    creationDate: "2024-02-28",
-  },
-  {
-    id: "3",
-    name: "WordPress Optimized",
-    username: "cliente3",
-    domain: "myblog.com",
-    plan: "Professional",
-    status: "suspended",
-    expiryDate: "2025-01-10",
-    creationDate: "2023-01-10",
-  },
-  {
-    id: "4",
-    name: "VPS Server",
-    username: "cliente4",
-    domain: "ecommerce.net",
-    plan: "VPS-1",
-    status: "active",
-    expiryDate: "2025-06-20",
-    creationDate: "2023-06-20",
-  },
-  {
-    id: "5",
-    name: "Dedicated Server",
-    username: "cliente5",
-    domain: "enterprise.org",
-    plan: "Dedicated-2",
-    status: "pending",
-    expiryDate: "2025-05-15",
-    creationDate: "2024-05-15",
-  },
-];
+import ServiceActions from "@/components/admin/ServiceActions";
 
 const AdminHosting = () => {
+  const { services, isLoading } = useAdminHosting();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const filteredServices = hostingServices.filter(
+  const filteredServices = services.filter(
     (service) =>
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.username.toLowerCase().includes(searchTerm.toLowerCase())
+      (service.domain && service.domain.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      service.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (service.userEmail && service.userEmail.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getStatusBadge = (status: string) => {
@@ -105,6 +46,8 @@ const AdminHosting = () => {
         return <Badge className="bg-red-100 text-red-800">Suspenso</Badge>;
       case "pending":
         return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
+      case "cancelled":
+        return <Badge className="bg-gray-100 text-gray-800">Cancelado</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -120,6 +63,9 @@ const AdminHosting = () => {
               Gerenciar serviços de hospedagem
             </p>
           </div>
+          <Button onClick={() => window.location.href = "/admin/hosting/create"}>
+            Criar Novo Serviço
+          </Button>
         </div>
 
         <Card>
@@ -158,6 +104,7 @@ const AdminHosting = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Serviço</TableHead>
+                      <TableHead>Cliente</TableHead>
                       <TableHead>Usuário</TableHead>
                       <TableHead>Domínio</TableHead>
                       <TableHead>Plano</TableHead>
@@ -170,7 +117,7 @@ const AdminHosting = () => {
                     {filteredServices.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={7}
+                          colSpan={8}
                           className="h-24 text-center"
                         >
                           Nenhum serviço de hospedagem encontrado.
@@ -185,8 +132,9 @@ const AdminHosting = () => {
                               {service.name}
                             </div>
                           </TableCell>
+                          <TableCell>{service.userEmail || 'N/A'}</TableCell>
                           <TableCell>{service.username}</TableCell>
-                          <TableCell>{service.domain}</TableCell>
+                          <TableCell>{service.domain || 'N/A'}</TableCell>
                           <TableCell>{service.plan}</TableCell>
                           <TableCell>{getStatusBadge(service.status)}</TableCell>
                           <TableCell>
@@ -195,30 +143,11 @@ const AdminHosting = () => {
                             })}
                           </TableCell>
                           <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <span className="sr-only">Abrir menu</span>
-                                  <ChevronDown className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {}}>
-                                  Acessar cPanel
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {}}>
-                                  Ver detalhes
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {}}>
-                                  {service.status === "active" ? "Suspender" : "Ativar"}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <ServiceActions 
+                              serviceId={service.id} 
+                              status={service.status}
+                              controlPanelUrl={service.controlPanelUrl}
+                            />
                           </TableCell>
                         </TableRow>
                       ))

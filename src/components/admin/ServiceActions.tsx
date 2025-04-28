@@ -21,19 +21,36 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Ban, Check, Edit, MoreHorizontal, Power, Trash } from 'lucide-react';
+import { ChevronDown, ExternalLink, Pause, Play, Trash, Edit } from 'lucide-react';
 
 interface ServiceActionsProps {
   serviceId: string;
-  serviceName: string;
   status: string;
-  onActionComplete?: () => void;
+  controlPanelUrl?: string;
 }
 
-const ServiceActions = ({ serviceId, serviceName, status, onActionComplete }: ServiceActionsProps) => {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+const ServiceActions = ({ serviceId, status, controlPanelUrl }: ServiceActionsProps) => {
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
-  
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleToggleStatus = async () => {
+    try {
+      const newStatus = status === 'active' ? 'suspended' : 'active';
+      const { error } = await supabase
+        .from('client_services')
+        .update({ status: newStatus })
+        .eq('id', serviceId);
+
+      if (error) throw error;
+      
+      toast.success(`Serviço ${newStatus === 'active' ? 'ativado' : 'suspenso'} com sucesso`);
+    } catch (error: any) {
+      toast.error(`Erro ao alterar status do serviço: ${error.message}`);
+    } finally {
+      setSuspendDialogOpen(false);
+    }
+  };
+
   const handleDeleteService = async () => {
     try {
       const { error } = await supabase
@@ -43,8 +60,7 @@ const ServiceActions = ({ serviceId, serviceName, status, onActionComplete }: Se
 
       if (error) throw error;
       
-      toast.success(`Serviço "${serviceName}" foi excluído com sucesso`);
-      onActionComplete?.();
+      toast.success('Serviço excluído com sucesso');
     } catch (error: any) {
       toast.error(`Erro ao excluir serviço: ${error.message}`);
     } finally {
@@ -52,23 +68,11 @@ const ServiceActions = ({ serviceId, serviceName, status, onActionComplete }: Se
     }
   };
 
-  const handleUpdateServiceStatus = async (newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from('client_services')
-        .update({ 
-          status: newStatus 
-        })
-        .eq('id', serviceId);
-
-      if (error) throw error;
-      
-      toast.success(`Status do serviço alterado para ${newStatus}`);
-      onActionComplete?.();
-    } catch (error: any) {
-      toast.error(`Erro ao atualizar status do serviço: ${error.message}`);
-    } finally {
-      setSuspendDialogOpen(false);
+  const accessControlPanel = () => {
+    if (controlPanelUrl) {
+      window.open(controlPanelUrl, '_blank');
+    } else {
+      toast.error('URL do painel de controle não disponível');
     }
   };
 
@@ -76,53 +80,70 @@ const ServiceActions = ({ serviceId, serviceName, status, onActionComplete }: Se
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Abrir menu</span>
+            <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Ações</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          
-          {status !== 'active' && (
-            <DropdownMenuItem onClick={() => handleUpdateServiceStatus('active')}>
-              <Check className="mr-2 h-4 w-4" />
-              <span>Ativar serviço</span>
+          {controlPanelUrl && (
+            <DropdownMenuItem onClick={accessControlPanel}>
+              <ExternalLink className="mr-2 h-4 w-4" /> Acessar cPanel
             </DropdownMenuItem>
           )}
-          
-          {status !== 'suspended' && (
-            <DropdownMenuItem onClick={() => setSuspendDialogOpen(true)}>
-              <Ban className="mr-2 h-4 w-4" />
-              <span>Suspender serviço</span>
-            </DropdownMenuItem>
-          )}
-          
-          {status !== 'cancelled' && (
-            <DropdownMenuItem onClick={() => handleUpdateServiceStatus('cancelled')}>
-              <Power className="mr-2 h-4 w-4" />
-              <span>Cancelar serviço</span>
-            </DropdownMenuItem>
-          )}
-          
+          <DropdownMenuItem onClick={() => window.location.href = `/admin/hosting/edit/${serviceId}`}>
+            <Edit className="mr-2 h-4 w-4" /> Editar Serviço
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSuspendDialogOpen(true)}>
+            {status === 'active' ? (
+              <>
+                <Pause className="mr-2 h-4 w-4" /> Suspender
+              </>
+            ) : (
+              <>
+                <Play className="mr-2 h-4 w-4" /> Ativar
+              </>
+            )}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             onClick={() => setDeleteDialogOpen(true)}
             className="text-red-600 focus:text-red-600"
           >
-            <Trash className="mr-2 h-4 w-4" />
-            <span>Excluir serviço</span>
+            <Trash className="mr-2 h-4 w-4" /> Excluir Serviço
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <AlertDialog open={suspendDialogOpen} onOpenChange={setSuspendDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {status === 'active' ? 'Suspender serviço?' : 'Ativar serviço?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {status === 'active' 
+                ? 'O serviço será temporariamente suspenso e o cliente não terá acesso.'
+                : 'O serviço será reativado e o cliente terá acesso novamente.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleStatus}>
+              {status === 'active' ? 'Suspender' : 'Ativar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O serviço "{serviceName}" será excluído permanentemente.
+              Esta ação não pode ser desfeita. O serviço será permanentemente excluído.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -132,23 +153,6 @@ const ServiceActions = ({ serviceId, serviceName, status, onActionComplete }: Se
               className="bg-red-600 hover:bg-red-700"
             >
               Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={suspendDialogOpen} onOpenChange={setSuspendDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Suspender serviço?</AlertDialogTitle>
-            <AlertDialogDescription>
-              O serviço "{serviceName}" ficará inacessível para o cliente até que seja reativado.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleUpdateServiceStatus('suspended')}>
-              Suspender
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
