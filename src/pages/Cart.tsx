@@ -3,14 +3,17 @@ import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { Trash } from 'lucide-react';
+import DomainValidator from '@/components/DomainValidator';
+import AdditionalProducts from '@/components/AdditionalProducts';
 
 const Cart = () => {
-  const { items } = useCart();
+  const { items, removeFromCart } = useCart();
   const [domainType, setDomainType] = useState('new');
-  const [domain, setDomain] = useState('');
+  const [validatedDomain, setValidatedDomain] = useState<string | null>(null);
 
   const calculateSubtotal = () => {
     return items.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -27,6 +30,24 @@ const Cart = () => {
     const subtotal = calculateSubtotal();
     const discount = subtotal * calculateDiscount();
     return subtotal - discount;
+  };
+
+  const handleRemoveItem = (itemId: string) => {
+    removeFromCart(itemId);
+    toast.success('Item removido do carrinho!');
+  };
+
+  const handleCheckout = () => {
+    if (!validatedDomain) {
+      toast.error('Por favor, configure um domínio antes de continuar.');
+      return;
+    }
+    // Proceed with checkout
+    toast.success('Prosseguindo para o pagamento...');
+  };
+
+  const handleDomainValidated = (domain: string) => {
+    setValidatedDomain(domain);
   };
 
   return (
@@ -55,27 +76,34 @@ const Cart = () => {
                 </RadioGroup>
                 
                 <div className="mt-4">
-                  <Label htmlFor="domain">Domínio</Label>
-                  <Input 
-                    id="domain"
-                    placeholder={domainType === 'new' ? 'Digite o domínio desejado' : 'Digite seu domínio existente'}
-                    value={domain}
-                    onChange={(e) => setDomain(e.target.value)}
-                    className="mt-1"
-                  />
+                  <DomainValidator onDomainValidated={handleDomainValidated} />
                 </div>
               </div>
 
-              {items.map((item, index) => (
-                <div key={index} className="border rounded-lg p-6">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <div className="mt-2 text-muted-foreground">
-                    <p>Quantidade: {item.quantity}</p>
-                    <p>Preço unitário: {item.basePrice.toFixed(2)} kz</p>
-                    <p>Total: {item.price.toFixed(2)} kz</p>
+              {items.map((item) => (
+                <div key={item.id} className="border rounded-lg p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <div className="mt-2 text-muted-foreground">
+                        <p>Quantidade: {item.quantity}</p>
+                        <p>Preço unitário: {item.basePrice.toFixed(2)} kz</p>
+                        <p>Total: {item.price.toFixed(2)} kz</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveItem(item.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
+
+              <AdditionalProducts />
             </div>
 
             <div className="border rounded-lg p-6 h-fit">
@@ -99,7 +127,18 @@ const Cart = () => {
                   <p>Renovação: {calculateTotal().toFixed(2)} kz/ano</p>
                 </div>
               </div>
-              <Button className="w-full mt-4">Finalizar Compra</Button>
+              <Button 
+                className="w-full mt-4" 
+                onClick={handleCheckout}
+                disabled={!validatedDomain}
+              >
+                Finalizar Compra
+              </Button>
+              {!validatedDomain && (
+                <p className="text-sm text-red-500 mt-2">
+                  Configure um domínio para prosseguir
+                </p>
+              )}
             </div>
           </div>
         ) : (
