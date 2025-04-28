@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Domains from "./pages/Domains";
+import DomainTransfer from "./pages/DomainTransfer";
 import Register from "./pages/Register";
 import AdminIndex from "./pages/AdminIndex";
 import AdminStats from "./pages/admin/AdminStats";
@@ -31,7 +33,6 @@ import AdminInvoices from "./pages/admin/AdminInvoices";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminSettings from "./pages/admin/AdminSettings";
-import ProfilePage from "./components/client/ProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/products/email" element={<ProfessionalEmail />} />
               <Route path="/products/exchange" element={<ExchangeOnline />} />
               <Route path="/domains" element={<Domains />} />
+              <Route path="/domain-transfer" element={<DomainTransfer />} />
               <Route path="/client" element={<ClientArea />} />
               <Route path="/client/profile" element={<ClientArea />} />
               <Route path="/client/domains" element={<ClientArea />} />

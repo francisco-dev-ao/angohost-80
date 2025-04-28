@@ -37,9 +37,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <CardHeader className="space-y-6">
             <div className="flex justify-center">
               <img
-                src="https://deve.angohost.ao/assets/logo-white-70d3266b.png"
+                src="/lovable-uploads/e1925a90-87a8-4d79-be99-15c0a6db92a1.png"
                 alt="AngoHost Logo"
-                className="h-10"
+                className="h-12"
               />
             </div>
             <div className="text-center space-y-3">

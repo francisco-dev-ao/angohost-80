@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -21,7 +22,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="login-email">Email</Label>
         <Input 
@@ -31,11 +32,17 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="border-gray-300 focus-visible:ring-[#345990]"
         />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="login-password">Senha</Label>
+        <div className="flex justify-between">
+          <Label htmlFor="login-password">Senha</Label>
+          <Link to="/forgot-password" className="text-sm text-[#345990] hover:underline">
+            Esqueceu a senha?
+          </Link>
+        </div>
         <div className="relative">
           <Input 
             id="login-password" 
@@ -43,7 +50,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pr-10"
+            className="pr-10 border-gray-300 focus-visible:ring-[#345990]"
             required
           />
           <button
@@ -57,7 +64,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
       </div>
       
       <Button 
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+        className="w-full bg-[#345990] hover:bg-[#345990]/90 text-white" 
         type="submit" 
         disabled={isLoading}
       >
