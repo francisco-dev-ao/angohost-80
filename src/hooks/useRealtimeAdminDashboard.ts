@@ -17,6 +17,29 @@ interface AdminDashboardStats {
   paymentMethodCount: number;
 }
 
+interface SupabaseOrder {
+  id: string;
+  user_id: string;
+  order_number: string;
+  status: string;
+  total_amount: number;
+  items: any;
+  created_at: string;
+  updated_at: string;
+}
+
+// Function to map Supabase order format to our Order type
+const mapSupabaseOrderToOrder = (order: SupabaseOrder): Order => ({
+  id: order.id,
+  userId: order.user_id,
+  orderNumber: order.order_number,
+  status: order.status as "pending" | "processing" | "completed" | "canceled",
+  totalAmount: order.total_amount,
+  items: Array.isArray(order.items) ? order.items : [], // Ensure items is an array
+  createdAt: order.created_at,
+  updatedAt: order.updated_at
+});
+
 export const useRealtimeAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AdminDashboardStats>({
@@ -45,16 +68,8 @@ export const useRealtimeAdminDashboard = () => {
       if (ordersError) throw ordersError;
 
       // Map orders data to match Order type
-      const orders: Order[] = ordersData ? ordersData.map(order => ({
-        id: order.id,
-        userId: order.user_id,
-        orderNumber: order.order_number,
-        status: order.status,
-        totalAmount: order.total_amount,
-        items: order.items,
-        createdAt: order.created_at,
-        updatedAt: order.updated_at
-      })) : [];
+      const orders: Order[] = ordersData ? 
+        ordersData.map((order: SupabaseOrder) => mapSupabaseOrderToOrder(order)) : [];
 
       // Count orders by status
       const { count: pendingOrders, error: pendingOrdersError } = await supabase
