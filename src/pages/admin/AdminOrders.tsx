@@ -93,7 +93,7 @@ const AdminOrders = () => {
 
   if (isLoading) {
     return (
-      <AdminLayout activeItem="orders">
+      <AdminLayout>
         <div className="p-8 flex justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
@@ -102,7 +102,7 @@ const AdminOrders = () => {
   }
 
   return (
-    <AdminLayout activeItem="orders">
+    <AdminLayout>
       <div className="p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gerenciar Pedidos</h1>

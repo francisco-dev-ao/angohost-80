@@ -24,7 +24,9 @@ export const useAdminTickets = () => {
         userId: t.user_id,
         subject: t.subject,
         description: t.description,
-        status: t.status,
+        // Ensure status is one of the valid enum values
+        status: t.status === 'in_progress' ? 'in-progress' : 
+                (t.status === 'open' || t.status === 'closed' ? t.status : 'open') as Ticket['status'],
         priority: t.priority,
         assignedTo: t.assigned_to,
         createdAt: t.created_at,
@@ -39,11 +41,14 @@ export const useAdminTickets = () => {
     }
   };
 
-  const updateTicketStatus = async (ticketId: string, status: string) => {
+  const updateTicketStatus = async (ticketId: string, status: Ticket['status']) => {
     try {
+      // Convert the hyphenated status back to the format used in the database
+      const dbStatus = status === 'in-progress' ? 'in_progress' : status;
+      
       const { error } = await supabase
         .from('tickets')
-        .update({ status })
+        .update({ status: dbStatus })
         .eq('id', ticketId);
 
       if (error) throw error;
