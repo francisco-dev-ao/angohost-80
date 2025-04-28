@@ -33,6 +33,7 @@ import AdminInvoices from "./pages/admin/AdminInvoices";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
               <Route path="/admin/tickets" element={<AdminTickets />} />
               <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/payment-methods" element={<AdminPaymentMethods />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

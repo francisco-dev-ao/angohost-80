@@ -1,7 +1,10 @@
 
-import { useAdminDashboard } from '@/hooks/useAdminDashboard';
+import { useRealtimeAdminDashboard } from '@/hooks/useRealtimeAdminDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from 'react-router-dom';
 import { 
   BarChart,
   LineChart,
@@ -14,6 +17,21 @@ import {
   Legend,
   ResponsiveContainer 
 } from 'recharts';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import {
+  CreditCard,
+  FileText,
+  Package,
+  PackageOpen,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  DollarSign,
+  ShoppingCart,
+  Eye
+} from 'lucide-react';
+import { formatPrice } from '@/utils/formatters';
 
 // Sample data for charts
 const salesData = [
@@ -42,12 +60,33 @@ const registrationsData = [
 ];
 
 export default function Dashboard() {
-  const { stats, isLoading } = useAdminDashboard();
+  const navigate = useNavigate();
+  const { stats, loading } = useRealtimeAdminDashboard();
+  const { stats: adminStats, isLoading: adminStatsLoading } = useAdminDashboard();
   
-  if (isLoading) {
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
+      case 'processing':
+        return <Badge className="bg-blue-100 text-blue-800">Processando</Badge>;
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800">Concluído</Badge>;
+      case 'canceled':
+        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
+      case 'paid':
+        return <Badge className="bg-green-100 text-green-800">Pago</Badge>;
+      case 'refunded':
+        return <Badge className="bg-blue-100 text-blue-800">Reembolsado</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+  
+  if (loading || adminStatsLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 7 }).map((_, i) => (
+        {Array.from({ length: 8 }).map((_, i) => (
           <Card key={i}>
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-1/2" />
@@ -82,69 +121,255 @@ export default function Dashboard() {
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total de Domínios Ativos</CardTitle>
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Pedidos Pendentes</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeDomains}</div>
+            <div className="text-2xl font-bold">{stats.pendingOrders}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Pedidos aguardando processamento
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/orders')}
+            >
+              Gerenciar Pedidos
+            </Button>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total de Hospedagens Ativas</CardTitle>
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Pedidos Ativos</CardTitle>
+            <PackageOpen className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeHostings}</div>
+            <div className="text-2xl font-bold">{stats.activeOrders}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Pedidos em processamento
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/orders')}
+            >
+              Ver Detalhes
+            </Button>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Novos Registros (Hoje)</CardTitle>
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Pedidos Concluídos</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.newRegistrationsToday}</div>
+            <div className="text-2xl font-bold">{stats.completedOrders}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Pedidos finalizados com sucesso
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/orders')}
+            >
+              Histórico de Pedidos
+            </Button>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Novos Registros (Semana)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.newRegistrationsWeek}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Faturas Pendentes</CardTitle>
+            <FileText className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pendingInvoices}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Faturas aguardando pagamento
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/invoices')}
+            >
+              Ver Faturas
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Faturas Pagas</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.paidInvoices}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Faturas com pagamento confirmado
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/invoices')}
+            >
+              Ver Pagamentos
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Métodos de Pagamento</CardTitle>
+            <CreditCard className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.paymentMethodCount}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Total de métodos de pagamento cadastrados
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/payment-methods')}
+            >
+              Gerenciar Métodos
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatPrice(stats.totalRevenue)}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Total de receita confirmada
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/reports')}
+            >
+              Ver Relatórios
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="transition-all hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Domínios Ativos</CardTitle>
+            <Globe className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{adminStats.activeDomains}</div>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
+              Total de domínios ativos
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full" 
+              onClick={() => navigate('/admin/domains')}
+            >
+              Gerenciar Domínios
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pedidos Recentes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {stats.recentOrders.length > 0 ? (
+              <div className="space-y-4">
+                {stats.recentOrders.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between border-b pb-2">
+                    <div>
+                      <p className="font-medium">{order.orderNumber}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div>{formatPrice(order.totalAmount)}</div>
+                      <div>{getStatusBadge(order.status)}</div>
+                      <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/orders?id=${order.id}`)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate('/admin/orders')}
+                >
+                  Ver Todos os Pedidos
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <ShoppingCart className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                <p>Nenhum pedido recente encontrado</p>
+              </div>
+            )}
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Novos Tickets</CardTitle>
+          <CardHeader>
+            <CardTitle>Faturas Recentes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.newTickets}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Vendas Totais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalSales.toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'AOA'
-            })}</div>
+            {stats.recentInvoices.length > 0 ? (
+              <div className="space-y-4">
+                {stats.recentInvoices.map((invoice) => (
+                  <div key={invoice.id} className="flex items-center justify-between border-b pb-2">
+                    <div>
+                      <p className="font-medium">{invoice.invoice_number}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Vencimento: {format(new Date(invoice.due_date), 'dd/MM/yyyy', { locale: ptBR })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div>{formatPrice(invoice.amount)}</div>
+                      <div>{getStatusBadge(invoice.status)}</div>
+                      <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/invoices?id=${invoice.id}`)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate('/admin/invoices')}
+                >
+                  Ver Todas as Faturas
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <FileText className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                <p>Nenhuma fatura recente encontrada</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -196,3 +421,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
+// Get extra imports from the original Dashboard component
+import { useAdminDashboard } from '@/hooks/useAdminDashboard';
+import { Globe } from 'lucide-react';

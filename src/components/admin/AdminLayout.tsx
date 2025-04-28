@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -27,6 +28,7 @@ import {
   Mail,
   LogOut,
   Home,
+  PackageOpen
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
@@ -189,7 +191,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                             className="w-full justify-start"
                             onClick={() => navigate('/admin/orders')}
                           >
-                            <CreditCard className="mr-2 h-4 w-4" />
+                            <PackageOpen className="mr-2 h-4 w-4" />
                             Pedidos
                           </Button>
                         </SidebarMenuButton>
@@ -204,6 +206,19 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                           >
                             <FileText className="mr-2 h-4 w-4" />
                             Faturas
+                          </Button>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start"
+                            onClick={() => navigate('/admin/payment-methods')}
+                          >
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Métodos de Pagamento
                           </Button>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
