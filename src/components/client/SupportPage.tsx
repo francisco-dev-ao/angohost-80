@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -49,7 +50,7 @@ const SupportPage = () => {
   
   const [newTicket, setNewTicket] = useState({
     subject: "",
-    priority: "medium",
+    priority: "medium" as "low" | "medium" | "high" | "urgent",
     department: "",
     content: "",
   });
@@ -69,7 +70,15 @@ const SupportPage = () => {
           
         if (error) throw error;
         
-        setTickets(data as Ticket[] || []);
+        // Convert DB status format to our interface format
+        const formattedTickets: Ticket[] = (data || []).map(ticket => ({
+          ...ticket,
+          // Map from DB enum "in_progress" to our interface's "in-progress"
+          status: ticket.status === 'in_progress' ? 'in-progress' : 
+                 (ticket.status === 'open' ? 'open' : 'closed')
+        } as Ticket));
+        
+        setTickets(formattedTickets);
       } catch (error: any) {
         console.error('Error fetching tickets:', error);
         toast.error('Erro ao carregar tickets de suporte');
@@ -95,7 +104,17 @@ const SupportPage = () => {
         
       if (error) throw error;
       
-      setTicketMessages(data as TicketMessage[] || []);
+      // Transform data to match our interface
+      const formattedMessages: TicketMessage[] = (data || []).map(msg => ({
+        ...msg,
+        attachments: msg.attachments ? 
+          (typeof msg.attachments === 'string' ? 
+            JSON.parse(msg.attachments as string) : 
+            msg.attachments as any[]) 
+          : []
+      }));
+      
+      setTicketMessages(formattedMessages);
     } catch (error: any) {
       console.error('Error fetching ticket messages:', error);
       toast.error('Erro ao carregar mensagens do ticket');
@@ -116,6 +135,12 @@ const SupportPage = () => {
     try {
       const ticketNumber = `TK-${Date.now().toString().slice(-6)}`;
       
+      // Convert our interface's priority to DB enum format
+      const priority = newTicket.priority;
+      
+      // Convert our interface's status format to DB enum format
+      const status = 'open';
+      
       const { data, error } = await supabase
         .from('client_tickets')
         .insert({
@@ -123,16 +148,23 @@ const SupportPage = () => {
           ticket_number: ticketNumber,
           subject: newTicket.subject,
           content: newTicket.content,
-          priority: newTicket.priority,
+          priority: priority,
           department: newTicket.department || null,
-          status: 'open',
+          status: status,
         })
         .select();
         
       if (error) throw error;
       
       if (data && data[0]) {
-        setTickets([data[0], ...tickets]);
+        // Convert the returned DB format to our interface format
+        const newTicketData: Ticket = {
+          ...data[0],
+          status: data[0].status === 'in_progress' ? 'in-progress' : 
+                 (data[0].status === 'open' ? 'open' : 'closed')
+        } as Ticket;
+        
+        setTickets([newTicketData, ...tickets]);
       }
       
       setNewTicket({
@@ -166,9 +198,12 @@ const SupportPage = () => {
       if (error) throw error;
       
       if (selectedTicket.status === 'closed') {
+        // Convert our interface's status format to DB enum format
+        const dbStatus = 'open';
+        
         await supabase
           .from('client_tickets')
-          .update({ status: 'open', updated_at: new Date().toISOString() })
+          .update({ status: dbStatus, updated_at: new Date().toISOString() })
           .eq('id', selectedTicket.id);
           
         setSelectedTicket({
@@ -266,7 +301,7 @@ const SupportPage = () => {
                   <Label htmlFor="priority">Prioridade</Label>
                   <Select 
                     value={newTicket.priority} 
-                    onValueChange={(value: any) => setNewTicket({...newTicket, priority: value})}
+                    onValueChange={(value: "low" | "medium" | "high" | "urgent") => setNewTicket({...newTicket, priority: value})}
                   >
                     <SelectTrigger id="priority">
                       <SelectValue placeholder="Selecione a prioridade" />
@@ -447,7 +482,7 @@ const SupportPage = () => {
                         } rounded-lg`}>
                           <p className="whitespace-pre-wrap">{message.content}</p>
                           
-                          {message.attachments && message.attachments.length > 0 && (
+                          {message.attachments && Array.isArray(message.attachments) && message.attachments.length > 0 && (
                             <div className="mt-2 space-y-1">
                               <p className="text-xs font-medium">Anexos:</p>
                               {message.attachments.map((attachment, index) => (

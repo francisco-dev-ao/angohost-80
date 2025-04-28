@@ -63,7 +63,10 @@ export interface Promotion {
   end_date?: string;
   is_active: boolean;
   minimum_order_value?: number;
-  applies_to?: Json;
+  applies_to?: {
+    product_ids?: string[];
+    categories?: string[];
+  };
   created_at: string;
   max_uses?: number;
   used_count?: number;
@@ -75,8 +78,8 @@ export interface Ticket {
   ticket_number: string;
   subject: string;
   content: string;
-  status: string;
-  priority: string;
+  status: "open" | "closed" | "in-progress";
+  priority: "low" | "medium" | "high" | "urgent";
   department?: string;
   created_at: string;
   updated_at: string;
@@ -93,5 +96,5 @@ export interface TicketMessage {
   user_id: string;
   is_staff: boolean;
   created_at: string;
-  attachments?: Json;
+  attachments?: any[];
 }

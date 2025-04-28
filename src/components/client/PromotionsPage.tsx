@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,7 +50,17 @@ const PromotionsPage = () => {
           return startDateValid && endDateValid;
         }) || [];
         
-        setPromotions(validPromotions as Promotion[]);
+        // Transform the data to match our Promotion interface
+        const formattedPromotions: Promotion[] = validPromotions.map(promo => ({
+          ...promo,
+          applies_to: promo.applies_to ? 
+            (typeof promo.applies_to === 'string' ? 
+              JSON.parse(promo.applies_to as string) : 
+              promo.applies_to as { product_ids?: string[], categories?: string[] })
+            : undefined
+        }));
+        
+        setPromotions(formattedPromotions);
       } catch (error: any) {
         console.error('Error fetching promotions:', error);
         toast.error('Erro ao carregar promoções');
