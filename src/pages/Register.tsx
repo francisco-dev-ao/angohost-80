@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Register() {
   const [tab, setTab] = useState('login');
@@ -18,9 +19,9 @@ export default function Register() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Register state
-  const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
@@ -62,7 +63,7 @@ export default function Register() {
     setIsRegistering(true);
     
     try {
-      await signUp(registerEmail, registerPassword, registerName);
+      await signUp(registerEmail, registerPassword);
       toast.success('Cadastro realizado com sucesso');
       navigate(returnUrl);
     } catch (error) {
@@ -73,9 +74,10 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-[#1A1F2C]">
       {/* Left side - Image */}
       <div className="hidden lg:block lg:w-1/2 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1A1F2C]/80 to-transparent z-10" />
         <img
           src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png"
           alt="Login Background"
@@ -85,56 +87,67 @@ export default function Register() {
       
       {/* Right side - Login/Register Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <Card className="w-full max-w-md mx-auto">
-          <CardHeader className="space-y-4">
+        <Card className="w-full max-w-md mx-auto bg-white/5 backdrop-blur-lg border-white/10">
+          <CardHeader className="space-y-4 text-center">
             <div className="flex justify-center mb-8">
               <img
-                src="/logo.png"
-                alt="Petrohost Logo"
-                className="h-12"
+                src="https://deve.angohost.ao/assets/logo-white-70d3266b.png"
+                alt="AngoHost Logo"
+                className="h-8"
               />
             </div>
-            <CardTitle className="text-2xl text-center">Acesse a sua conta</CardTitle>
-            <CardDescription className="text-center">
-              Bem-vindo de volta! Por favor, insira seus detalhes
-            </CardDescription>
           </CardHeader>
           
           <CardContent>
             <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-8">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Cadastro</TabsTrigger>
+                <TabsTrigger value="login" className="text-white">Entrar</TabsTrigger>
+                <TabsTrigger value="register" className="text-white">Registrar</TabsTrigger>
               </TabsList>
               
               <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="login-email" className="text-white">Email</Label>
                     <Input 
                       id="login-email" 
                       type="email" 
-                      placeholder="nome@petrohost.ao" 
+                      placeholder="nome@exemplo.com" 
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
+                      className="bg-white/10 border-white/10 text-white placeholder:text-white/50"
                       required
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Senha</Label>
-                    <Input 
-                      id="login-password" 
-                      type="password" 
-                      placeholder="••••••••"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      required
-                    />
+                    <Label htmlFor="login-password" className="text-white">Senha</Label>
+                    <div className="relative">
+                      <Input 
+                        id="login-password" 
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="bg-white/10 border-white/10 text-white placeholder:text-white/50 pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </div>
                   
-                  <Button className="w-full" type="submit" disabled={isLoggingIn}>
-                    {isLoggingIn ? 'Entrando...' : 'Entrar na minha conta'}
+                  <Button 
+                    className="w-full bg-[#33C3F0] hover:bg-[#33C3F0]/90 text-white" 
+                    type="submit" 
+                    disabled={isLoggingIn}
+                  >
+                    {isLoggingIn ? 'Entrando...' : 'Entrar'}
                   </Button>
                 </form>
               </TabsContent>
@@ -142,54 +155,50 @@ export default function Register() {
               <TabsContent value="register">
                 <form onSubmit={handleRegister} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="register-name">Nome Completo</Label>
-                    <Input 
-                      id="register-name" 
-                      placeholder="Seu Nome" 
-                      value={registerName}
-                      onChange={(e) => setRegisterName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="register-email">Email</Label>
+                    <Label htmlFor="register-email" className="text-white">Email</Label>
                     <Input 
                       id="register-email" 
                       type="email" 
-                      placeholder="nome@petrohost.ao"
+                      placeholder="nome@exemplo.com"
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
+                      className="bg-white/10 border-white/10 text-white placeholder:text-white/50"
                       required
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">Senha</Label>
+                    <Label htmlFor="register-password" className="text-white">Senha</Label>
                     <Input 
                       id="register-password" 
                       type="password" 
                       placeholder="••••••••"
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
+                      className="bg-white/10 border-white/10 text-white placeholder:text-white/50"
                       required
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="register-confirm-password">Confirmar Senha</Label>
+                    <Label htmlFor="register-confirm-password" className="text-white">Confirmar Senha</Label>
                     <Input 
                       id="register-confirm-password" 
                       type="password" 
                       placeholder="••••••••"
                       value={registerConfirmPassword}
                       onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                      className="bg-white/10 border-white/10 text-white placeholder:text-white/50"
                       required
                     />
                   </div>
                   
-                  <Button className="w-full" type="submit" disabled={isRegistering}>
-                    {isRegistering ? 'Cadastrando...' : 'Criar nova conta'}
+                  <Button 
+                    className="w-full bg-[#33C3F0] hover:bg-[#33C3F0]/90 text-white" 
+                    type="submit" 
+                    disabled={isRegistering}
+                  >
+                    {isRegistering ? 'Registrando...' : 'Registrar'}
                   </Button>
                 </form>
               </TabsContent>
