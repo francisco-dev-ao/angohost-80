@@ -19,7 +19,19 @@ export const useAdminTickets = () => {
 
       if (error) throw error;
       
-      setTickets(data as Ticket[]);
+      const formattedTickets: Ticket[] = data.map(t => ({
+        id: t.id,
+        userId: t.user_id,
+        subject: t.subject,
+        description: t.description,
+        status: t.status,
+        priority: t.priority,
+        assignedTo: t.assigned_to,
+        createdAt: t.created_at,
+        updatedAt: t.updated_at
+      }));
+      
+      setTickets(formattedTickets);
     } catch (error: any) {
       toast.error('Erro ao carregar tickets: ' + error.message);
     } finally {
@@ -27,7 +39,7 @@ export const useAdminTickets = () => {
     }
   };
 
-  const updateTicketStatus = async (ticketId: string, status: 'open' | 'in-progress' | 'closed') => {
+  const updateTicketStatus = async (ticketId: string, status: string) => {
     try {
       const { error } = await supabase
         .from('tickets')
@@ -43,11 +55,11 @@ export const useAdminTickets = () => {
     }
   };
 
-  const assignTicket = async (ticketId: string, adminId: string) => {
+  const assignTicket = async (ticketId: string, userId: string) => {
     try {
       const { error } = await supabase
         .from('tickets')
-        .update({ assigned_to: adminId })
+        .update({ assigned_to: userId })
         .eq('id', ticketId);
 
       if (error) throw error;
@@ -63,5 +75,11 @@ export const useAdminTickets = () => {
     fetchTickets();
   }, []);
 
-  return { tickets, isLoading, fetchTickets, updateTicketStatus, assignTicket };
+  return { 
+    tickets, 
+    isLoading, 
+    fetchTickets, 
+    updateTicketStatus,
+    assignTicket
+  };
 };

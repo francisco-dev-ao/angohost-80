@@ -25,7 +25,7 @@ export const useAdminOrders = () => {
         orderNumber: o.order_number,
         totalAmount: o.total_amount,
         status: o.status as Order['status'],
-        items: o.items || [],
+        items: Array.isArray(o.items) ? o.items : [], // Ensure items is an array
         createdAt: o.created_at,
         updatedAt: o.updated_at
       }));

@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -11,6 +12,7 @@ import CartLoading from '@/components/cart/CartLoading';
 import EmptyCart from '@/components/cart/EmptyCart';
 import { useCartPage } from '@/hooks/useCartPage';
 import { useState } from 'react';
+import { toast } from "sonner";
 
 const Cart = () => {
   const { user } = useSupabaseAuth();

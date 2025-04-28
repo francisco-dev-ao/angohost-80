@@ -27,7 +27,7 @@ export const useAdminProducts = () => {
         priceYearly: p.price_yearly,
         isActive: p.is_active,
         category: p.category_id,
-        features: p.features || {},
+        features: typeof p.features === 'object' ? p.features : {}, // Ensure features is an object
         createdAt: p.created_at,
         updatedAt: p.updated_at,
         categoryId: p.category_id
