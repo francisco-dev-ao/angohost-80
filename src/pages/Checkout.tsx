@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
@@ -13,12 +14,12 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Checkout = () => {
+  const { user } = useSupabaseAuth();
   const navigate = useNavigate();
   const { items, clearCart, isLoading } = useCart();
   const [paymentMethod, setPaymentMethod] = useState('credit-card');
   const [loading, setLoading] = useState(false);
   
-  // Form data states
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,13 +39,11 @@ const Checkout = () => {
   };
   
   const calculateTotal = () => {
-    // Calcular o total sem IVA
     const subtotal = items.reduce((acc, item) => acc + item.price, 0);
     
-    // Aplicar desconto se aplicável
     let discount = 0;
-    if (subtotal >= 500000) discount = 0.1; // 10% discount
-    else if (subtotal >= 250000) discount = 0.05; // 5% discount
+    if (subtotal >= 500000) discount = 0.1;
+    else if (subtotal >= 250000) discount = 0.05;
     
     return subtotal - (subtotal * discount);
   };
@@ -53,7 +52,6 @@ const Checkout = () => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate payment processing
     setTimeout(() => {
       setLoading(false);
       clearCart();
@@ -62,6 +60,13 @@ const Checkout = () => {
     }, 2000);
   };
   
+  useEffect(() => {
+    if (!user) {
+      toast.error('Faça login para finalizar a compra');
+      navigate('/register');
+    }
+  }, [user, navigate]);
+
   if (isLoading) {
     return (
       <Layout>

@@ -20,7 +20,20 @@ export const useAdminDomains = () => {
 
       if (error) throw error;
       
-      setDomains(data as Domain[]);
+      const formattedDomains: Domain[] = data.map(d => ({
+        id: d.id,
+        userId: d.user_id,
+        domainName: d.domain_name,
+        registrationDate: d.registration_date,
+        expiryDate: d.expiry_date,
+        status: d.status as Domain['status'],
+        whoisPrivacy: d.whois_privacy,
+        isLocked: d.is_locked,
+        createdAt: d.created_at,
+        updatedAt: d.updated_at
+      }));
+      
+      setDomains(formattedDomains);
       setTotalCount(count || 0);
     } catch (error: any) {
       toast.error('Erro ao carregar domínios: ' + error.message);

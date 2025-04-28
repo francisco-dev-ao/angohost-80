@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import Layout from '@/components/Layout';
 import DomainOwnership from '@/components/DomainOwnership';
 import CartItems from '@/components/cart/CartItems';
@@ -10,6 +13,16 @@ import { useCartPage } from '@/hooks/useCartPage';
 import { useState } from 'react';
 
 const Cart = () => {
+  const { user } = useSupabaseAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!user) {
+      toast.error('Faça login para acessar o carrinho');
+      navigate('/register');
+    }
+  }, [user, navigate]);
+
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   
   const {

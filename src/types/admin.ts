@@ -1,4 +1,3 @@
-
 export type AdminUser = {
   id: string;
   email: string;
@@ -10,7 +9,7 @@ export type AdminUser = {
 export type Product = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   priceMonthly: number;
   priceYearly: number;
   isActive: boolean;
@@ -18,6 +17,7 @@ export type Product = {
   features: Record<string, any>;
   createdAt: string;
   updatedAt: string;
+  categoryId?: string;
 };
 
 export type Domain = {
@@ -29,6 +29,8 @@ export type Domain = {
   status: 'active' | 'expired' | 'pending' | 'transferring';
   whoisPrivacy: boolean;
   isLocked: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Invoice = {
@@ -86,4 +88,15 @@ export type DashboardStats = {
   newRegistrationsWeek: number;
   pendingInvoices: number;
   newTickets: number;
+};
+
+export type Order = {
+  id: string;
+  userId: string;
+  orderNumber: string;
+  totalAmount: number;
+  status: 'pending' | 'processing' | 'completed' | 'canceled';
+  items: any[];
+  createdAt: string;
+  updatedAt?: string;
 };

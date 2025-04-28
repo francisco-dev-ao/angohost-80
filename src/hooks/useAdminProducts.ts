@@ -19,7 +19,21 @@ export const useAdminProducts = () => {
 
       if (error) throw error;
       
-      setProducts(data as Product[]);
+      const formattedProducts: Product[] = data.map(p => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        priceMonthly: p.price_monthly,
+        priceYearly: p.price_yearly,
+        isActive: p.is_active,
+        category: p.category_id,
+        features: p.features || {},
+        createdAt: p.created_at,
+        updatedAt: p.updated_at,
+        categoryId: p.category_id
+      }));
+      
+      setProducts(formattedProducts);
     } catch (error: any) {
       toast.error('Erro ao carregar produtos: ' + error.message);
     } finally {
