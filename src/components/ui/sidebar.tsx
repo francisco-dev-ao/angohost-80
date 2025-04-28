@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 
 interface SidebarContextProps {
   expanded: boolean;
+  isOpen: boolean; // Added missing property
   setExpanded: (expanded: boolean) => void;
   toggleExpanded: () => void;
 }
@@ -54,6 +55,7 @@ export const SidebarProvider = ({ children, defaultExpanded = true }: SidebarPro
   const value = useMemo(
     () => ({
       expanded,
+      isOpen: expanded, // Map isOpen to expanded for backward compatibility
       setExpanded,
       toggleExpanded,
     }),

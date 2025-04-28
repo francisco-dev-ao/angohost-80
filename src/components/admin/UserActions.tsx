@@ -55,6 +55,7 @@ const UserActions = ({ userId, email, isActive = true, role = 'customer', onActi
 
   const handleToggleUserStatus = async () => {
     try {
+      // Update using is_active field which was added in the migration
       const { error } = await supabase
         .from('profiles')
         .update({ 

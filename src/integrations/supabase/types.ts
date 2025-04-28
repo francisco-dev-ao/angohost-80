@@ -192,6 +192,42 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_profiles: {
+        Row: {
+          address: string
+          created_at: string
+          document: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          document: string
+          email: string
+          id?: string
+          name: string
+          phone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          document?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       domain_dns_records: {
         Row: {
           content: string
@@ -598,6 +634,7 @@ export type Database = {
           email_verified: boolean | null
           full_name: string | null
           id: string
+          is_active: boolean
           phone: string | null
           phone_verified: boolean | null
           preferred_contact: string | null
@@ -615,6 +652,7 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string | null
           id: string
+          is_active?: boolean
           phone?: string | null
           phone_verified?: boolean | null
           preferred_contact?: string | null
@@ -632,6 +670,7 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string | null
           id?: string
+          is_active?: boolean
           phone?: string | null
           phone_verified?: boolean | null
           preferred_contact?: string | null

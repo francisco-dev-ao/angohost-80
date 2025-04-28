@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -84,7 +82,7 @@ const ContactProfilesPage = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      setProfiles(data as ContactProfile[] || []);
+      setProfiles((data as unknown) as ContactProfile[] || []);
     } catch (error: any) {
       toast.error('Erro ao carregar perfis de contato: ' + error.message);
     } finally {
@@ -143,7 +141,6 @@ const ContactProfilesPage = () => {
 
     try {
       if (currentProfile) {
-        // Update existing profile
         const { error } = await supabase
           .from('contact_profiles')
           .update({
@@ -160,7 +157,6 @@ const ContactProfilesPage = () => {
         if (error) throw error;
         toast.success('Perfil de contato atualizado com sucesso');
       } else {
-        // Create new profile
         const { error } = await supabase
           .from('contact_profiles')
           .insert({
