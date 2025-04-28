@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const useAbandonedCarts = () => {
   const [abandonedCarts, setAbandonedCarts] = useState<any[]>([]);
@@ -46,6 +47,7 @@ export const useAbandonedCarts = () => {
       setAbandonedCarts(data || []);
     } catch (error) {
       console.error('Error fetching abandoned carts:', error);
+      toast.error('Erro ao buscar carrinhos abandonados');
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +64,7 @@ export const useAbandonedCarts = () => {
       setSettings(data);
     } catch (error) {
       console.error('Error fetching cart abandonment settings:', error);
+      toast.error('Erro ao carregar configurações de carrinhos abandonados');
     }
   };
 
@@ -76,6 +79,7 @@ export const useAbandonedCarts = () => {
       setReminderConfigurations(data || []);
     } catch (error) {
       console.error('Error fetching reminder configurations:', error);
+      toast.error('Erro ao carregar configurações de lembretes');
     }
   };
 
@@ -90,58 +94,11 @@ export const useAbandonedCarts = () => {
 
       if (error) throw error;
       setSettings(data);
+      toast.success('Configurações atualizadas com sucesso');
       return true;
     } catch (error) {
       console.error('Error updating settings:', error);
-      return false;
-    }
-  };
-
-  const createReminderConfiguration = async (config: any) => {
-    try {
-      const { data, error } = await supabase
-        .from('cart_reminder_configurations')
-        .insert(config)
-        .select()
-        .single();
-
-      if (error) throw error;
-      fetchReminderConfigurations();
-      return true;
-    } catch (error) {
-      console.error('Error creating reminder configuration:', error);
-      return false;
-    }
-  };
-
-  const updateReminderConfiguration = async (id: string, config: any) => {
-    try {
-      const { error } = await supabase
-        .from('cart_reminder_configurations')
-        .update(config)
-        .eq('id', id);
-
-      if (error) throw error;
-      fetchReminderConfigurations();
-      return true;
-    } catch (error) {
-      console.error('Error updating reminder configuration:', error);
-      return false;
-    }
-  };
-
-  const deleteReminderConfiguration = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('cart_reminder_configurations')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      fetchReminderConfigurations();
-      return true;
-    } catch (error) {
-      console.error('Error deleting reminder configuration:', error);
+      toast.error('Erro ao atualizar configurações');
       return false;
     }
   };
@@ -170,10 +127,35 @@ export const useAbandonedCarts = () => {
         .eq('id', cartId);
 
       if (error) throw error;
+      
+      toast.success('Lembrete enviado com sucesso');
       fetchAbandonedCarts();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending manual reminder:', error);
+      toast.error('Erro ao enviar lembrete: ' + error.message);
+      return false;
+    }
+  };
+  
+  const recoverAbandonedCart = async (cartId: string) => {
+    try {
+      const { error } = await supabase
+        .from('cart_abandonments')
+        .update({ 
+          is_recovered: true,
+          recovered_at: new Date().toISOString()
+        })
+        .eq('id', cartId);
+
+      if (error) throw error;
+      
+      toast.success('Carrinho marcado como recuperado');
+      fetchAbandonedCarts();
+      return true;
+    } catch (error: any) {
+      console.error('Error recovering cart:', error);
+      toast.error('Erro ao recuperar carrinho: ' + error.message);
       return false;
     }
   };
@@ -193,9 +175,7 @@ export const useAbandonedCarts = () => {
     reminderConfigurations,
     fetchAbandonedCarts,
     updateSettings,
-    createReminderConfiguration,
-    updateReminderConfiguration,
-    deleteReminderConfiguration,
     sendManualReminder,
+    recoverAbandonedCart
   };
 };

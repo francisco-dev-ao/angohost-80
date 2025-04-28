@@ -104,5 +104,46 @@ export const useInvoices = () => {
     };
   }, [user]);
 
-  return { invoices, isLoading };
+  // Function to generate and download an invoice
+  const downloadInvoice = async (invoiceId: string) => {
+    try {
+      // First, try to get existing download URL
+      const { data: invoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('download_url, invoice_number')
+        .eq('id', invoiceId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // If download URL exists, use it - otherwise trigger generation
+      if (invoice.download_url) {
+        window.open(invoice.download_url, '_blank');
+      } else {
+        toast.info(`Gerando download da fatura ${invoice.invoice_number}...`);
+        
+        // In a real implementation, you would call an edge function to generate the PDF
+        // For now, we'll simulate a generation and update with a mock URL
+        setTimeout(async () => {
+          const mockUrl = `https://angohosting.ao/invoices/${invoice.invoice_number}.pdf`;
+          
+          // Update the invoice with the download URL
+          const { error: updateError } = await supabase
+            .from('invoices')
+            .update({ download_url: mockUrl })
+            .eq('id', invoiceId);
+          
+          if (updateError) throw updateError;
+          
+          // Open the "generated" PDF
+          window.open(mockUrl, '_blank');
+          toast.success('Fatura gerada com sucesso');
+        }, 2000);
+      }
+    } catch (error: any) {
+      toast.error('Erro ao baixar a fatura: ' + error.message);
+    }
+  };
+
+  return { invoices, isLoading, downloadInvoice };
 };

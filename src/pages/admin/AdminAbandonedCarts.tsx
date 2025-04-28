@@ -3,20 +3,6 @@ import React, { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { useAbandonedCarts } from '@/hooks/useAbandonedCarts';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -24,274 +10,239 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search, ShoppingCart, Loader2, Bell, RotateCw, CheckCircle } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Eye, Send } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { formatPrice } from '@/utils/formatters';
 
 const AdminAbandonedCarts = () => {
-  const navigate = useNavigate();
-  const {
-    abandonedCarts,
-    isLoading,
-    timeRange,
+  const { 
+    abandonedCarts, 
+    isLoading, 
+    timeRange, 
     setTimeRange,
-    reminderConfigurations,
     sendManualReminder,
+    recoverAbandonedCart
   } = useAbandonedCarts();
   
-  const [activeTab, setActiveTab] = useState('carts');
-
-  const getOverviewStats = () => {
-    const totalCarts = abandonedCarts.length;
-    const registeredUserCarts = abandonedCarts.filter(cart => !cart.is_guest).length;
-    const guestCarts = abandonedCarts.filter(cart => cart.is_guest).length;
+  const [searchTerm, setSearchTerm] = useState('');
+  const [processingCart, setProcessingCart] = useState<string | null>(null);
+  
+  const filteredCarts = searchTerm 
+    ? abandonedCarts.filter(cart => 
+        (cart.email && cart.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (cart.profiles?.full_name && cart.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    : abandonedCarts;
     
-    return {
-      totalCarts,
-      registeredUserCarts,
-      guestCarts,
-      registeredPercentage: totalCarts > 0 ? (registeredUserCarts / totalCarts) * 100 : 0,
-      guestPercentage: totalCarts > 0 ? (guestCarts / totalCarts) * 100 : 0,
-    };
-  };
-
-  const handleViewCart = (cart: any) => {
-    // Implement this function if needed
-    console.log("View cart:", cart);
-  };
-
   const handleSendReminder = async (cartId: string) => {
+    setProcessingCart(cartId);
     await sendManualReminder(cartId);
+    setProcessingCart(null);
   };
-
-  const stats = getOverviewStats();
-
+  
+  const handleMarkRecovered = async (cartId: string) => {
+    setProcessingCart(cartId);
+    await recoverAbandonedCart(cartId);
+    setProcessingCart(null);
+  };
+  
+  const getCartTotal = (cart: any) => {
+    if (!cart.cart_items || !Array.isArray(cart.cart_items)) return 0;
+    return cart.cart_items.reduce((total: number, item: any) => {
+      const price = item.price || 0;
+      const quantity = item.quantity || 1;
+      return total + (price * quantity);
+    }, 0);
+  };
+  
+  const getTotalValue = () => {
+    return filteredCarts.reduce((total, cart) => total + getCartTotal(cart), 0);
+  };
+  
   return (
     <AdminLayout>
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Carrinhos Abandonados</h1>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Período" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Últimos 7 dias</SelectItem>
-              <SelectItem value="30d">Últimos 30 dias</SelectItem>
-              <SelectItem value="90d">Últimos 90 dias</SelectItem>
-              <SelectItem value="365d">Últimos 12 meses</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Carrinhos Abandonados</h2>
+            <p className="text-muted-foreground">
+              Gerencie e recupere carrinhos abandonados pelos clientes
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                <SelectItem value="365d">Último ano</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              <RotateCw className="h-4 w-4 mr-2" />
+              Atualizar
+            </Button>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Total de Carrinhos</CardTitle>
-              <CardDescription>Carrinhos abandonados no período</CardDescription>
+              <CardTitle className="text-2xl">{filteredCarts.length}</CardTitle>
+              <CardDescription>Carrinhos abandonados</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold">{stats.totalCarts}</p>
-            </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Usuários Registrados</CardTitle>
-              <CardDescription>Carrinhos de usuários registrados</CardDescription>
+              <CardTitle className="text-2xl">{formatPrice(getTotalValue())}</CardTitle>
+              <CardDescription>Valor total</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold">{stats.registeredUserCarts}</p>
-              <p className="text-sm text-muted-foreground">
-                {stats.registeredPercentage.toFixed(1)}% do total
-              </p>
-            </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Visitantes</CardTitle>
-              <CardDescription>Carrinhos de visitantes não registrados</CardDescription>
+              <CardTitle className="text-2xl">
+                {filteredCarts.length > 0
+                  ? formatPrice(getTotalValue() / filteredCarts.length)
+                  : formatPrice(0)}
+              </CardTitle>
+              <CardDescription>Valor médio</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold">{stats.guestCarts}</p>
-              <p className="text-sm text-muted-foreground">
-                {stats.guestPercentage.toFixed(1)}% do total
-              </p>
-            </CardContent>
           </Card>
         </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="carts">Carrinhos Abandonados</TabsTrigger>
-            <TabsTrigger value="reminders">Configurações de Lembretes</TabsTrigger>
-            <TabsTrigger value="settings">Configurações</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="carts">
-            <Card>
-              <CardHeader>
-                <CardTitle>Carrinhos Abandonados</CardTitle>
-                <CardDescription>
-                  Lista de todos os carrinhos abandonados no período selecionado
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-10">Carregando...</div>
-                ) : abandonedCarts.length === 0 ? (
-                  <div className="text-center py-10">
-                    <p className="text-muted-foreground">Não há carrinhos abandonados no período selecionado</p>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Cliente</TableHead>
-                        <TableHead>Itens</TableHead>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Último Lembrete</TableHead>
-                        <TableHead>Lembretes</TableHead>
-                        <TableHead>Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {abandonedCarts.map((cart) => (
-                        <TableRow key={cart.id}>
-                          <TableCell>
-                            {cart.is_guest ? (
-                              <span>{cart.email || 'Visitante'}</span>
-                            ) : (
-                              <span>
-                                {cart.profiles?.full_name || cart.email || 'Usuário'}
-                              </span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {Array.isArray(cart.cart_items) ? cart.cart_items.length : 0} itens
-                          </TableCell>
-                          <TableCell>
-                            {format(new Date(cart.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                          </TableCell>
-                          <TableCell>
-                            {cart.last_notification_at ? (
-                              format(new Date(cart.last_notification_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })
-                            ) : (
-                              <span className="text-muted-foreground">Nenhum</span>
-                            )}
-                          </TableCell>
-                          <TableCell>{cart.notification_count || 0}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleViewCart(cart)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleSendReminder(cart.id)}
-                              >
-                                <Send className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="reminders">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Configurações de Lembretes</CardTitle>
-                  <CardDescription>Gerencie os lembretes para carrinhos abandonados</CardDescription>
-                </div>
-                <Button onClick={() => navigate('/admin/abandoned-carts/reminder/new')}>
-                  Novo Lembrete
-                </Button>
-              </CardHeader>
-              <CardContent>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Lista de Carrinhos Abandonados</CardTitle>
+            <CardDescription>
+              Envie lembretes ou recupere carrinhos abandonados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por e-mail ou nome do cliente..."
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            {isLoading ? (
+              <div className="flex items-center justify-center p-6">
+                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                <span>Carregando...</span>
+              </div>
+            ) : filteredCarts.length > 0 ? (
+              <div className="rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Atraso (horas)</TableHead>
-                      <TableHead>Template de Email</TableHead>
-                      <TableHead>Template para Convidados</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ações</TableHead>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Itens</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Lembretes</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {reminderConfigurations.map((config) => (
-                      <TableRow key={config.id}>
-                        <TableCell>{config.name}</TableCell>
-                        <TableCell>{config.delay_hours}</TableCell>
-                        <TableCell>{config.email_template?.name || 'Não definido'}</TableCell>
-                        <TableCell>{config.guest_email_template?.name || 'Não definido'}</TableCell>
+                    {filteredCarts.map((cart) => (
+                      <TableRow key={cart.id}>
                         <TableCell>
-                          <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                            config.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                            {config.is_active ? 'Ativo' : 'Inativo'}
-                          </span>
+                          <div>
+                            <p className="font-medium">{cart.profiles?.full_name || 'Cliente não identificado'}</p>
+                            <p className="text-sm text-muted-foreground">{cart.email || 'Sem e-mail'}</p>
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/admin/abandoned-carts/reminder/${config.id}`)}
-                          >
-                            Editar
-                          </Button>
+                          {format(new Date(cart.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                        </TableCell>
+                        <TableCell>
+                          {Array.isArray(cart.cart_items) ? cart.cart_items.length : 0} itens
+                        </TableCell>
+                        <TableCell>
+                          {formatPrice(getCartTotal(cart))}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <span className="mr-2">{cart.notification_count || 0}</span>
+                            {cart.last_notification_at && (
+                              <span className="text-xs text-muted-foreground">
+                                último em {format(new Date(cart.last_notification_at), 'dd/MM HH:mm', { locale: ptBR })}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              disabled={processingCart === cart.id}
+                              onClick={() => handleSendReminder(cart.id)}
+                            >
+                              {processingCart === cart.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Bell className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              disabled={processingCart === cart.id}
+                              onClick={() => handleMarkRecovered(cart.id)}
+                            >
+                              {processingCart === cart.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
-                    {reminderConfigurations.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
-                          Nenhuma configuração de lembrete encontrada
-                        </TableCell>
-                      </TableRow>
-                    )}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configurações do Módulo</CardTitle>
-                <CardDescription>Configure as opções do módulo de carrinhos abandonados</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Settings form would go here */}
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate('/admin/abandoned-carts/settings')}
-                >
-                  Editar Configurações
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 text-center">
+                <ShoppingCart className="h-10 w-10 text-muted-foreground/50 mb-3" />
+                <p className="font-medium">Nenhum carrinho abandonado encontrado</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {searchTerm ? 'Tente uma busca diferente' : 'Todos os carrinhos foram recuperados ou foram criados há mais de 30 dias'}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );
-};
+}
 
 export default AdminAbandonedCarts;

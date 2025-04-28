@@ -14,6 +14,7 @@ import { Invoice } from '@/hooks/useInvoices';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
+import { useInvoices } from '@/hooks/useInvoices';
 
 interface InvoiceViewDialogProps {
   invoice: Invoice;
@@ -22,6 +23,7 @@ interface InvoiceViewDialogProps {
 }
 
 const InvoiceViewDialog = ({ invoice, isOpen, onClose }: InvoiceViewDialogProps) => {
+  const { downloadInvoice } = useInvoices();
   const companyDetails = {
     name: "AngoHost",
     address: "Rua Principal, Luanda, Angola",
@@ -35,8 +37,7 @@ const InvoiceViewDialog = ({ invoice, isOpen, onClose }: InvoiceViewDialogProps)
   };
 
   const handleDownload = () => {
-    // Implementation for download would go here
-    alert(`Download da fatura ${invoice.invoice_number} iniciado`);
+    downloadInvoice(invoice.id);
   };
 
   return (
