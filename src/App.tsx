@@ -6,6 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import CpanelHosting from "./pages/CpanelHosting";
+import WordPressHosting from "./pages/WordPressHosting";
+import VpsHosting from "./pages/VpsHosting";
+import DedicatedServers from "./pages/DedicatedServers";
+import ProfessionalEmail from "./pages/ProfessionalEmail";
+import ExchangeOnline from "./pages/ExchangeOnline";
 import ClientArea from "./pages/ClientArea";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
@@ -22,10 +27,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/products/cpanel" element={<CpanelHosting />} />
+          <Route path="/products/wordpress" element={<WordPressHosting />} />
+          <Route path="/products/vps" element={<VpsHosting />} />
+          <Route path="/products/dedicated" element={<DedicatedServers />} />
+          <Route path="/products/email" element={<ProfessionalEmail />} />
+          <Route path="/products/exchange" element={<ExchangeOnline />} />
           <Route path="/client" element={<ClientArea />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

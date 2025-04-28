@@ -3,6 +3,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -13,20 +21,102 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link to="/" className="font-bold text-2xl text-hostify-700">
               Hostify
             </Link>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/products/cpanel" className="text-sm font-medium text-muted-foreground hover:text-foreground transition">
-                Hospedagem cPanel
-              </Link>
-              <Link to="/products/wordpress" className="text-sm font-medium text-muted-foreground hover:text-foreground transition">
-                Hospedagem WordPress
-              </Link>
-              <Link to="/products/vps" className="text-sm font-medium text-muted-foreground hover:text-foreground transition">
-                VPS
-              </Link>
-              <Link to="/products/domains" className="text-sm font-medium text-muted-foreground hover:text-foreground transition">
-                Domínios
-              </Link>
-            </nav>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Alojamento Web</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/products/cpanel"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Hospedagem cPanel</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Hospedagem compartilhada com cPanel
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/products/wordpress"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">WordPress Hosting</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Hospedagem otimizada para WordPress
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/products/vps"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">VPS</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Servidores privados virtuais
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/products/dedicated"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Servidores Dedicados</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Servidores físicos exclusivos
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Email Corporativo</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/products/email"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Email Profissional</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Solução de email profissional para empresas
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/products/exchange"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Exchange Online</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Microsoft Exchange Online e Microsoft 365
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/cart">
