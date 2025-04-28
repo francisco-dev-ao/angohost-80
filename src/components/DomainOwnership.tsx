@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { OwnershipProfile } from "@/contexts/OwnershipContext";
 
 const ownershipFormSchema = z.object({
   name: z.string().min(3, "Nome completo é obrigatório"),
@@ -38,6 +38,7 @@ interface DomainOwnershipProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (domain: string, data: OwnershipFormValues) => void;
+  existingProfiles?: OwnershipProfile[];
 }
 
 const DomainOwnership = ({
@@ -45,6 +46,7 @@ const DomainOwnership = ({
   isOpen,
   onClose,
   onSubmit,
+  existingProfiles = [],
 }: DomainOwnershipProps) => {
   const form = useForm<OwnershipFormValues>({
     resolver: zodResolver(ownershipFormSchema),
@@ -60,8 +62,6 @@ const DomainOwnership = ({
   const handleSubmit = (data: OwnershipFormValues) => {
     onSubmit(domain, data);
     form.reset();
-    onClose();
-    toast.success("Informações de titularidade salvas com sucesso!");
   };
 
   return (

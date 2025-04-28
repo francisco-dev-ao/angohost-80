@@ -1,21 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Trash, AlertCircle, Mail, Check } from 'lucide-react';
-import DomainValidator from '@/components/DomainValidator';
-import AdditionalProducts from '@/components/AdditionalProducts';
-import DomainOwnership from '@/components/DomainOwnership';
+import { Trash, Check, UserPlus, AlertCircle } from 'lucide-react';
+import { formatPrice } from '@/utils/formatters';
+import { useNavigate } from 'react-router-dom';
+import { useOwnership, OwnershipProfile } from '@/contexts/OwnershipContext';
+import OwnershipProfileSelector from '@/components/OwnershipProfileSelector';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { formatPrice } from "@/utils/formatters";
 import PricingCard from '@/components/PricingCard';
-import { useNavigate } from 'react-router-dom';
 import { emailPlans } from '@/config/emailPlans';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -24,10 +19,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import DomainOwnership from '@/components/DomainOwnership';
 
 interface OwnershipData {
   name: string;
@@ -149,6 +144,34 @@ const Cart = () => {
     setDomainWithOwnershipMap(prev => ({...prev, ...initialDomainMap}));
   }, [items]);
 
+  const { getAllProfiles, addProfile } = useOwnership();
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  
+  // Function to handle profile selection
+  const handleProfileSelect = (profileId: string) => {
+    setSelectedProfileId(profileId);
+    const profile = getAllProfiles().find(p => p.id === profileId);
+    if (profile) {
+      setDomainWithOwnershipMap(prev => {
+        const newMap = { ...prev };
+        Object.keys(newMap).forEach(domain => {
+          newMap[domain] = {
+            domain,
+            hasOwnership: true,
+            ownershipData: {
+              name: profile.name,
+              email: profile.email,
+              document: profile.document,
+              phone: profile.phone,
+              address: profile.address
+            }
+          };
+        });
+        return newMap;
+      });
+    }
+  };
+
   const calculateSubtotal = () => {
     return items.reduce((acc, item) => {
       if (item.title.toLowerCase().includes('domínio') && domainType === 'existing') {
@@ -206,7 +229,9 @@ const Cart = () => {
     setCurrentDomainForOwnership(null);
   };
 
+  // Update the ownership dialog to handle profile creation
   const handleOwnershipSubmit = (domain: string, data: OwnershipData) => {
+    addProfile(data);
     setDomainWithOwnershipMap(prev => ({
       ...prev,
       [domain]: {
@@ -215,6 +240,9 @@ const Cart = () => {
         ownershipData: data
       }
     }));
+    setIsOwnershipDialogOpen(false);
+    setCurrentDomainForOwnership(null);
+    toast.success('Perfil de titularidade salvo com sucesso!');
   };
 
   const handleAddProduct = (product: any, years: number = 1) => {
@@ -282,12 +310,19 @@ const Cart = () => {
               {domainItems.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Domínios</CardTitle>
+                    <CardTitle>Domínios e Titularidade</CardTitle>
                     <CardDescription>
-                      Domínios selecionados para registro
+                      Selecione ou adicione um perfil de titularidade para seus domínios
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <OwnershipProfileSelector
+                      selectedProfileId={selectedProfileId}
+                      onSelectProfile={handleProfileSelect}
+                      onAddNew={() => setIsOwnershipDialogOpen(true)}
+                    />
+                    
+                    {/* Display selected domains */}
                     {domainItems.map((item) => {
                       const domainName = item.title.replace('Domínio ', '');
                       const domainWithOwnership = domainWithOwnershipMap[domainName];
@@ -351,43 +386,42 @@ const Cart = () => {
                   </CardContent>
                 </Card>
               )}
-
-              {items.filter(item => !item.title.toLowerCase().includes('domínio')).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Outros serviços</CardTitle>
-                    <CardDescription>
-                      Serviços adicionados ao carrinho
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {items
-                      .filter(item => !item.title.toLowerCase().includes('domínio'))
-                      .map((item) => (
-                        <div key={item.id} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-semibold">{item.title}</h3>
-                              <div className="mt-2 text-muted-foreground">
-                                <p>Quantidade: {item.quantity}</p>
-                                <p>Preço unitário: {formatPrice(item.basePrice)}</p>
-                                <p>Total: {formatPrice(item.price)}</p>
-                              </div>
+              
+              {/* Rest of the cart items */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Outros serviços</CardTitle>
+                  <CardDescription>
+                    Serviços adicionados ao carrinho
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {items
+                    .filter(item => !item.title.toLowerCase().includes('domínio'))
+                    .map((item) => (
+                      <div key={item.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold">{item.title}</h3>
+                            <div className="mt-2 text-muted-foreground">
+                              <p>Quantidade: {item.quantity}</p>
+                              <p>Preço unitário: {formatPrice(item.basePrice)}</p>
+                              <p>Total: {formatPrice(item.price)}</p>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRemoveItem(item.id)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
                         </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
+                      </div>
+                  ))}
+                </CardContent>
+              </Card>
 
               <Card>
                 <CardHeader>
@@ -528,15 +562,18 @@ const Cart = () => {
         )}
       </div>
       
+      {/* Ownership dialog */}
       {currentDomainForOwnership && (
         <DomainOwnership 
           domain={currentDomainForOwnership}
           isOpen={isOwnershipDialogOpen}
           onClose={handleCloseOwnershipDialog}
           onSubmit={handleOwnershipSubmit}
+          existingProfiles={getAllProfiles()}
         />
       )}
 
+      {/* Email configuration dialog */}
       {selectedEmailPlan && (
         <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
           <DialogContent className="sm:max-w-[425px]">
