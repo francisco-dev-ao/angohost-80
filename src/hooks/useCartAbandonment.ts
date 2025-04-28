@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import { CartItem } from '@/contexts/CartContext';
 
 export const useCartAbandonment = () => {
   const [settings, setSettings] = useState<any>(null);
@@ -58,11 +59,13 @@ export const useCartAbandonment = () => {
 
     setIsSaving(true);
     try {
+      const cartItemsJson = JSON.parse(JSON.stringify(items));
+      
       const { data, error } = await supabase
         .from('saved_carts')
         .insert({
           user_id: user.id,
-          cart_items: items,
+          cart_items: cartItemsJson,
           name,
           is_public: isPublic
         })
@@ -137,12 +140,15 @@ export const useCartAbandonment = () => {
 
       if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
+      // Convert CartItem[] to plain object for JSON storage
+      const cartItemsJson = JSON.parse(JSON.stringify(items));
+
       if (existingCart) {
         // Update existing abandoned cart
         const { error: updateError } = await supabase
           .from('cart_abandonments')
           .update({
-            cart_items: items,
+            cart_items: cartItemsJson,
             updated_at: new Date().toISOString()
           })
           .eq('id', existingCart.id);
@@ -156,7 +162,7 @@ export const useCartAbandonment = () => {
           .insert({
             user_id: user.id,
             email: user.email,
-            cart_items: items,
+            cart_items: cartItemsJson,
             token,
             is_guest: false
           });

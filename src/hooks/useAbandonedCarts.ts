@@ -154,7 +154,7 @@ export const useAbandonedCarts = () => {
         .from('cart_abandonments')
         .update({
           last_notification_at: new Date().toISOString(),
-          notification_count: supabase.rpc('increment', { x: 1 })
+          notification_count: supabase.raw(`notification_count + 1`)
         })
         .eq('id', cartId);
 

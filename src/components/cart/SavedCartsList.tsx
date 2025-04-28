@@ -19,7 +19,7 @@ const SavedCartsList = ({ onClose }: SavedCartsListProps) => {
 
   const handleLoadCart = async (cartId: string) => {
     const cartItems = await loadSavedCart(cartId);
-    if (cartItems) {
+    if (cartItems && Array.isArray(cartItems)) {
       // Clear current cart and add items from saved cart
       cartItems.forEach((item: any) => {
         addToCart(item);
