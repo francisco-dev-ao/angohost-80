@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -9,6 +8,7 @@ import { useLocation } from "react-router-dom";
 import { useClientRoutes } from "@/hooks/useClientRoutes";
 import ClientDashboard from "@/components/client/ClientDashboard";
 import ProfilePage from "@/components/client/ProfilePage";
+import InvoicesPage from "@/components/client/InvoicesPage";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
@@ -39,19 +39,19 @@ const ClientArea = () => {
     return null; // Will redirect in useEffect
   }
 
-  // Render the appropriate component based on the route
   const renderComponent = () => {
-    // Path-based component rendering
     if (location.pathname === "/client/profile") {
       return <ProfilePage />;
     }
     
-    // Default to dashboard for the main client area
+    if (location.pathname === "/client/invoices") {
+      return <InvoicesPage />;
+    }
+    
     if (location.pathname === "/client") {
       return <ClientDashboard />;
     }
     
-    // For any other client routes
     return currentComponent || <ClientDashboard />;
   };
 
