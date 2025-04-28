@@ -19,9 +19,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           alt="Login Background"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="text-center text-white max-w-lg p-8">
-            <h2 className="text-4xl font-bold mb-6 leading-tight">
+        <div className="absolute bottom-0 left-0 right-0 p-12 bg-gradient-to-t from-black/70 to-transparent z-20">
+          <div className="text-white max-w-lg mx-8">
+            <h2 className="text-4xl font-bold mb-4 leading-tight">
               Sua Parceria de Confiança
             </h2>
             <p className="text-xl leading-relaxed font-light">
