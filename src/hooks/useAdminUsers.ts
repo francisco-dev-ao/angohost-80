@@ -54,7 +54,7 @@ export const useAdminUsers = () => {
     }
   };
 
-  const createUser = async (email: string, password: string, fullName: string, role: string) => {
+  const createUser = async (email: string, password: string, fullName: string, role: 'admin' | 'support' | 'finance' | 'customer') => {
     try {
       // First create the auth user
       const { data, error } = await supabase.auth.signUp({
@@ -88,7 +88,7 @@ export const useAdminUsers = () => {
     }
   };
 
-  const updateUser = async (userId: string, userData: { fullName?: string; role?: string; isActive?: boolean }) => {
+  const updateUser = async (userId: string, userData: { fullName?: string; role?: 'admin' | 'support' | 'finance' | 'customer'; isActive?: boolean }) => {
     try {
       const updateData: any = {};
       if (userData.fullName !== undefined) updateData.full_name = userData.fullName;

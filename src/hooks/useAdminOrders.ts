@@ -7,6 +7,7 @@ import { Order } from '@/types/admin';
 export const useAdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [singleOrder, setSingleOrder] = useState<Order | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -38,6 +39,35 @@ export const useAdminOrders = () => {
     }
   };
 
+  const fetchOrderById = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+      if (error) throw error;
+      
+      const formattedOrder: Order = {
+        id: data.id,
+        userId: data.user_id,
+        orderNumber: data.order_number,
+        totalAmount: data.total_amount,
+        status: data.status as Order['status'],
+        items: Array.isArray(data.items) ? data.items : [],
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+      
+      setSingleOrder(formattedOrder);
+      return formattedOrder;
+    } catch (error: any) {
+      toast.error('Erro ao carregar detalhes do pedido: ' + error.message);
+      return null;
+    }
+  };
+
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
       const { error } = await supabase
@@ -47,10 +77,88 @@ export const useAdminOrders = () => {
 
       if (error) throw error;
       
-      toast.success('Status do pedido atualizado com sucesso');
+      toast.success(`Status do pedido atualizado para ${getStatusText(status)}`);
       fetchOrders();
     } catch (error: any) {
       toast.error('Erro ao atualizar status do pedido: ' + error.message);
+    }
+  };
+
+  const approveOrder = async (orderId: string) => {
+    return updateOrderStatus(orderId, 'completed');
+  };
+
+  const processOrder = async (orderId: string) => {
+    return updateOrderStatus(orderId, 'processing');
+  };
+
+  const cancelOrder = async (orderId: string) => {
+    return updateOrderStatus(orderId, 'canceled');
+  };
+
+  const createOrder = async (orderData: {
+    userId: string;
+    items: any[];
+    totalAmount: number;
+  }) => {
+    try {
+      // Generate a unique order number (current timestamp + random string)
+      const timestamp = new Date().getTime();
+      const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const orderNumber = `ORD-${timestamp}-${randomStr}`;
+      
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({
+          user_id: orderData.userId,
+          order_number: orderNumber,
+          total_amount: orderData.totalAmount,
+          status: 'pending',
+          items: orderData.items,
+        })
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      
+      toast.success('Pedido criado com sucesso');
+      fetchOrders();
+      
+      return data;
+    } catch (error: any) {
+      toast.error('Erro ao criar pedido: ' + error.message);
+      throw error;
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) throw error;
+      
+      toast.success('Pedido excluído com sucesso');
+      fetchOrders();
+    } catch (error: any) {
+      toast.error('Erro ao excluir pedido: ' + error.message);
+    }
+  };
+
+  const getStatusText = (status: Order['status']) => {
+    switch (status) {
+      case 'pending':
+        return 'Pendente';
+      case 'processing':
+        return 'Processando';
+      case 'completed':
+        return 'Concluído';
+      case 'canceled':
+        return 'Cancelado';
+      default:
+        return status;
     }
   };
 
@@ -58,5 +166,18 @@ export const useAdminOrders = () => {
     fetchOrders();
   }, []);
 
-  return { orders, isLoading, fetchOrders, updateOrderStatus };
+  return { 
+    orders, 
+    singleOrder,
+    isLoading, 
+    fetchOrders, 
+    fetchOrderById,
+    updateOrderStatus,
+    approveOrder,
+    processOrder,
+    cancelOrder,
+    createOrder,
+    deleteOrder,
+    getStatusText
+  };
 };
