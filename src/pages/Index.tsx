@@ -1,4 +1,3 @@
-
 import React from "react";
 import Layout from "@/components/Layout";
 import DomainSearch from "@/components/DomainSearch";
@@ -9,6 +8,13 @@ import CallToAction from "@/components/CallToAction";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Check, Server, Globe, Shield } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   const hostingPlans = [
@@ -92,7 +98,7 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero Section com presença humana */}
+      {/* Hero Section with Human Presence */}
       <section className="bg-[#345990] text-white relative overflow-hidden">
         <div className="container py-16 md:py-24 relative z-10">
           <div className="flex flex-col lg:flex-row items-center max-w-6xl mx-auto">
@@ -143,22 +149,29 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <div className="lg:w-1/2 lg:pl-8">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-medium mb-4">Encontre o domínio perfeito</h2>
-                <DomainSearch />
-              </div>
+            <div className="lg:w-1/2 lg:pl-8 relative">
+              <img 
+                src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png" 
+                alt="Especialista AngoHost" 
+                className="relative z-10 rounded-lg shadow-2xl mx-auto"
+              />
+              <div className="absolute top-4 -right-4 w-72 h-72 bg-[#264473] rounded-full filter blur-3xl opacity-30 z-0"></div>
             </div>
           </div>
         </div>
-        
-        {/* Background gradient para simular imagem de fundo */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#345990] to-[#264473]"></div>
-        
-        {/* Aqui seria colocada uma imagem de uma pessoa profissional */}
-        <div className="absolute bottom-0 right-0 h-full w-full lg:w-1/3 bg-gradient-to-l from-[#264473]/90 to-transparent">
-          {/* Placeholder para imagem de pessoa */}
-          <div className="hidden lg:block absolute bottom-0 right-10 h-[90%] w-64 bg-gradient-to-t from-[#264473] to-transparent opacity-70"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#345990] to-[#264473]"></div>
+      </section>
+
+      {/* Domain Search moved below hero */}
+      <section className="py-16 bg-white relative -mt-8">
+        <div className="container">
+          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-8 border border-gray-100">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800">Encontre o domínio perfeito para o seu negócio</h2>
+              <p className="text-gray-600 mt-2">Verifique a disponibilidade do seu domínio .ao ou outras extensões</p>
+            </div>
+            <DomainSearch />
+          </div>
         </div>
       </section>
       
@@ -202,7 +215,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section com Visual Empresarial */}
+      {/* Features Section with Visual Empresarial */}
       <section className="py-16 bg-gray-50">
         <div className="container">
           <div className="max-w-6xl mx-auto">
@@ -266,7 +279,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Domínios Section */}
+      {/* Domínios Section with Human Presence */}
       <section className="py-16 bg-white">
         <div className="container">
           <div className="max-w-6xl mx-auto">
@@ -299,29 +312,13 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="lg:w-1/2 bg-gray-50 p-8 rounded-lg">
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold mb-4 text-[#345990]">Preços de domínios populares</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center border-b pb-3">
-                      <div className="font-medium">.ao</div>
-                      <div className="text-lg font-bold text-[#345990]">AOA 12.500/ano</div>
-                    </div>
-                    <div className="flex justify-between items-center border-b pb-3">
-                      <div className="font-medium">.co.ao</div>
-                      <div className="text-lg font-bold text-[#345990]">AOA 9.900/ano</div>
-                    </div>
-                    <div className="flex justify-between items-center border-b pb-3">
-                      <div className="font-medium">.com</div>
-                      <div className="text-lg font-bold text-[#345990]">AOA 5.900/ano</div>
-                    </div>
-                    <div className="flex justify-between items-center border-b pb-3">
-                      <div className="font-medium">.net</div>
-                      <div className="text-lg font-bold text-[#345990]">AOA 5.900/ano</div>
-                    </div>
-                  </div>
-                </div>
-                <DomainSearch />
+              <div className="lg:w-1/2 relative">
+                <img 
+                  src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png"
+                  alt="Domínio .ao"
+                  className="rounded-lg shadow-lg mx-auto"
+                />
+                <div className="absolute -bottom-4 -right-4 w-64 h-64 bg-[#345990] rounded-full filter blur-3xl opacity-10 z-0"></div>
               </div>
             </div>
           </div>
@@ -349,52 +346,21 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Email Profissional Section */}
+      {/* Email Profissional Section with Human Presence */}
       <section className="py-16 bg-white">
         <div className="container">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col-reverse lg:flex-row items-center">
-              <div className="lg:w-1/2 lg:pr-12 mt-8 lg:mt-0">
-                <div className="bg-[#345990]/10 p-6 lg:p-8 rounded-lg">
-                  <h3 className="text-xl font-bold mb-4 text-[#345990]">Email Profissional para sua Empresa</h3>
-                  <p className="text-gray-600 mb-4">
-                    Use o nome da sua empresa no seu email profissional e transmita mais credibilidade aos seus clientes.
-                  </p>
-                  
-                  <div className="space-y-4">
-                    <div className="rounded-lg bg-white p-4 flex items-center shadow-sm">
-                      <div className="mr-4 text-[#345990]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Email Profissional</h4>
-                        <p className="text-sm text-gray-500">A partir de AOA 990/mês</p>
-                      </div>
-                    </div>
-                    
-                    <div className="rounded-lg bg-white p-4 flex items-center shadow-sm">
-                      <div className="mr-4 text-[#345990]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6"><path d="M22 7.7c-.1.6-.3 1.2-.7 1.7-.4.4-.9.8-1.4 1-.7.4-1.4.6-2.1.8-.3.1-.7.1-1 .2-.1 0-.2.1-.3.3-.2.4-.1.9.2 1.2.6.6 1.7.9 1.1 2.2-.6 1.3-2 0-2.4-.4-.1-.1-.1-.2-.1-.4-.1-.9-.7-1.2-1.6-1.1h-.1c-.6 0-1.2 0-1.8.1-1.1.2-2.2.6-3.1 1.5-1.5 1.4-2 3.3-1.4 5.2.4 1.5 1.5 2.4 2.8 3.2.9.5 1.7.5 2.4-.2.4-.4.8-.9 1.1-1.4.5-.6 1.2-.6 1.7.1.3.4.5.9.6 1.4.1.7-.2 1.1-.7 1.3-.3.1-.7.1-1 .2-.1 0-.5.1-.4.1h-7.8c-.3 0-.6-.1-.9-.2-.7-.3-1-.8-.7-1.4.2-.4.5-.4.9-.7.1-.1.1-.1 0-.2-.5-.8-1.3-1.1-2.1-1.5-.5-.2-1-.4-1.5-.6-1.2-.6-1.5-1.5-1-2.7.2-.4.4-.9.5-1.4.5-1.5.5-3-.2-4.4-.8-1.7-2.2-2.6-4-3.1-.5-.1-1-.2-1.5-.3-.1 0-.5-.1-.4-.1h9.3c.3 0 .5.1.4.4-.2.3-.3.7-.3 1-.2 1.1 1.1 1.5 1.7.6.2-.3.3-.6.5-1 .3-.6.6-1.1.9-1.7.1-.1.1-.2 0-.3-.1-.8-.7-1.5-1.4-2C11 1.3 10.2.9 9.4.6c-.4-.1-.9-.2-1.4-.3C7.7.2 7.3.1 7 .1H1c-.5 0-.8.3-1 .7 0 .1 0 .2.1.2.1.1.3.2.5.2a6.7 6.7 0 0 1 4.3 3c1 1.2 1.3 3.7 1.4 4.7M22 15c0 .5-.1.9-.2 1.3-.9 3.5-4.2 5.9-7.8 5.7-3-.1-5.6-2.4-6.3-5.4-.3-1.1-.4-2.2-.3-3.4.2-3.1 2.1-5.4 5.1-6.2.3-.1.5-.1.9-.2.1 0 .2 0 .2-.2s-.1-.2-.2-.2c-.9 0-1.7.2-2.5.5-2.2 1-3.7 2.6-4.4 5-.6 2.1-.3 4.2.7 6.1 1.6 2.9 4.1 4.3 7.3 4.5 3.9.2 7.1-2.1 8.3-5.7.3-1.1.5-2.3.3-3.5-.3-1.5-1-2.8-2.1-3.9-.7-.6-1.3-1.4-2-2-.1-.1-.2-.2-.4-.3-.2-.1-.4 0-.6.2-.1.2 0 .4.1.5.1.1.3.3.5.4.8.6 1.4 1.3 2 2.1.2.3.4.5.5.8.1.1.2.2.2.1v-.1c-.2-.3-.2-.6-.1-.9.1-.2.2-.3.4-.4h.1c.2.1.5.2.5.6 0 .4.1.8.1 1.2v.6zM0 10v.1c.4.3.9.4 1.4.5 1.5.4 3.1.5 4.5-.2.9-.5 1.2-1.2.8-2.1-.5-1.2-1.7-1.6-3.1-1-1 .4-1.5 1.4-1.8 2.3-.1.2.1.4.2.4z"/></svg>
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Microsoft 365</h4>
-                        <p className="text-sm text-gray-500">A partir de AOA 1.990/mês</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <Button 
-                      asChild 
-                      className="bg-[#345990] hover:bg-[#345990]/90"
-                    >
-                      <Link to="/products/email">Ver planos de email</Link>
-                    </Button>
-                  </div>
-                </div>
+              <div className="lg:w-1/2 relative mr-8">
+                <img 
+                  src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png"
+                  alt="Profissional usando Email"
+                  className="rounded-lg shadow-lg mx-auto"
+                />
+                <div className="absolute -bottom-4 -left-4 w-64 h-64 bg-[#345990] rounded-full filter blur-3xl opacity-10 z-0"></div>
               </div>
               
-              <div className="lg:w-1/2">
+              <div className="lg:w-1/2 lg:pl-12 mb-8 lg:mb-0">
                 <h2 className="text-3xl font-bold mb-6 text-[#345990]">Soluções de Email Profissional</h2>
                 <p className="text-lg text-gray-600 mb-6">
                   Comunique-se profissionalmente com seus clientes e parceiros usando soluções de email corporativo confiáveis e seguras.
@@ -415,39 +381,67 @@ const Index = () => {
                     </li>
                   ))}
                 </ul>
+                <div className="mt-8">
+                  <Button 
+                    asChild 
+                    className="bg-[#345990] hover:bg-[#345990]/90"
+                  >
+                    <Link to="/products/email">Ver planos de email</Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-[#345990]">
+      {/* Client Logos Carousel Section - Only on homepage */}
+      <section className="py-12 bg-gray-50">
         <div className="container">
-          <div className="max-w-4xl mx-auto text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Pronto para iniciar seu projeto online?</h2>
-            <p className="text-lg mb-8">
-              Escolha um dos nossos planos de hospedagem ou registre seu domínio com preços imbatíveis. Estamos aqui para ajudar você a construir sua presença digital.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="bg-white hover:bg-gray-100 text-[#345990]"
-              >
-                <Link to="/products/cpanel">Ver planos de hospedagem</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-              >
-                <Link to="/domains">Registrar domínio</Link>
-              </Button>
-            </div>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-[#345990]">Clientes que confiam em nós</h3>
+            <p className="text-gray-600 mt-2">Empresas em Angola que escolheram a AngoHost como parceira de hospedagem</p>
           </div>
+          
+          <div className="max-w-5xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-1">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                  <CarouselItem key={item} className="pl-1 md:basis-1/3 lg:basis-1/4">
+                    <div className="p-1">
+                      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 h-24 flex items-center justify-center">
+                        <span className="text-gray-400">Cliente {item}</span>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-center mt-4">
+                <CarouselPrevious className="static translate-y-0 mr-2" />
+                <CarouselNext className="static translate-y-0 ml-2" />
+              </div>
+            </Carousel>
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced CTA Section */}
+      <section className="py-16">
+        <div className="container">
+          <CallToAction
+            title="Pronto para iniciar seu projeto online?"
+            description="Escolha um dos nossos planos de hospedagem ou registre seu domínio com preços imbatíveis. Nossa equipe está pronta para ajudar você a construir sua presença digital."
+            primaryActionText="Ver planos de hospedagem"
+            primaryActionHref="/products/cpanel"
+            secondaryActionText="Registrar domínio"
+            secondaryActionHref="/domains"
+          />
         </div>
       </section>
     </Layout>
