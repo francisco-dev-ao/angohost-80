@@ -7,7 +7,7 @@ import DomainOwnership from '@/components/DomainOwnership';
 import CartItems from '@/components/cart/CartItems';
 import CartSummary from '@/components/cart/CartSummary';
 import RecommendedServices from '@/components/cart/RecommendedServices';
-import EmailPlanDialog from '@/components/cart/EmailPlanDialog';
+import EmailPlanDialog from '@/components/cart/email-plan-dialog';
 import CartLoading from '@/components/cart/CartLoading';
 import EmptyCart from '@/components/cart/EmptyCart';
 import { useCartPage } from '@/hooks/useCartPage';

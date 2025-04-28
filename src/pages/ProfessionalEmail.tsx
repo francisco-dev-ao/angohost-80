@@ -5,7 +5,7 @@ import { useEmailPlans } from "@/hooks/useEmailPlans";
 import EmailPlanConfigurator from "@/components/email/EmailPlanConfigurator";
 import EmailPlanGrid from "@/components/email/EmailPlanGrid";
 import EmailFeatureSection from "@/components/email/EmailFeatureSection";
-import EmailPlanDialog from "@/components/cart/EmailPlanDialog";
+import EmailPlanDialog from "@/components/cart/email-plan-dialog";
 
 const ProfessionalEmail = () => {
   const { 
