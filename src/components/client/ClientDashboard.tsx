@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useRealtimeClientDashboard } from "@/hooks/useRealtimeClientDashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Globe, Server, FileInvoice, TicketCheck, Bell } from "lucide-react";
+import { Loader2, Globe, Server, FileText, TicketCheck, Bell } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -102,7 +102,7 @@ const ClientDashboard = () => {
         <DashboardCard
           title="Faturas Pendentes"
           value={dashboardStats.pendingInvoices}
-          icon={<FileInvoice className="h-5 w-5 text-yellow-500" />}
+          icon={<FileText className="h-5 w-5 text-yellow-500" />}
           linkTo="/client/invoices"
           linkText="Ver Faturas"
         />
