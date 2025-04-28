@@ -12,7 +12,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useSaveOrder } from '@/hooks/useSaveOrder';
 import { useContactProfiles } from '@/hooks/useContactProfiles';
 import { toast } from 'sonner';
-import { Check, CreditCard, PlusCircle, User, BankNote } from 'lucide-react';
+import { Check, CreditCard, PlusCircle, User, Banknote } from 'lucide-react';
 import { formatPrice } from '@/utils/formatters';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -110,7 +110,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       setPaymentMethods(allMethods);
       
       // Auto-select default payment method if exists
-      const defaultMethod = allMethods.find(m => m.is_default);
+      const defaultMethod = allMethods.find(m => m.payment_type === 'bank_transfer');
       if (defaultMethod) {
         setSelectedPaymentMethod(defaultMethod.id);
       } else if (allMethods.length > 0) {
@@ -348,13 +348,13 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                         <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
                         <Label htmlFor={`payment-${method.id}`} className="flex items-center space-x-2">
                           {method.payment_type === 'bank_transfer' ? (
-                            <BankNote className="h-4 w-4" />
+                            <Banknote className="h-4 w-4" />
                           ) : (
                             <CreditCard className="h-4 w-4" />
                           )}
                           <span>
                             {method.name || 'Método de Pagamento'} 
-                            {method.is_default && (
+                            {method.payment_type === 'bank_transfer' && (
                               <span className="ml-2 text-sm text-muted-foreground">(Padrão)</span>
                             )}
                           </span>

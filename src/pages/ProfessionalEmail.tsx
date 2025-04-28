@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useContactProfiles } from "@/hooks/useContactProfiles";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -223,7 +224,7 @@ const ProfessionalEmail = () => {
           })}
         </div>
 
-        {selectedPlan && (
+        {selectedPlan && showDialog && (
           <EmailPlanDialog
             selectedPlan={selectedPlan}
             isOpen={showDialog}
