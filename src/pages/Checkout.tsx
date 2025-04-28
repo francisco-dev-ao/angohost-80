@@ -17,6 +17,14 @@ const Checkout = () => {
   const { user } = useSupabaseAuth();
   const navigate = useNavigate();
   const { items, clearCart, isLoading } = useCart();
+  
+  useEffect(() => {
+    if (!user) {
+      toast.error('Faça login para finalizar a compra');
+      navigate('/register');
+    }
+  }, [user, navigate]);
+
   const [paymentMethod, setPaymentMethod] = useState('credit-card');
   const [loading, setLoading] = useState(false);
   
@@ -60,13 +68,6 @@ const Checkout = () => {
     }, 2000);
   };
   
-  useEffect(() => {
-    if (!user) {
-      toast.error('Faça login para finalizar a compra');
-      navigate('/register');
-    }
-  }, [user, navigate]);
-
   if (isLoading) {
     return (
       <Layout>

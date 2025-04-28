@@ -27,7 +27,9 @@ export const useAdminTickets = () => {
         // Ensure status is one of the valid enum values
         status: t.status === 'in_progress' ? 'in-progress' : 
                 (t.status === 'open' || t.status === 'closed' ? t.status : 'open') as Ticket['status'],
-        priority: t.priority,
+        // Ensure priority is one of the valid enum values
+        priority: t.priority === 'high' ? 'high' :
+                 t.priority === 'low' ? 'low' : 'medium',
         assignedTo: t.assigned_to,
         createdAt: t.created_at,
         updatedAt: t.updated_at
