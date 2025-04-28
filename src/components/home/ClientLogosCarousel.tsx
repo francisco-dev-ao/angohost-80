@@ -8,14 +8,13 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 
 const ClientLogosCarousel = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: "start",
     loop: true,
     skipSnaps: false 
-  }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
+  });
 
   // Lista de clientes fictícios com nomes que sugerem empresas reais angolanas
   const clients = [
@@ -44,9 +43,6 @@ const ClientLogosCarousel = () => {
                 align: "start",
                 loop: true,
               }}
-              plugins={[
-                Autoplay({ delay: 3000, stopOnInteraction: false })
-              ]}
               className="w-full"
             >
               <CarouselContent className="-ml-1">

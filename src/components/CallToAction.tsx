@@ -8,6 +8,7 @@ interface CallToActionProps {
   description: string;
   primaryActionText: string;
   primaryActionHref: string;
+  primaryActionIcon?: React.ReactNode;
   secondaryActionText: string;
   secondaryActionHref: string;
 }
@@ -17,6 +18,7 @@ const CallToAction: React.FC<CallToActionProps> = ({
   description,
   primaryActionText,
   primaryActionHref,
+  primaryActionIcon,
   secondaryActionText,
   secondaryActionHref,
 }) => {
@@ -39,7 +41,10 @@ const CallToAction: React.FC<CallToActionProps> = ({
               variant="secondary"
               className="bg-white hover:bg-gray-100 text-[#345990] font-medium shadow-md hover:shadow-lg transition-all"
             >
-              <Link to={primaryActionHref}>{primaryActionText}</Link>
+              <Link to={primaryActionHref}>
+                {primaryActionText}
+                {primaryActionIcon}
+              </Link>
             </Button>
             <Button 
               asChild
