@@ -1,53 +1,50 @@
 
-import React from "react";
-import Layout from "@/components/Layout";
+import React, { useState } from "react";
 import HeroSection from "@/components/home/HeroSection";
-import DomainSearchSection from "@/components/home/DomainSearchSection";
-import PartnerLogos from "@/components/home/PartnerLogos";
-import PricingSection from "@/components/home/PricingSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
-import DomainSection from "@/components/home/DomainSection";
+import PricingSection from "@/components/home/PricingSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
-import EmailSection from "@/components/home/EmailSection";
-import AboutUsSection from "@/components/home/AboutUsSection";
-import CallToActionSection from "@/components/home/CallToActionSection";
 import FaqSection from "@/components/home/FaqSection";
+import CallToActionSection from "@/components/home/CallToActionSection";
+import DomainSearchSection from "@/components/home/DomainSearchSection";
+import Layout from "@/components/Layout";
+import ClientLogosCarousel from "@/components/home/ClientLogosCarousel";
+import PartnerLogos from "@/components/home/PartnerLogos";
+import AdminSetupDialog from "@/components/admin/AdminSetupDialog";
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
 
 const Index = () => {
+  const [isAdminSetupOpen, setIsAdminSetupOpen] = useState(false);
+  
   return (
     <Layout>
-      {/* Hero Section with Human Presence */}
-      <HeroSection />
-
-      {/* Domain Search moved below hero */}
-      <DomainSearchSection />
+      <div className="fixed bottom-5 right-5 z-50">
+        <Button 
+          variant="outline" 
+          size="icon"
+          className="h-10 w-10 rounded-full border-gray-300 bg-white shadow-md hover:bg-gray-100"
+          onClick={() => setIsAdminSetupOpen(true)}
+          title="Configurações do Sistema"
+        >
+          <Settings size={18} />
+        </Button>
+      </div>
       
-      {/* Logos de Parceiros */}
+      <HeroSection />
       <PartnerLogos />
-
-      {/* Pricing Section */}
-      <PricingSection />
-
-      {/* Features Section */}
+      <DomainSearchSection />
       <FeaturesSection />
-
-      {/* Domínios Section with Human Presence */}
-      <DomainSection />
-
-      {/* Testimonials Section */}
+      <ClientLogosCarousel />
+      <PricingSection />
       <TestimonialsSection />
-
-      {/* Email Profissional Section with Human Presence */}
-      <EmailSection />
-
-      {/* FAQ Section */}
       <FaqSection />
-
-      {/* About Us Section - Replaced Client Logos Carousel */}
-      <AboutUsSection />
-
-      {/* Enhanced CTA Section */}
       <CallToActionSection />
+      
+      <AdminSetupDialog
+        isOpen={isAdminSetupOpen}
+        onOpenChange={setIsAdminSetupOpen}
+      />
     </Layout>
   );
 };
