@@ -38,19 +38,26 @@ export const useAdminHosting = () => {
       if (servicesError) throw servicesError;
       
       // Transform data to match our HostingService type
-      const formattedServices: HostingService[] = clientServices.map(service => ({
-        id: service.id,
-        name: service.name,
-        username: service.control_panel_username || 'N/A',
-        domain: service.description || undefined,
-        plan: service.service_type || 'Standard',
-        status: service.status || 'active',
-        expiryDate: service.renewal_date,
-        creationDate: service.created_at,
-        userId: service.user_id,
-        userEmail: service.profiles?.email,
-        controlPanelUrl: service.control_panel_url
-      }));
+      const formattedServices: HostingService[] = clientServices.map(service => {
+        // Convert status to one of the allowed types or default to 'pending' if not valid
+        const validStatus = ['active', 'suspended', 'pending', 'cancelled'].includes(service.status || '') 
+          ? (service.status as 'active' | 'suspended' | 'pending' | 'cancelled')
+          : 'pending';
+        
+        return {
+          id: service.id,
+          name: service.name,
+          username: service.control_panel_username || 'N/A',
+          domain: service.description || undefined,
+          plan: service.service_type || 'Standard',
+          status: validStatus,
+          expiryDate: service.renewal_date,
+          creationDate: service.created_at,
+          userId: service.user_id,
+          userEmail: service.profiles?.email,
+          controlPanelUrl: service.control_panel_url
+        };
+      });
       
       setServices(formattedServices);
     } catch (err: any) {
