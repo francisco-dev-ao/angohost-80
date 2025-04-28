@@ -148,13 +148,24 @@ export const useAbandonedCarts = () => {
 
   const sendManualReminder = async (cartId: string) => {
     try {
-      // This would typically call an edge function to send the email
-      // For now, let's just mark the last notification time
+      // First, get the current notification count
+      const { data: currentCart, error: fetchError } = await supabase
+        .from('cart_abandonments')
+        .select('notification_count')
+        .eq('id', cartId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // Calculate new notification count
+      const newCount = (currentCart?.notification_count || 0) + 1;
+      
+      // Update the cart with new notification count
       const { error } = await supabase
         .from('cart_abandonments')
         .update({
           last_notification_at: new Date().toISOString(),
-          notification_count: supabase.raw(`notification_count + 1`)
+          notification_count: newCount
         })
         .eq('id', cartId);
 
