@@ -15,14 +15,15 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
 import { useInvoices } from '@/hooks/useInvoices';
+import { Dispatch, SetStateAction } from 'react';
 
 interface InvoiceViewDialogProps {
   invoice: Invoice;
   isOpen: boolean;
-  onClose: () => void;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
 }
 
-const InvoiceViewDialog = ({ invoice, isOpen, onClose }: InvoiceViewDialogProps) => {
+const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogProps) => {
   const { downloadInvoice } = useInvoices();
   const companyDetails = {
     name: "AngoHost",
@@ -41,7 +42,7 @@ const InvoiceViewDialog = ({ invoice, isOpen, onClose }: InvoiceViewDialogProps)
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Fatura #{invoice.invoice_number}</DialogTitle>
@@ -149,7 +150,7 @@ const InvoiceViewDialog = ({ invoice, isOpen, onClose }: InvoiceViewDialogProps)
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>
           <Button variant="outline" onClick={handlePrint}>
