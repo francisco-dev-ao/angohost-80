@@ -1,16 +1,14 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
 import FeatureCard from "@/components/FeatureCard";
 import { Mail, Server, Globe } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { emailPlans } from "@/config/emailPlans";
+import PurchaseDialog from "@/components/email/PurchaseDialog";
 import { formatPrice } from "@/utils/formatters";
 
 const ProfessionalEmail = () => {
@@ -23,49 +21,6 @@ const ProfessionalEmail = () => {
     basePrice: number;
   }>(null);
   const [showDialog, setShowDialog] = useState(false);
-
-  const basePlans = [
-    {
-      title: "Email Premium",
-      description: "Para pequenas empresas",
-      basePrice: 12000,
-      features: [
-        { text: "5GB por usuário", included: true },
-        { text: "Webmail responsivo", included: true },
-        { text: "Antispam", included: true },
-        { text: "Antivírus", included: true },
-        { text: "Suporte 24/7", included: true },
-        { text: "Backup diário", included: true },
-      ],
-    },
-    {
-      title: "Avançado Pro",
-      description: "Para médias empresas",
-      basePrice: 40000,
-      popular: true,
-      features: [
-        { text: "25GB por usuário", included: true },
-        { text: "Webmail responsivo", included: true },
-        { text: "Antispam avançado", included: true },
-        { text: "Antivírus", included: true },
-        { text: "Suporte 24/7", included: true },
-        { text: "Backup diário", included: true },
-      ],
-    },
-    {
-      title: "Business",
-      description: "Para grandes empresas",
-      basePrice: 30000,
-      features: [
-        { text: "50GB por usuário", included: true },
-        { text: "Webmail responsivo", included: true },
-        { text: "Antispam avançado", included: true },
-        { text: "Antivírus", included: true },
-        { text: "Suporte 24/7 prioritário", included: true },
-        { text: "Backup diário", included: true },
-      ],
-    },
-  ];
 
   const handleUserCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value);
@@ -86,14 +41,13 @@ const ProfessionalEmail = () => {
   const handleConfirmPurchase = () => {
     if (!selectedPlan) return;
 
-    const price = Number(calculatePrice(selectedPlan.basePrice));
     const years = parseInt(period);
     
     addToCart({
       id: `${selectedPlan.title}-${Date.now()}`,
       title: `${selectedPlan.title} (${userCount} usuários por ${years} ${years === 1 ? 'ano' : 'anos'})`,
       quantity: userCount,
-      price: price,
+      price: selectedPlan.basePrice * userCount * years,
       basePrice: selectedPlan.basePrice,
     });
 
@@ -111,7 +65,7 @@ const ProfessionalEmail = () => {
         </p>
         
         <div className="grid md:grid-cols-3 gap-6 mb-16">
-          {basePlans.map((plan, index) => (
+          {emailPlans.map((plan, index) => (
             <PricingCard
               key={index}
               {...plan}
@@ -123,58 +77,17 @@ const ProfessionalEmail = () => {
           ))}
         </div>
 
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Configurar plano</DialogTitle>
-            </DialogHeader>
-            <div className="py-4 space-y-4">
-              <div>
-                <Label htmlFor="userCountDialog">Número de usuários (1-1000)</Label>
-                <Input
-                  id="userCountDialog"
-                  type="number"
-                  min="1"
-                  max="1000"
-                  value={userCount}
-                  onChange={handleUserCountChange}
-                  className="mt-2"
-                />
-              </div>
-              <div>
-                <Label htmlFor="period">Período de contratação</Label>
-                <Select value={period} onValueChange={setPeriod}>
-                  <SelectTrigger id="period" className="mt-2">
-                    <SelectValue placeholder="Selecione o período" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 ano</SelectItem>
-                    <SelectItem value="2">2 anos</SelectItem>
-                    <SelectItem value="3">3 anos</SelectItem>
-                    <SelectItem value="4">4 anos</SelectItem>
-                    <SelectItem value="5">5 anos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {selectedPlan && (
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground">Preço total:</p>
-                  <p className="text-lg font-semibold">
-                    {calculatePrice(selectedPlan.basePrice)} kz/{period} {parseInt(period) === 1 ? 'ano' : 'anos'}
-                  </p>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDialog(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleConfirmPurchase}>
-                Continuar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <PurchaseDialog
+          showDialog={showDialog}
+          setShowDialog={setShowDialog}
+          userCount={userCount}
+          handleUserCountChange={handleUserCountChange}
+          period={period}
+          setPeriod={setPeriod}
+          selectedPlan={selectedPlan}
+          calculatePrice={calculatePrice}
+          onConfirm={handleConfirmPurchase}
+        />
 
         <div className="grid md:grid-cols-3 gap-6">
           <FeatureCard
