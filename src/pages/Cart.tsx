@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
@@ -20,6 +19,14 @@ import { emailPlans } from '@/config/emailPlans';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface OwnershipData {
   name: string;
@@ -110,7 +117,6 @@ const Cart = () => {
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState("1");
   const navigate = useNavigate();
   
-  // New state for service configurations
   const [emailConfig, setEmailConfig] = useState<ServiceConfig>({
     userCount: 1,
     period: "1",
@@ -118,10 +124,8 @@ const Cart = () => {
   const [selectedEmailPlan, setSelectedEmailPlan] = useState<null | typeof emailPlans[0]>(null);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
 
-  // Filtrar apenas os domínios no carrinho
   const domainItems = items.filter(item => item.title.toLowerCase().includes('domínio'));
 
-  // Verificar se todos os domínios têm dados de titularidade
   const allDomainsHaveOwnership = domainItems.length > 0 && 
     domainItems.every(item => {
       const domainName = item.title.replace('Domínio ', '');
@@ -129,7 +133,6 @@ const Cart = () => {
     });
 
   useEffect(() => {
-    // Inicializar o mapa de domínios com titularidade
     const initialDomainMap: {[key: string]: DomainWithOwnership} = {};
     
     domainItems.forEach(item => {
@@ -174,8 +177,6 @@ const Cart = () => {
   };
 
   const handleRemoveItem = (itemId: string) => {
-    // Se for um domínio, também remover do mapa de titularidade
-    const item = items.find(i => i.id === itemId);
     if (item && item.title.toLowerCase().includes('domínio')) {
       const domainName = item.title.replace('Domínio ', '');
       setDomainWithOwnershipMap(prev => {
@@ -349,7 +350,6 @@ const Cart = () => {
                 </Card>
               )}
 
-              {/* Outros itens do carrinho */}
               {items.filter(item => !item.title.toLowerCase().includes('domínio')).length > 0 && (
                 <Card>
                   <CardHeader>
@@ -387,7 +387,6 @@ const Cart = () => {
                 </Card>
               )}
 
-              {/* Serviços adicionais recomendados */}
               <Card>
                 <CardHeader>
                   <CardTitle>Serviços Recomendados</CardTitle>
@@ -536,7 +535,6 @@ const Cart = () => {
         />
       )}
 
-      {/* Dialog for configuring email plans */}
       {selectedEmailPlan && (
         <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
           <DialogContent className="sm:max-w-[425px]">
