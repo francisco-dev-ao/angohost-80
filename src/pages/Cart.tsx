@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
@@ -177,8 +178,9 @@ const Cart = () => {
   };
 
   const handleRemoveItem = (itemId: string) => {
-    if (item && item.title.toLowerCase().includes('domínio')) {
-      const domainName = item.title.replace('Domínio ', '');
+    const itemToRemove = items.find(i => i.id === itemId);
+    if (itemToRemove && itemToRemove.title.toLowerCase().includes('domínio')) {
+      const domainName = itemToRemove.title.replace('Domínio ', '');
       setDomainWithOwnershipMap(prev => {
         const newMap = {...prev};
         delete newMap[domainName];

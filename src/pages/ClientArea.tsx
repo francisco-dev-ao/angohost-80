@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const ClientArea = () => {
   const handleLogin = (e: React.FormEvent) => {
@@ -80,29 +81,16 @@ const ClientArea = () => {
                     Registre-se para gerenciar seus serviços.
                   </CardDescription>
                 </CardHeader>
-                <form onSubmit={handleRegister}>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nome completo</Label>
-                      <Input id="name" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="register-email">Email</Label>
-                      <Input id="register-email" type="email" placeholder="seu@email.com" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="register-password">Senha</Label>
-                      <Input id="register-password" type="password" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirme a senha</Label>
-                      <Input id="confirm-password" type="password" required />
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button className="w-full" type="submit">Registrar</Button>
-                  </CardFooter>
-                </form>
+                <CardContent>
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground mb-4">
+                      Para se registrar, por favor acesse nossa nova página de registro onde você poderá fornecer todas as informações necessárias.
+                    </p>
+                    <Button asChild>
+                      <Link to="/register">Ir para a página de registro</Link>
+                    </Button>
+                  </div>
+                </CardContent>
               </Card>
             </TabsContent>
           </Tabs>

@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Domains from "./pages/Domains";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/products/exchange" element={<ExchangeOnline />} />
             <Route path="/domains" element={<Domains />} />
             <Route path="/client" element={<ClientArea />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/cart" element={<Cart />} />
