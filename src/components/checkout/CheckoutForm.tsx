@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -39,12 +38,10 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     address: '',
   });
   
-  // Add a state to track if user profile data is loaded
   const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
     if (user) {
-      // Load user profile data
       const fetchUserProfile = async () => {
         const { data, error } = await supabase
           .from('profiles')
@@ -87,10 +84,9 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     try {
       setLoading(true);
       
-      // Add bank transfer option to the payment methods
       let defaultMethods = [
         { 
-          id: 'bank_transfer', 
+          id: 'bank_transfer_option', 
           name: 'Transferência Bancária', 
           is_active: true,
           payment_type: 'bank_transfer',
@@ -105,11 +101,9 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
         
       if (error) throw error;
       
-      // Combine default methods with database methods
       const allMethods = [...defaultMethods, ...(data || [])];
       setPaymentMethods(allMethods);
       
-      // Auto-select default payment method if exists
       const defaultMethod = allMethods.find(m => m.payment_type === 'bank_transfer');
       if (defaultMethod) {
         setSelectedPaymentMethod(defaultMethod.id);
@@ -120,16 +114,15 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       console.error('Error fetching payment methods:', error);
       toast.error('Erro ao carregar métodos de pagamento');
       
-      // Fallback to bank transfer option
       const bankTransfer = { 
-        id: 'bank_transfer', 
+        id: 'bank_transfer_option', 
         name: 'Transferência Bancária', 
         is_active: true,
         payment_type: 'bank_transfer',
         description: 'Pague por transferência bancária e envie o comprovante'
       };
       setPaymentMethods([bankTransfer]);
-      setSelectedPaymentMethod('bank_transfer');
+      setSelectedPaymentMethod('bank_transfer_option');
     } finally {
       setLoading(false);
     }
@@ -183,7 +176,6 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     navigate('/client/contact-profiles?returnTo=/checkout');
   };
 
-  // Check if there are form fields that need to be filled
   const needsFormInput = !formData.phone || !formData.address;
 
   if (items.length === 0) {

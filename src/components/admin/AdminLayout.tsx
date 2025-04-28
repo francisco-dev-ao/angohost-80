@@ -1,7 +1,10 @@
+
 import { ReactNode } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminLayoutProps {
@@ -10,7 +13,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const navigate = useNavigate();
-  const { isAdmin, isLoading } = useSupabaseAuth();
+  const { isAdmin, isLoading } = useAdminAuth();
 
   const handleSignOut = async () => {
     try {
