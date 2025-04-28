@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -33,6 +33,7 @@ export default function Register() {
       navigate(returnUrl);
     } catch (error) {
       console.error('Login error:', error);
+      toast.error('Erro ao realizar login');
     } finally {
       setIsLoggingIn(false);
     }
@@ -46,17 +47,26 @@ export default function Register() {
       navigate(returnUrl);
     } catch (error) {
       console.error('Registration error:', error);
+      toast.error('Erro ao realizar cadastro');
     } finally {
       setIsRegistering(false);
     }
   };
 
+  const loginTitle = "Acesse a sua conta";
+  const loginSubtitle = "Bem-vindo de volta! Por favor, insira seus detalhes.";
+  const registerTitle = "Criar nova conta";
+  const registerSubtitle = "Por favor, insira seus dados para criar uma conta.";
+
   return (
-    <AuthLayout>
+    <AuthLayout 
+      title={tab === 'login' ? loginTitle : registerTitle}
+      subtitle={tab === 'login' ? loginSubtitle : registerSubtitle}
+    >
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="login" className="text-white">Entrar</TabsTrigger>
-          <TabsTrigger value="register" className="text-white">Registrar</TabsTrigger>
+          <TabsTrigger value="login" className="text-gray-700">Entrar</TabsTrigger>
+          <TabsTrigger value="register" className="text-gray-700">Criar Conta</TabsTrigger>
         </TabsList>
         
         <TabsContent value="login">

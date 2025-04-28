@@ -21,22 +21,21 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="login-email" className="text-white">Email</Label>
+        <Label htmlFor="login-email">Email</Label>
         <Input 
           id="login-email" 
           type="email" 
-          placeholder="nome@exemplo.com" 
+          placeholder="nome@exemplo.ao" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-white/10 border-white/10 text-white placeholder:text-white/50"
           required
         />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="login-password" className="text-white">Senha</Label>
+        <Label htmlFor="login-password">Senha</Label>
         <div className="relative">
           <Input 
             id="login-password" 
@@ -44,13 +43,13 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-white/10 border-white/10 text-white placeholder:text-white/50 pr-10"
+            className="pr-10"
             required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
@@ -58,12 +57,16 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
       </div>
       
       <Button 
-        className="w-full bg-[#33C3F0] hover:bg-[#33C3F0]/90 text-white" 
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
         type="submit" 
         disabled={isLoading}
       >
         {isLoading ? 'Entrando...' : 'Entrar'}
       </Button>
+      
+      <p className="text-center text-sm text-gray-500">
+        Após o login, você será redirecionado para finalizar sua compra.
+      </p>
     </form>
   );
 }
