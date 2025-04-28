@@ -36,6 +36,206 @@ export type Database = {
         }
         Relationships: []
       }
+      client_domains: {
+        Row: {
+          auto_renew: boolean | null
+          created_at: string | null
+          domain_name: string
+          epp_code: string | null
+          expiry_date: string
+          id: string
+          is_locked: boolean | null
+          nameservers: Json | null
+          registration_date: string
+          status: Database["public"]["Enums"]["domain_status"]
+          updated_at: string | null
+          user_id: string
+          whois_privacy: boolean | null
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          created_at?: string | null
+          domain_name: string
+          epp_code?: string | null
+          expiry_date: string
+          id?: string
+          is_locked?: boolean | null
+          nameservers?: Json | null
+          registration_date: string
+          status?: Database["public"]["Enums"]["domain_status"]
+          updated_at?: string | null
+          user_id: string
+          whois_privacy?: boolean | null
+        }
+        Update: {
+          auto_renew?: boolean | null
+          created_at?: string | null
+          domain_name?: string
+          epp_code?: string | null
+          expiry_date?: string
+          id?: string
+          is_locked?: boolean | null
+          nameservers?: Json | null
+          registration_date?: string
+          status?: Database["public"]["Enums"]["domain_status"]
+          updated_at?: string | null
+          user_id?: string
+          whois_privacy?: boolean | null
+        }
+        Relationships: []
+      }
+      client_services: {
+        Row: {
+          auto_renew: boolean | null
+          bandwidth: number | null
+          control_panel_url: string | null
+          control_panel_username: string | null
+          created_at: string | null
+          description: string | null
+          disk_space: number | null
+          id: string
+          last_renewed_at: string | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          renewal_date: string
+          service_type: Database["public"]["Enums"]["service_type"]
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          bandwidth?: number | null
+          control_panel_url?: string | null
+          control_panel_username?: string | null
+          created_at?: string | null
+          description?: string | null
+          disk_space?: number | null
+          id?: string
+          last_renewed_at?: string | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          renewal_date: string
+          service_type: Database["public"]["Enums"]["service_type"]
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean | null
+          bandwidth?: number | null
+          control_panel_url?: string | null
+          control_panel_username?: string | null
+          created_at?: string | null
+          description?: string | null
+          disk_space?: number | null
+          id?: string
+          last_renewed_at?: string | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          renewal_date?: string
+          service_type?: Database["public"]["Enums"]["service_type"]
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      client_tickets: {
+        Row: {
+          assigned_to: string | null
+          closed_at: string | null
+          content: string
+          created_at: string | null
+          department: string | null
+          id: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          satisfaction_rating: number | null
+          status: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          ticket_number: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          closed_at?: string | null
+          content: string
+          created_at?: string | null
+          department?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          satisfaction_rating?: number | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          ticket_number: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          closed_at?: string | null
+          content?: string
+          created_at?: string | null
+          department?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          satisfaction_rating?: number | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject?: string
+          ticket_number?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      domain_dns_records: {
+        Row: {
+          content: string
+          created_at: string | null
+          domain_id: string
+          id: string
+          name: string
+          priority: number | null
+          record_type: string
+          ttl: number
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          domain_id: string
+          id?: string
+          name: string
+          priority?: number | null
+          record_type: string
+          ttl?: number
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          domain_id?: string
+          id?: string
+          name?: string
+          priority?: number | null
+          record_type?: string
+          ttl?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_dns_records_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "client_domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       domains: {
         Row: {
           created_at: string | null
@@ -147,6 +347,104 @@ export type Database = {
         }
         Relationships: []
       }
+      login_history: {
+        Row: {
+          device_info: string | null
+          id: string
+          ip_address: string | null
+          location: string | null
+          login_at: string
+          success: boolean | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          location?: string | null
+          login_at?: string
+          success?: boolean | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          location?: string | null
+          login_at?: string
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          billing_address: Json | null
+          completed_at: string | null
+          created_at: string | null
+          discount_amount: number | null
+          id: string
+          items: Json
+          notes: string | null
+          order_number: string
+          payment_method: string | null
+          payment_status: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          tax_amount: number | null
+          total_amount: number
+          transaction_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          billing_address?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          discount_amount?: number | null
+          id?: string
+          items: Json
+          notes?: string | null
+          order_number: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          tax_amount?: number | null
+          total_amount: number
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          billing_address?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          discount_amount?: number | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_number?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          tax_amount?: number | null
+          total_amount?: number
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_payment_method_fkey"
+            columns: ["payment_method"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_gateways: {
         Row: {
           config: Json | null
@@ -171,6 +469,54 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          billing_address: string | null
+          billing_name: string | null
+          card_brand: string | null
+          card_expiry: string | null
+          card_last_four: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          payment_type: Database["public"]["Enums"]["payment_method"]
+          token: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          billing_address?: string | null
+          billing_name?: string | null
+          card_brand?: string | null
+          card_expiry?: string | null
+          card_last_four?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          payment_type: Database["public"]["Enums"]["payment_method"]
+          token?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          billing_address?: string | null
+          billing_name?: string | null
+          card_brand?: string | null
+          card_expiry?: string | null
+          card_last_four?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          payment_type?: Database["public"]["Enums"]["payment_method"]
+          token?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -245,35 +591,145 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          company_name: string | null
           created_at: string | null
+          document_number: string | null
           email: string | null
+          email_verified: boolean | null
           full_name: string | null
           id: string
           phone: string | null
+          phone_verified: boolean | null
+          preferred_contact: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          two_factor_enabled: boolean | null
+          two_factor_secret: string | null
           updated_at: string | null
         }
         Insert: {
           address?: string | null
+          company_name?: string | null
           created_at?: string | null
+          document_number?: string | null
           email?: string | null
+          email_verified?: boolean | null
           full_name?: string | null
           id: string
           phone?: string | null
+          phone_verified?: boolean | null
+          preferred_contact?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          two_factor_enabled?: boolean | null
+          two_factor_secret?: string | null
           updated_at?: string | null
         }
         Update: {
           address?: string | null
+          company_name?: string | null
           created_at?: string | null
+          document_number?: string | null
           email?: string | null
+          email_verified?: boolean | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          phone_verified?: boolean | null
+          preferred_contact?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          two_factor_enabled?: boolean | null
+          two_factor_secret?: string | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      promotions: {
+        Row: {
+          applies_to: Json | null
+          code: string | null
+          created_at: string | null
+          description: string
+          discount_amount: number | null
+          discount_percent: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          minimum_order_value: number | null
+          start_date: string | null
+          updated_at: string | null
+          used_count: number | null
+        }
+        Insert: {
+          applies_to?: Json | null
+          code?: string | null
+          created_at?: string | null
+          description: string
+          discount_amount?: number | null
+          discount_percent?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          minimum_order_value?: number | null
+          start_date?: string | null
+          updated_at?: string | null
+          used_count?: number | null
+        }
+        Update: {
+          applies_to?: Json | null
+          code?: string | null
+          created_at?: string | null
+          description?: string
+          discount_amount?: number | null
+          discount_percent?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          minimum_order_value?: number | null
+          start_date?: string | null
+          updated_at?: string | null
+          used_count?: number | null
+        }
+        Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string | null
+          id: string
+          is_staff: boolean | null
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_staff?: boolean | null
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_staff?: boolean | null
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "client_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ticket_replies: {
         Row: {
@@ -346,17 +802,127 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notifications: {
+        Row: {
+          action_text: string | null
+          action_url: string | null
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          related_id: string | null
+          related_type: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_text?: string | null
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          related_id?: string | null
+          related_type?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_text?: string | null
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          related_id?: string | null
+          related_type?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_promotion_uses: {
+        Row: {
+          discount_applied: number
+          id: string
+          order_id: string | null
+          promotion_id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          discount_applied: number
+          id?: string
+          order_id?: string | null
+          promotion_id: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          discount_applied?: number
+          id?: string
+          order_id?: string | null
+          promotion_id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_promotion_uses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_promotion_uses_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_use_promotion: {
+        Args: { _user_id: string; _promotion_id: string }
+        Returns: boolean
+      }
       is_admin: {
         Args: { uid: string }
         Returns: boolean
       }
     }
     Enums: {
+      domain_status:
+        | "active"
+        | "expired"
+        | "pending_transfer"
+        | "pending_registration"
+      order_status: "pending" | "processing" | "completed" | "canceled"
+      payment_method:
+        | "credit_card"
+        | "debit_card"
+        | "bank_transfer"
+        | "paypal"
+        | "multicaixa"
+        | "stripe"
+      service_type:
+        | "cpanel_hosting"
+        | "wordpress_hosting"
+        | "vps"
+        | "dedicated_server"
+        | "email"
+        | "exchange"
+      ticket_priority: "low" | "medium" | "high" | "urgent"
+      ticket_status: "open" | "in_progress" | "resolved" | "closed"
       user_role: "admin" | "support" | "finance" | "customer"
     }
     CompositeTypes: {
@@ -473,6 +1039,31 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      domain_status: [
+        "active",
+        "expired",
+        "pending_transfer",
+        "pending_registration",
+      ],
+      order_status: ["pending", "processing", "completed", "canceled"],
+      payment_method: [
+        "credit_card",
+        "debit_card",
+        "bank_transfer",
+        "paypal",
+        "multicaixa",
+        "stripe",
+      ],
+      service_type: [
+        "cpanel_hosting",
+        "wordpress_hosting",
+        "vps",
+        "dedicated_server",
+        "email",
+        "exchange",
+      ],
+      ticket_priority: ["low", "medium", "high", "urgent"],
+      ticket_status: ["open", "in_progress", "resolved", "closed"],
       user_role: ["admin", "support", "finance", "customer"],
     },
   },

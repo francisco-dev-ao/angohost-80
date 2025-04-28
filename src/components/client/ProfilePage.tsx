@@ -87,7 +87,7 @@ const ProfilePage = () => {
           email: profile.email,
           phone: profile.phone,
           address: profile.address,
-          updated_at: new Date(),
+          updated_at: new Date().toISOString(),
         });
         
       if (error) {

@@ -1,217 +1,292 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate, Link, Outlet } from 'react-router-dom';
-import { X, Menu, LayoutDashboard, Users, Package2, Globe, FileText, MessageSquareText, Mail, Settings, ShieldCheck, BarChart3 } from 'lucide-react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import React, { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  BarChart,
+  Users,
+  Settings,
+  Box,
+  Globe,
+  Server,
+  CreditCard,
+  FileText,
+  LifeBuoy,
+  Mail,
+  LogOut,
+  Home,
+} from "lucide-react";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-export default function AdminLayout() {
-  const { isAdmin, isLoading } = useAdminAuth();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [adminName, setAdminName] = useState('Admin');
+interface AdminLayoutProps {
+  children: ReactNode;
+}
+
+const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchAdminName = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', user.id)
-            .single();
-            
-          if (data?.full_name) {
-            setAdminName(data.full_name);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching admin name:', error);
-      }
-    };
-    
-    fetchAdminName();
-  }, []);
+  const { isAdmin, isLoading } = useAdminAuth();
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      navigate('/');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      navigate('/register');
       toast.success('Sessão encerrada com sucesso');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error(error);
       toast.error('Erro ao encerrar sessão');
     }
   };
-  
+
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="w-[600px] space-y-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-[600px] w-full" />
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary rounded-full border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Verificando permissões...</p>
         </div>
       </div>
     );
   }
-  
+
   if (!isAdmin) {
-    return null; // Auth hook will redirect
+    return null; // Will be redirected by useAdminAuth
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full">
-        <Sidebar variant="sidebar" collapsible="offcanvas">
-          <SidebarHeader>
-            <div className="flex items-center justify-between px-4">
-              <Link to="/admin" className="text-xl font-bold text-sidebar-foreground">
-                AngoHost Admin
-              </Link>
-            </div>
-          </SidebarHeader>
-
-          <SidebarContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin">
-                    <LayoutDashboard />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/users">
-                    <Users />
-                    <span>Clientes</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/products">
-                    <Package2 />
-                    <span>Produtos e Serviços</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/domains">
-                    <Globe />
-                    <span>Domínios</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/invoices">
-                    <FileText />
-                    <span>Faturas</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/tickets">
-                    <MessageSquareText />
-                    <span>Tickets de Suporte</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/emails">
-                    <Mail />
-                    <span>E-mails</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/settings">
-                    <Settings />
-                    <span>Configurações</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/staff">
-                    <ShieldCheck />
-                    <span>Administradores</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/reports">
-                    <BarChart3 />
-                    <span>Relatórios</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
+    <div className="flex h-screen overflow-hidden">
+      <SidebarTrigger className="fixed top-4 left-4 z-50 md:hidden" />
+      
+      <Sidebar className="border-r">
+        <SidebarContent className="w-[240px]">
+          <div className="py-4 px-4 border-b">
+            <h2 className="font-semibold text-lg">Área Administrativa</h2>
+            <p className="text-sm text-muted-foreground">Gerencie todos os aspectos da plataforma</p>
+          </div>
           
-          <SidebarFooter>
-            <div className="flex flex-col gap-2 p-4">
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  <p className="font-medium">{adminName}</p>
-                  <p className="text-xs text-muted-foreground">Administrador</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  Sair
-                </Button>
-              </div>
+          <ScrollArea className="h-[calc(100vh-108px)]">
+            <div className="px-3 py-2">
+              <SidebarGroup>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start"
+                        onClick={() => navigate('/admin')}
+                      >
+                        <Home className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start"
+                        onClick={() => navigate('/admin/stats')}
+                      >
+                        <BarChart className="mr-2 h-4 w-4" />
+                        Estatísticas
+                      </Button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Usuários</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/users')}
+                        >
+                          <Users className="mr-2 h-4 w-4" />
+                          Gerenciar Usuários
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Produtos</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/products')}
+                        >
+                          <Box className="mr-2 h-4 w-4" />
+                          Produtos/Serviços
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/domains')}
+                        >
+                          <Globe className="mr-2 h-4 w-4" />
+                          Domínios
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/hosting')}
+                        >
+                          <Server className="mr-2 h-4 w-4" />
+                          Hospedagem
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Financeiro</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/orders')}
+                        >
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Pedidos
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/invoices')}
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          Faturas
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Suporte</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/tickets')}
+                        >
+                          <LifeBuoy className="mr-2 h-4 w-4" />
+                          Tickets
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/email-templates')}
+                        >
+                          <Mail className="mr-2 h-4 w-4" />
+                          Templates de Email
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start"
+                          onClick={() => navigate('/admin/settings')}
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Configurações
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-red-500 hover:text-red-600"
+                          onClick={handleSignOut}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Sair
+                        </Button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
             </div>
-          </SidebarFooter>
-        </Sidebar>
-        
-        <div className="flex w-full flex-1 flex-col overflow-hidden">
-          <header className="bg-background border-b px-4 py-3 flex items-center justify-between md:px-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </Button>
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">Painel Administrativo</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/">Voltar ao site</Link>
-              </Button>
-            </div>
-          </header>
-          
-          <main className="flex-1 overflow-auto p-4 md:p-6">
-            <Outlet />
-          </main>
+          </ScrollArea>
+        </SidebarContent>
+      </Sidebar>
+      
+      <div className="flex-1 overflow-auto bg-background">
+        <div className="container py-4">
+          {children}
         </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
-}
+};
+
+export default AdminLayout;
