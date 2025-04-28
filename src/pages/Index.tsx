@@ -9,7 +9,7 @@ import FeaturesSection from "@/components/home/FeaturesSection";
 import DomainSection from "@/components/home/DomainSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import EmailSection from "@/components/home/EmailSection";
-import ClientLogosCarousel from "@/components/home/ClientLogosCarousel";
+import AboutUsSection from "@/components/home/AboutUsSection";
 import CallToActionSection from "@/components/home/CallToActionSection";
 import FaqSection from "@/components/home/FaqSection";
 
@@ -43,8 +43,8 @@ const Index = () => {
       {/* FAQ Section */}
       <FaqSection />
 
-      {/* Client Logos Carousel Section - Only on homepage */}
-      <ClientLogosCarousel />
+      {/* About Us Section - Replaced Client Logos Carousel */}
+      <AboutUsSection />
 
       {/* Enhanced CTA Section */}
       <CallToActionSection />
