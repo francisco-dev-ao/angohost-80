@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from '@/contexts/CartContext';
 import { useSaveOrder } from '@/hooks/useSaveOrder';
+import { useContactProfiles } from '@/hooks/useContactProfiles';
 import { toast } from 'sonner';
-import { Check, CreditCard } from 'lucide-react';
+import { Check, CreditCard, PlusCircle, User } from 'lucide-react';
 import { formatPrice } from '@/utils/formatters';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,10 +25,12 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
   const { user } = useSupabaseAuth();
   const { items } = useCart();
   const { saveCartAsOrder, isSaving } = useSaveOrder();
+  const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
   
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [selectedContactProfile, setSelectedContactProfile] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: user?.user_metadata?.full_name || '',
@@ -47,6 +51,12 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (profiles && profiles.length > 0) {
+      setSelectedContactProfile(profiles[0].id);
+    }
+  }, [profiles]);
+
   const fetchPaymentMethods = async () => {
     if (!user) return;
     
@@ -56,7 +66,6 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       const { data, error } = await supabase
         .from('payment_methods')
         .select('*')
-        .eq('user_id', user.id)
         .eq('is_active', true);
         
       if (error) throw error;
@@ -67,6 +76,8 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       const defaultMethod = data?.find(m => m.is_default);
       if (defaultMethod) {
         setSelectedPaymentMethod(defaultMethod.id);
+      } else if (data && data.length > 0) {
+        setSelectedPaymentMethod(data[0].id);
       }
     } catch (error: any) {
       console.error('Error fetching payment methods:', error);
@@ -98,8 +109,21 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       return;
     }
     
+    if (hasDomains() && !selectedContactProfile) {
+      toast.error('Selecione um perfil de contato para titularidade dos domínios');
+      return;
+    }
+    
     try {
-      const order = await saveCartAsOrder(selectedPaymentMethod);
+      const orderData = {
+        paymentMethodId: selectedPaymentMethod,
+        contactProfileId: selectedContactProfile,
+        clientDetails: selectedContactProfile 
+          ? profiles.find(p => p.id === selectedContactProfile) 
+          : { name: formData.name, email: formData.email, phone: formData.phone, address: formData.address }
+      };
+      
+      const order = await saveCartAsOrder(orderData);
       if (order) {
         onComplete?.(order.id);
         
@@ -121,6 +145,14 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     }
   };
 
+  const hasDomains = () => {
+    return items.some(item => item.type === 'domain');
+  };
+
+  const createNewProfile = () => {
+    navigate('/client/contact-profiles?returnTo=/checkout');
+  };
+
   if (items.length === 0) {
     return (
       <Card>
@@ -138,6 +170,64 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-6">
+        {hasDomains() && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Perfil de Contato</CardTitle>
+              <CardDescription>
+                Selecione um perfil de contato para titularidade dos domínios
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingProfiles ? (
+                <div className="text-center py-4">Carregando perfis de contato...</div>
+              ) : profiles.length > 0 ? (
+                <RadioGroup 
+                  value={selectedContactProfile || undefined}
+                  onValueChange={setSelectedContactProfile}
+                >
+                  <div className="space-y-4">
+                    {profiles.map((profile) => (
+                      <div 
+                        key={profile.id} 
+                        className={`flex items-center justify-between border rounded-md p-4 ${
+                          selectedContactProfile === profile.id ? 'border-primary' : 'border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value={profile.id} id={`profile-${profile.id}`} />
+                          <Label htmlFor={`profile-${profile.id}`} className="flex items-center space-x-2">
+                            <User className="h-4 w-4" />
+                            <span>{profile.name}</span>
+                          </Label>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {profile.document}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </RadioGroup>
+              ) : (
+                <div className="text-center py-4 space-y-4">
+                  <p>Você não possui perfis de contato cadastrados</p>
+                </div>
+              )}
+              <div className="mt-4">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={createNewProfile}
+                  className="w-full"
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Criar novo perfil de contato
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Dados pessoais</CardTitle>
@@ -214,15 +304,12 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                         <Label htmlFor={`payment-${method.id}`} className="flex items-center space-x-2">
                           <CreditCard className="h-4 w-4" />
                           <span>
-                            {method.card_brand || 'Cartão'} •••• {method.card_last_four}
+                            {method.name || 'Método de Pagamento'} 
                             {method.is_default && (
                               <span className="ml-2 text-sm text-muted-foreground">(Padrão)</span>
                             )}
                           </span>
                         </Label>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Expira em {method.card_expiry}
                       </div>
                     </div>
                   ))}
@@ -230,14 +317,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
               </RadioGroup>
             ) : (
               <div className="text-center py-4 space-y-4">
-                <p>Você não possui métodos de pagamento cadastrados</p>
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => navigate('/client/payment-methods')}
-                >
-                  Adicionar método de pagamento
-                </Button>
+                <p>Nenhum método de pagamento disponível</p>
               </div>
             )}
           </CardContent>

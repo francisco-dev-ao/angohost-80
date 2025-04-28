@@ -12,9 +12,25 @@ export interface Invoice {
   due_date: string;
   payment_date: string | null;
   user_id: string;
-  items: any; // Changed from any[] to any to accommodate Json type from Supabase
+  items: any;
   created_at: string;
   updated_at?: string;
+  company_details?: {
+    name: string;
+    address: string;
+    phone: string;
+    email: string;
+    vat: string;
+  } | null;
+  client_details?: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    document: string;
+  } | null;
+  order_id?: string | null;
+  download_url?: string | null;
 }
 
 export const useInvoices = () => {
@@ -29,12 +45,12 @@ export const useInvoices = () => {
       try {
         const { data, error } = await supabase
           .from('invoices')
-          .select('*')
+          .select('*, orders(order_number, status, payment_status)')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
         
-        // Convert the data to match the Invoice type
         const typedInvoices: Invoice[] = data?.map(invoice => ({
           id: invoice.id,
           invoice_number: invoice.invoice_number,
@@ -44,7 +60,12 @@ export const useInvoices = () => {
           payment_date: invoice.payment_date,
           user_id: invoice.user_id,
           items: invoice.items,
-          created_at: invoice.created_at
+          created_at: invoice.created_at,
+          updated_at: invoice.updated_at,
+          company_details: invoice.company_details,
+          client_details: invoice.client_details,
+          order_id: invoice.order_id,
+          download_url: invoice.download_url
         })) || [];
         
         setInvoices(typedInvoices);
@@ -66,7 +87,8 @@ export const useInvoices = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'invoices'
+          table: 'invoices',
+          filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           console.log('Real-time update:', payload);

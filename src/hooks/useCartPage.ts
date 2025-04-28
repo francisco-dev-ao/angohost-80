@@ -1,37 +1,43 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
-import { DomainWithOwnership } from '@/types/cart';
-import { toast } from 'sonner';
+import { emailPlans } from '@/config/emailPlans';
+
+export interface DomainOwnershipData {
+  name: string;
+  email: string;
+  phone: string;
+  document: string;
+  address: string;
+}
 
 export const useCartPage = () => {
-  const { items, removeFromCart, addToCart, isLoading } = useCart();
-  const [selectedBillingPeriod, setSelectedBillingPeriod] = useState("1");
-  
-  // Domain ownership state
-  const [domainWithOwnershipMap, setDomainWithOwnershipMap] = useState<{[key: string]: DomainWithOwnership}>({});
+  const { items, removeFromCart, updateItemPrice, addToCart } = useCart();
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedBillingPeriod, setSelectedBillingPeriod] = useState('1');
+  const [domainWithOwnershipMap, setDomainWithOwnershipMap] = useState<Record<string, DomainOwnershipData | null>>({});
   const [currentDomainForOwnership, setCurrentDomainForOwnership] = useState<string | null>(null);
   const [isOwnershipDialogOpen, setIsOwnershipDialogOpen] = useState(false);
-  
-  // Email dialog state
-  const [selectedEmailPlan, setSelectedEmailPlan] = useState<null | any>(null);
-  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [selectedEmailPlan, setSelectedEmailPlan] = useState<any | null>(null);
 
-  const domainItems = items.filter(item => item.title.toLowerCase().includes('domínio'));
+  useEffect(() => {
+    // Initialize domain ownership map
+    const map: Record<string, DomainOwnershipData | null> = {};
+    items
+      .filter(item => item.type === 'domain')
+      .forEach(item => {
+        map[item.domain] = item.ownershipData || null;
+      });
+    setDomainWithOwnershipMap(map);
+    setIsLoading(false);
+  }, [items]);
+
+  const domainItems = items.filter(item => item.type === 'domain');
+  const allDomainsHaveOwnership = domainItems.length === 0 || 
+    domainItems.every(item => item.ownershipData || item.contactProfileId);
 
   const handleRemoveItem = (itemId: string) => {
-    const itemToRemove = items.find(i => i.id === itemId);
-    if (itemToRemove && itemToRemove.title.toLowerCase().includes('domínio')) {
-      const domainName = itemToRemove.title.replace('Domínio ', '');
-      setDomainWithOwnershipMap(prev => {
-        const newMap = {...prev};
-        delete newMap[domainName];
-        return newMap;
-      });
-    }
-    
     removeFromCart(itemId);
-    toast.success('Item removido do carrinho!');
   };
 
   const handleOpenOwnershipDialog = (domain: string) => {
@@ -44,78 +50,86 @@ export const useCartPage = () => {
     setCurrentDomainForOwnership(null);
   };
 
-  const handleOwnershipSubmit = (domain: string, data: any) => {
-    setDomainWithOwnershipMap(prev => ({
-      ...prev,
-      [domain]: {
-        domain,
-        hasOwnership: true,
-        ownershipData: data
-      }
-    }));
-    setIsOwnershipDialogOpen(false);
-    setCurrentDomainForOwnership(null);
-    toast.success('Perfil de titularidade salvo com sucesso!');
+  const handleOwnershipSubmit = (domain: string, data: DomainOwnershipData) => {
+    // Update local state
+    const updatedMap = { ...domainWithOwnershipMap };
+    updatedMap[domain] = data;
+    setDomainWithOwnershipMap(updatedMap);
+    
+    // Close dialog
+    handleCloseOwnershipDialog();
   };
 
   const handleAddProduct = (product: any, years: number = 1) => {
     addToCart({
       id: `${product.title}-${Date.now()}`,
-      title: `${product.title} (${years} ${years === 1 ? 'ano' : 'anos'})`,
+      title: product.title,
+      description: product.description,
       quantity: 1,
       price: product.basePrice * years,
       basePrice: product.basePrice,
+      years
     });
-    toast.success(`${product.title} adicionado ao carrinho!`);
   };
 
   const handleEmailPlanClick = (plan: any) => {
     setSelectedEmailPlan(plan);
-    setShowEmailDialog(true);
   };
 
-  const handleConfirmEmailPlan = (config: { userCount: number; period: string }) => {
+  const handleConfirmEmailPlan = (config: { 
+    userCount: number; 
+    period: string;
+    domainOption?: string;
+    selectedDomain?: string;
+    contactProfileId?: string;
+  }) => {
     if (!selectedEmailPlan) return;
-    
-    const years = parseInt(config.period);
-    const userCount = config.userCount;
-    
-    addToCart({
-      id: `${selectedEmailPlan.title}-${Date.now()}`,
-      title: `${selectedEmailPlan.title} (${userCount} usuário${userCount > 1 ? 's' : ''} por ${years} ${years === 1 ? 'ano' : 'anos'})`,
-      quantity: userCount,
-      price: selectedEmailPlan.basePrice * userCount * years,
-      basePrice: selectedEmailPlan.basePrice,
-    });
-    
-    setShowEmailDialog(false);
-    toast.success('Plano de email adicionado ao carrinho!');
-  };
 
-  const handleRecalculatePrices = (period: string) => {
-    const itemsToRecalculate = items.filter(item => 
-      !item.title.toLowerCase().includes('domínio') && 
-      !item.title.toLowerCase().includes('email')
-    );
+    const years = parseInt(config.period);
+
+    // Add email product to cart
+    const emailItem = {
+      id: `${selectedEmailPlan.title}-${Date.now()}`,
+      title: `${selectedEmailPlan.title} (${config.userCount} usuários por ${years} ${years === 1 ? 'ano' : 'anos'})`,
+      quantity: config.userCount,
+      price: selectedEmailPlan.basePrice * config.userCount * years,
+      basePrice: selectedEmailPlan.basePrice,
+      type: "email",
+    };
     
-    itemsToRecalculate.forEach(item => {
-      removeFromCart(item.id);
-      
-      const titleParts = item.title.split('(')[0].trim();
-      const product = {
-        title: titleParts,
-        basePrice: item.basePrice,
+    addToCart(emailItem);
+    
+    // If user selected to register a new domain, add domain item
+    if (config.domainOption === 'new' && config.selectedDomain) {
+      const domainItem = {
+        id: `domain-${config.selectedDomain}-${Date.now()}`,
+        title: `Domínio: ${config.selectedDomain}`,
+        quantity: 1,
+        price: 2000, // Default domain price
+        basePrice: 2000,
+        type: "domain",
+        domain: config.selectedDomain,
+        contactProfileId: config.contactProfileId
       };
       
-      handleAddProduct(product, parseInt(period));
-    });
+      addToCart(domainItem);
+    }
+    
+    // Clear selection
+    setSelectedEmailPlan(null);
   };
 
-  const allDomainsHaveOwnership = domainItems.length > 0 && 
-    domainItems.every(item => {
-      const domainName = item.title.replace('Domínio ', '');
-      return domainWithOwnershipMap[domainName]?.hasOwnership;
+  // Recalculate prices when billing period changes
+  const handleRecalculatePrices = (period: string) => {
+    const years = parseInt(period);
+    items.forEach(item => {
+      // Exclude domains from period calculation
+      if (item.type !== 'domain') {
+        const newPrice = item.basePrice * years;
+        updateItemPrice(item.id, newPrice);
+      }
     });
+  };
 
   return {
     items,
@@ -126,10 +140,7 @@ export const useCartPage = () => {
     domainWithOwnershipMap,
     currentDomainForOwnership,
     isOwnershipDialogOpen,
-    setIsOwnershipDialogOpen,
     selectedEmailPlan,
-    showEmailDialog,
-    setShowEmailDialog,
     allDomainsHaveOwnership,
     handleRemoveItem,
     handleOpenOwnershipDialog,

@@ -16,7 +16,11 @@ export const useSaveOrder = () => {
     return `ORD-${timestamp}-${random}`;
   };
 
-  const saveCartAsOrder = async (paymentMethodId?: string) => {
+  const saveCartAsOrder = async (orderData?: {
+    paymentMethodId?: string;
+    contactProfileId?: string | null;
+    clientDetails?: any;
+  }) => {
     if (!user) {
       toast.error('Você precisa estar logado para salvar o pedido');
       return null;
@@ -41,11 +45,15 @@ export const useSaveOrder = () => {
           items: items.map(item => ({
             name: item.title,
             quantity: item.quantity,
-            price: item.price
+            price: item.price,
+            type: item.type || 'product',
+            domain: item.domain || null
           })),
           total_amount: totalAmount,
           payment_status: 'pending',
-          payment_method: paymentMethodId || null
+          payment_method: orderData?.paymentMethodId || null,
+          contact_profile_id: orderData?.contactProfileId || null,
+          client_details: orderData?.clientDetails || null
         })
         .select()
         .single();
@@ -53,6 +61,9 @@ export const useSaveOrder = () => {
       if (error) {
         throw error;
       }
+
+      // Clear cart after successful order creation
+      clearCart();
       
       toast.success('Pedido salvo com sucesso');
       return order;

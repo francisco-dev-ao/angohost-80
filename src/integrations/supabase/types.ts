@@ -347,11 +347,15 @@ export type Database = {
       invoices: {
         Row: {
           amount: number
+          client_details: Json | null
+          company_details: Json | null
           created_at: string | null
+          download_url: string | null
           due_date: string
           id: string
           invoice_number: string | null
           items: Json | null
+          order_id: string | null
           payment_date: string | null
           status: string | null
           updated_at: string | null
@@ -359,11 +363,15 @@ export type Database = {
         }
         Insert: {
           amount: number
+          client_details?: Json | null
+          company_details?: Json | null
           created_at?: string | null
+          download_url?: string | null
           due_date: string
           id?: string
           invoice_number?: string | null
           items?: Json | null
+          order_id?: string | null
           payment_date?: string | null
           status?: string | null
           updated_at?: string | null
@@ -371,17 +379,29 @@ export type Database = {
         }
         Update: {
           amount?: number
+          client_details?: Json | null
+          company_details?: Json | null
           created_at?: string | null
+          download_url?: string | null
           due_date?: string
           id?: string
           invoice_number?: string | null
           items?: Json | null
+          order_id?: string | null
           payment_date?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       login_history: {
         Row: {

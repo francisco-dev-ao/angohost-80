@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import PricingSection from "@/components/home/PricingSection";
@@ -13,9 +13,33 @@ import PartnerLogos from "@/components/home/PartnerLogos";
 import AdminSetupDialog from "@/components/admin/AdminSetupDialog";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [isAdminSetupOpen, setIsAdminSetupOpen] = useState(false);
+  const [adminConfigured, setAdminConfigured] = useState(false);
+  
+  useEffect(() => {
+    // Check if support admin is already configured
+    const checkAdminUser = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role, email')
+          .eq('email', 'support@angohost.ao')
+          .eq('role', 'admin')
+          .single();
+        
+        if (data) {
+          setAdminConfigured(true);
+        }
+      } catch (error) {
+        console.error('Error checking admin user:', error);
+      }
+    };
+    
+    checkAdminUser();
+  }, []);
   
   return (
     <Layout>
@@ -28,6 +52,9 @@ const Index = () => {
           title="Configurações do Sistema"
         >
           <Settings size={18} />
+          {!adminConfigured && (
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+          )}
         </Button>
       </div>
       
@@ -44,6 +71,7 @@ const Index = () => {
       <AdminSetupDialog
         isOpen={isAdminSetupOpen}
         onOpenChange={setIsAdminSetupOpen}
+        defaultEmail="support@angohost.ao"
       />
     </Layout>
   );
