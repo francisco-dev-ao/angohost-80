@@ -1,4 +1,3 @@
-
 import Layout from '@/components/Layout';
 import DomainOwnership from '@/components/DomainOwnership';
 import CartItems from '@/components/cart/CartItems';
@@ -8,8 +7,11 @@ import EmailPlanDialog from '@/components/cart/EmailPlanDialog';
 import CartLoading from '@/components/cart/CartLoading';
 import EmptyCart from '@/components/cart/EmptyCart';
 import { useCartPage } from '@/hooks/useCartPage';
+import { useState } from 'react';
 
 const Cart = () => {
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  
   const {
     items,
     isLoading,
@@ -20,7 +22,6 @@ const Cart = () => {
     currentDomainForOwnership,
     isOwnershipDialogOpen,
     selectedEmailPlan,
-    showEmailDialog,
     allDomainsHaveOwnership,
     handleRemoveItem,
     handleOpenOwnershipDialog,
