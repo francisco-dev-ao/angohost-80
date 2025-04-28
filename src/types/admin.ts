@@ -91,13 +91,21 @@ export type DashboardStats = {
   newTickets: number;
 };
 
-export type Order = {
+export interface Order {
   id: string;
   userId: string;
   orderNumber: string;
   totalAmount: number;
-  status: 'pending' | 'processing' | 'completed' | 'canceled';
+  status: "pending" | "processing" | "completed" | "canceled";
   items: any[];
   createdAt: string;
-  updatedAt?: string;
-};
+  updatedAt: string;
+  contactProfile?: {
+    id: string;
+    name: string;
+    email: string;
+    document: string;
+    phone: string;
+    address: string;
+  } | null;
+}

@@ -15,7 +15,7 @@ export const useAdminOrders = () => {
       
       const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, contact_profiles(*)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -28,7 +28,8 @@ export const useAdminOrders = () => {
         status: o.status as Order['status'],
         items: Array.isArray(o.items) ? o.items : [], // Ensure items is an array
         createdAt: o.created_at,
-        updatedAt: o.updated_at
+        updatedAt: o.updated_at,
+        contactProfile: o.contact_profiles
       }));
       
       setOrders(formattedOrders);
@@ -43,7 +44,7 @@ export const useAdminOrders = () => {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, contact_profiles(*)')
         .eq('id', orderId)
         .single();
 
@@ -57,7 +58,8 @@ export const useAdminOrders = () => {
         status: data.status as Order['status'],
         items: Array.isArray(data.items) ? data.items : [],
         createdAt: data.created_at,
-        updatedAt: data.updated_at
+        updatedAt: data.updated_at,
+        contactProfile: data.contact_profiles
       };
       
       setSingleOrder(formattedOrder);
@@ -100,6 +102,7 @@ export const useAdminOrders = () => {
     userId: string;
     items: any[];
     totalAmount: number;
+    contactProfileId?: string;
   }) => {
     try {
       // Generate a unique order number (current timestamp + random string)
@@ -115,6 +118,7 @@ export const useAdminOrders = () => {
           total_amount: orderData.totalAmount,
           status: 'pending',
           items: orderData.items,
+          contact_profile_id: orderData.contactProfileId
         })
         .select('*')
         .single();
