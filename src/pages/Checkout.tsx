@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -11,10 +10,11 @@ import { formatPrice } from '@/utils/formatters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, clearCart } = useCart();
+  const { items, clearCart, isLoading } = useCart();
   const [paymentMethod, setPaymentMethod] = useState('credit-card');
   const [loading, setLoading] = useState(false);
   
@@ -62,6 +62,24 @@ const Checkout = () => {
     }, 2000);
   };
   
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container py-12">
+          <h1 className="text-3xl font-bold mb-8">Finalizar Compra</h1>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-6">
+              <Skeleton className="w-full h-64" />
+              <Skeleton className="w-full h-64" />
+              <Skeleton className="w-full h-64" />
+            </div>
+            <Skeleton className="h-96" />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <Layout>

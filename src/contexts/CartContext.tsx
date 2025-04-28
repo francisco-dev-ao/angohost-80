@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+
+import React, { createContext, useContext } from 'react';
+import { useCartData } from '@/hooks/useCartData';
 
 export interface CartItem {
   id: string;
@@ -13,37 +15,26 @@ interface CartContextType {
   addToCart: (item: CartItem) => void;
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
+  isLoading?: boolean;
+  error?: Error | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
-
-  const addToCart = (item: CartItem) => {
-    setItems((prev) => {
-      const existingItem = prev.find((i) => i.id === item.id);
-      if (existingItem) {
-        return prev.map((i) =>
-          i.id === item.id
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
-        );
-      }
-      return [...prev, item];
-    });
-  };
-
-  const removeFromCart = (itemId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== itemId));
-  };
-
-  const clearCart = () => {
-    setItems([]);
-  };
+  const { items, isLoading, error, addToCart, removeFromCart, clearCart } = useCartData();
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider 
+      value={{ 
+        items, 
+        addToCart, 
+        removeFromCart, 
+        clearCart, 
+        isLoading,
+        error
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

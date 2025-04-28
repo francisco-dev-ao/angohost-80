@@ -1,21 +1,20 @@
-
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useOwnership } from '@/contexts/OwnershipContext';
-import OwnershipProfileSelector from '@/components/OwnershipProfileSelector';
 import DomainOwnership from '@/components/DomainOwnership';
 import CartItems from '@/components/cart/CartItems';
 import CartSummary from '@/components/cart/CartSummary';
 import RecommendedServices from '@/components/cart/RecommendedServices';
 import EmailPlanDialog from '@/components/cart/EmailPlanDialog';
 import { DomainWithOwnership } from '@/types/cart';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 const Cart = () => {
-  const { items, removeFromCart, addToCart } = useCart();
+  const { items, removeFromCart, addToCart, isLoading } = useCart();
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState("1");
   const navigate = useNavigate();
   
@@ -128,6 +127,23 @@ const Cart = () => {
     setShowEmailDialog(false);
     toast.success('Plano de email adicionado ao carrinho!');
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container py-12">
+          <h1 className="text-3xl font-bold mb-8">Carrinho de Compras</h1>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-6">
+              <Skeleton className="w-full h-64" />
+              <Skeleton className="w-full h-96" />
+            </div>
+            <Skeleton className="h-96" />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
