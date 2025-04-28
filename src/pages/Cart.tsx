@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Trash, AlertCircle } from 'lucide-react';
+import { Trash, AlertCircle, Mail, Check } from 'lucide-react';
 import DomainValidator from '@/components/DomainValidator';
 import AdditionalProducts from '@/components/AdditionalProducts';
 import DomainOwnership from '@/components/DomainOwnership';
@@ -18,6 +18,8 @@ import PricingCard from '@/components/PricingCard';
 import { useNavigate } from 'react-router-dom';
 import { emailPlans } from '@/config/emailPlans';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface OwnershipData {
   name: string;
@@ -31,6 +33,11 @@ interface DomainWithOwnership {
   domain: string;
   hasOwnership: boolean;
   ownershipData?: OwnershipData;
+}
+
+interface ServiceConfig {
+  userCount: number;
+  period: string;
 }
 
 const cpanelPlans = [
@@ -102,6 +109,14 @@ const Cart = () => {
   const [isOwnershipDialogOpen, setIsOwnershipDialogOpen] = useState(false);
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState("1");
   const navigate = useNavigate();
+  
+  // New state for service configurations
+  const [emailConfig, setEmailConfig] = useState<ServiceConfig>({
+    userCount: 1,
+    period: "1",
+  });
+  const [selectedEmailPlan, setSelectedEmailPlan] = useState<null | typeof emailPlans[0]>(null);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
 
   // Filtrar apenas os domínios no carrinho
   const domainItems = items.filter(item => item.title.toLowerCase().includes('domínio'));
@@ -210,17 +225,47 @@ const Cart = () => {
     toast.success(`${product.title} adicionado ao carrinho!`);
   };
 
+  const handleAddEmailPlan = (plan: typeof emailPlans[0]) => {
+    setSelectedEmailPlan(plan);
+    setShowEmailDialog(true);
+  };
+
+  const handleConfirmEmailPlan = () => {
+    if (!selectedEmailPlan) return;
+    
+    const years = parseInt(emailConfig.period);
+    const userCount = emailConfig.userCount;
+    
+    addToCart({
+      id: `${selectedEmailPlan.title}-${Date.now()}`,
+      title: `${selectedEmailPlan.title} (${userCount} usuário${userCount > 1 ? 's' : ''} por ${years} ${years === 1 ? 'ano' : 'anos'})`,
+      quantity: userCount,
+      price: selectedEmailPlan.basePrice * userCount * years,
+      basePrice: selectedEmailPlan.basePrice,
+    });
+    
+    setShowEmailDialog(false);
+    toast.success('Plano de email adicionado ao carrinho!');
+  };
+
+  const handleEmailUserCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value >= 1 && value <= 1000) {
+      setEmailConfig(prev => ({ ...prev, userCount: value }));
+    }
+  };
+
+  const calculateEmailPrice = (basePrice: number) => {
+    return formatPrice(basePrice * emailConfig.userCount * parseInt(emailConfig.period));
+  };
+
   const handleCheckout = () => {
     if (domainItems.length > 0 && !allDomainsHaveOwnership) {
       toast.error('Por favor, preencha as informações de titularidade para todos os domínios.');
       return;
     }
     
-    // Simulando finalização da compra
-    toast.success('Compra finalizada com sucesso! Redirecionando para página de pagamento...');
-    setTimeout(() => {
-      navigate('/');
-    }, 2000);
+    navigate('/checkout');
   };
 
   return (
@@ -269,8 +314,9 @@ const Cart = () => {
                           <div className="mt-4">
                             {domainWithOwnership?.hasOwnership ? (
                               <div className="flex justify-between items-center">
-                                <span className="text-green-600 text-sm">
-                                  ✓ Informações de titularidade preenchidas
+                                <span className="text-green-600 text-sm flex items-center gap-1">
+                                  <Check className="h-4 w-4" />
+                                  Informações de titularidade preenchidas
                                 </span>
                                 <Button 
                                   variant="outline" 
@@ -365,10 +411,10 @@ const Cart = () => {
                               <PricingCard
                                 key={index}
                                 {...plan}
-                                price={formatPrice(plan.basePrice * parseInt(selectedBillingPeriod))}
-                                period={`${selectedBillingPeriod} ${parseInt(selectedBillingPeriod) === 1 ? 'ano' : 'anos'}`}
-                                ctaText="Adicionar ao carrinho"
-                                onAction={() => handleAddProduct(plan, parseInt(selectedBillingPeriod))}
+                                price={formatPrice(plan.basePrice)}
+                                period="usuário/ano"
+                                ctaText="Configurar plano"
+                                onAction={() => handleAddEmailPlan(plan)}
                               />
                             ))}
                           </div>
@@ -488,6 +534,70 @@ const Cart = () => {
           onClose={handleCloseOwnershipDialog}
           onSubmit={handleOwnershipSubmit}
         />
+      )}
+
+      {/* Dialog for configuring email plans */}
+      {selectedEmailPlan && (
+        <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{selectedEmailPlan.title}</DialogTitle>
+              <DialogDescription>
+                Configure o seu plano de email profissional
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="users" className="text-right">
+                  Usuários
+                </Label>
+                <Input
+                  id="users"
+                  type="number"
+                  min="1"
+                  max="1000"
+                  value={emailConfig.userCount}
+                  onChange={handleEmailUserCountChange}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="period" className="text-right">
+                  Período
+                </Label>
+                <Select
+                  value={emailConfig.period}
+                  onValueChange={(value) => setEmailConfig(prev => ({ ...prev, period: value }))}
+                >
+                  <SelectTrigger id="period" className="col-span-3">
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 ano</SelectItem>
+                    <SelectItem value="2">2 anos</SelectItem>
+                    <SelectItem value="3">3 anos</SelectItem>
+                    <SelectItem value="4">4 anos</SelectItem>
+                    <SelectItem value="5">5 anos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Preço Total</Label>
+                <div className="col-span-3 font-medium">
+                  {calculateEmailPrice(selectedEmailPlan.basePrice)}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleConfirmEmailPlan}>
+                Adicionar ao Carrinho
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </Layout>
   );

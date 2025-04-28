@@ -1,11 +1,17 @@
 
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatPrice } from "@/utils/formatters";
 
 interface PurchaseDialogProps {
   showDialog: boolean;
@@ -14,12 +20,12 @@ interface PurchaseDialogProps {
   handleUserCountChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   period: string;
   setPeriod: (period: string) => void;
-  selectedPlan: { title: string; basePrice: number; } | null;
+  selectedPlan: { title: string; basePrice: number } | null;
   calculatePrice: (basePrice: number) => string;
   onConfirm: () => void;
 }
 
-const PurchaseDialog: React.FC<PurchaseDialogProps> = ({
+const PurchaseDialog = ({
   showDialog,
   setShowDialog,
   userCount,
@@ -29,30 +35,42 @@ const PurchaseDialog: React.FC<PurchaseDialogProps> = ({
   selectedPlan,
   calculatePrice,
   onConfirm,
-}) => {
+}: PurchaseDialogProps) => {
+  if (!selectedPlan) return null;
+
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Configurar plano</DialogTitle>
+          <DialogTitle>{selectedPlan.title}</DialogTitle>
+          <DialogDescription>
+            Configure o seu plano de email profissional
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4 space-y-4">
-          <div>
-            <Label htmlFor="userCountDialog">Número de usuários (1-1000)</Label>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="users" className="text-right">
+              Usuários
+            </Label>
             <Input
-              id="userCountDialog"
+              id="users"
               type="number"
               min="1"
               max="1000"
               value={userCount}
               onChange={handleUserCountChange}
-              className="mt-2"
+              className="col-span-3"
             />
           </div>
-          <div>
-            <Label htmlFor="period">Período de contratação</Label>
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger id="period" className="mt-2">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="period" className="text-right">
+              Período
+            </Label>
+            <Select
+              value={period}
+              onValueChange={setPeriod}
+            >
+              <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Selecione o período" />
               </SelectTrigger>
               <SelectContent>
@@ -64,22 +82,18 @@ const PurchaseDialog: React.FC<PurchaseDialogProps> = ({
               </SelectContent>
             </Select>
           </div>
-          {selectedPlan && (
-            <div className="mt-4">
-              <p className="text-sm text-muted-foreground">Preço total:</p>
-              <p className="text-lg font-semibold">
-                {calculatePrice(selectedPlan.basePrice)}
-              </p>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Preço Total</Label>
+            <div className="col-span-3 font-medium">
+              {calculatePrice(selectedPlan.basePrice)}
             </div>
-          )}
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setShowDialog(false)}>
             Cancelar
           </Button>
-          <Button onClick={onConfirm}>
-            Continuar
-          </Button>
+          <Button onClick={onConfirm}>Adicionar ao Carrinho</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
