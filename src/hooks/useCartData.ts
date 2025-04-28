@@ -34,8 +34,8 @@ export const useCartData = () => {
               setItems(JSON.parse(localCart));
             }
           } else if (data && data.cart_items) {
-            // Use cart items from profile
-            setItems(data.cart_items as CartItem[]);
+            // Use cart items from profile - properly typed
+            setItems((data.cart_items as unknown) as CartItem[]);
           } else {
             // No cart items in profile, try local storage
             const localCart = localStorage.getItem('cart');
@@ -77,7 +77,7 @@ export const useCartData = () => {
         const { error } = await supabase
           .from('profiles')
           .update({
-            cart_items: newItems,
+            cart_items: newItems as any, // Type cast to satisfy TypeScript
             updated_at: new Date().toISOString() // Convert Date to ISO string
           })
           .eq('id', user.id);

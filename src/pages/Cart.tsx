@@ -56,7 +56,9 @@ const Cart = () => {
   Object.keys(domainWithOwnershipMap).forEach(key => {
     convertedDomainWithOwnershipMap[key] = {
       domain: key,
-      hasOwnership: !!domainWithOwnershipMap[key],
+      hasOwnership: !!domainWithOwnershipMap[key] || !!domainItems.find(item => 
+        item.domain === key && item.contactProfileId
+      ),
       ownershipData: domainWithOwnershipMap[key] || undefined
     };
   });

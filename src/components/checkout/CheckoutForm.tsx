@@ -12,7 +12,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useSaveOrder } from '@/hooks/useSaveOrder';
 import { useContactProfiles } from '@/hooks/useContactProfiles';
 import { toast } from 'sonner';
-import { Check, CreditCard, PlusCircle, User } from 'lucide-react';
+import { Check, CreditCard, PlusCircle, User, BankNote } from 'lucide-react';
 import { formatPrice } from '@/utils/formatters';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -38,15 +38,39 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     phone: '',
     address: '',
   });
+  
+  // Add a state to track if user profile data is loaded
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.user_metadata?.full_name || '',
-        email: user.email || ''
-      }));
+      // Load user profile data
+      const fetchUserProfile = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name, email, phone, address')
+          .eq('id', user.id)
+          .single();
+          
+        if (!error && data) {
+          setFormData({
+            name: data.full_name || user.user_metadata?.full_name || '',
+            email: data.email || user.email || '',
+            phone: data.phone || '',
+            address: data.address || '',
+          });
+        } else {
+          setFormData({
+            name: user.user_metadata?.full_name || '',
+            email: user.email || '',
+            phone: '',
+            address: '',
+          });
+        }
+        setProfileLoaded(true);
+      };
       
+      fetchUserProfile();
       fetchPaymentMethods();
     }
   }, [user]);
@@ -63,6 +87,17 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     try {
       setLoading(true);
       
+      // Add bank transfer option to the payment methods
+      let defaultMethods = [
+        { 
+          id: 'bank_transfer', 
+          name: 'Transferência Bancária', 
+          is_active: true,
+          payment_type: 'bank_transfer',
+          description: 'Pague por transferência bancária e envie o comprovante'
+        }
+      ];
+      
       const { data, error } = await supabase
         .from('payment_methods')
         .select('*')
@@ -70,29 +105,34 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
         
       if (error) throw error;
       
-      setPaymentMethods(data || []);
+      // Combine default methods with database methods
+      const allMethods = [...defaultMethods, ...(data || [])];
+      setPaymentMethods(allMethods);
       
       // Auto-select default payment method if exists
-      const defaultMethod = data?.find(m => m.is_default);
+      const defaultMethod = allMethods.find(m => m.is_default);
       if (defaultMethod) {
         setSelectedPaymentMethod(defaultMethod.id);
-      } else if (data && data.length > 0) {
-        setSelectedPaymentMethod(data[0].id);
+      } else if (allMethods.length > 0) {
+        setSelectedPaymentMethod(allMethods[0].id);
       }
     } catch (error: any) {
       console.error('Error fetching payment methods:', error);
       toast.error('Erro ao carregar métodos de pagamento');
+      
+      // Fallback to bank transfer option
+      const bankTransfer = { 
+        id: 'bank_transfer', 
+        name: 'Transferência Bancária', 
+        is_active: true,
+        payment_type: 'bank_transfer',
+        description: 'Pague por transferência bancária e envie o comprovante'
+      };
+      setPaymentMethods([bankTransfer]);
+      setSelectedPaymentMethod('bank_transfer');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -127,16 +167,6 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       if (order) {
         onComplete?.(order.id);
         
-        // Save customer information to profile if needed
-        await supabase
-          .from('profiles')
-          .update({
-            full_name: formData.name,
-            phone: formData.phone,
-            address: formData.address
-          })
-          .eq('id', user.id);
-          
         toast.success('Pedido criado com sucesso! Aguardando pagamento.');
         navigate(`/client/orders?order=${order.id}`);
       }
@@ -152,6 +182,9 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
   const createNewProfile = () => {
     navigate('/client/contact-profiles?returnTo=/checkout');
   };
+
+  // Check if there are form fields that need to be filled
+  const needsFormInput = !formData.phone || !formData.address;
 
   if (items.length === 0) {
     return (
@@ -231,7 +264,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
         <Card>
           <CardHeader>
             <CardTitle>Dados pessoais</CardTitle>
-            <CardDescription>Informe seus dados para faturamento</CardDescription>
+            <CardDescription>Informações para faturamento</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
@@ -241,8 +274,8 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                   id="name"
                   name="name"
                   value={formData.name}
-                  onChange={handleInputChange}
-                  required
+                  disabled={true}
+                  className="bg-muted"
                 />
               </div>
               <div className="space-y-2">
@@ -252,8 +285,8 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                   name="email"
                   type="email"
                   value={formData.email}
-                  onChange={handleInputChange}
-                  required
+                  disabled={true}
+                  className="bg-muted"
                 />
               </div>
               <div className="space-y-2">
@@ -262,8 +295,14 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                   id="phone"
                   name="phone"
                   value={formData.phone}
-                  onChange={handleInputChange}
+                  disabled={profileLoaded}
+                  className={profileLoaded ? "bg-muted" : ""}
                 />
+                {profileLoaded && formData.phone && (
+                  <p className="text-xs text-muted-foreground">
+                    Para alterar, contate o suporte
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Endereço</Label>
@@ -271,8 +310,14 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                   id="address"
                   name="address"
                   value={formData.address}
-                  onChange={handleInputChange}
+                  disabled={profileLoaded}
+                  className={profileLoaded ? "bg-muted" : ""}
                 />
+                {profileLoaded && formData.address && (
+                  <p className="text-xs text-muted-foreground">
+                    Para alterar, contate o suporte
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -302,7 +347,11 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
                         <Label htmlFor={`payment-${method.id}`} className="flex items-center space-x-2">
-                          <CreditCard className="h-4 w-4" />
+                          {method.payment_type === 'bank_transfer' ? (
+                            <BankNote className="h-4 w-4" />
+                          ) : (
+                            <CreditCard className="h-4 w-4" />
+                          )}
                           <span>
                             {method.name || 'Método de Pagamento'} 
                             {method.is_default && (
@@ -311,8 +360,20 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                           </span>
                         </Label>
                       </div>
+                      {method.description && (
+                        <div className="hidden md:block text-sm text-muted-foreground">
+                          {method.description}
+                        </div>
+                      )}
                     </div>
                   ))}
+                </div>
+                <div className="mt-2">
+                  {paymentMethods.find(m => m.id === selectedPaymentMethod)?.description && (
+                    <p className="md:hidden text-sm text-muted-foreground">
+                      {paymentMethods.find(m => m.id === selectedPaymentMethod)?.description}
+                    </p>
+                  )}
                 </div>
               </RadioGroup>
             ) : (
