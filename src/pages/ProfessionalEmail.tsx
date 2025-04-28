@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
@@ -8,9 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 const ProfessionalEmail = () => {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [userCount, setUserCount] = useState(1);
+  const [selectedPlan, setSelectedPlan] = useState<null | {
+    title: string;
+    basePrice: number;
+  }>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   const basePlans = [
     {
@@ -57,7 +66,7 @@ const ProfessionalEmail = () => {
 
   const handleUserCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value);
-    if (!isNaN(value) && value > 0) {
+    if (!isNaN(value) && value >= 1 && value <= 1000) {
       setUserCount(value);
     }
   };
@@ -66,8 +75,27 @@ const ProfessionalEmail = () => {
     return (basePrice * userCount).toFixed(2);
   };
 
-  const handleQuoteRequest = () => {
-    toast.success(`Cotação solicitada para ${userCount} usuários`);
+  const handlePurchase = (plan: { title: string; basePrice: number }) => {
+    setSelectedPlan(plan);
+    setShowDialog(true);
+  };
+
+  const handleConfirmPurchase = () => {
+    if (!selectedPlan) return;
+
+    const price = Number(calculatePrice(selectedPlan.basePrice));
+    
+    addToCart({
+      id: `${selectedPlan.title}-${Date.now()}`,
+      title: `${selectedPlan.title} (${userCount} usuários)`,
+      quantity: userCount,
+      price: price,
+      basePrice: selectedPlan.basePrice,
+    });
+
+    setShowDialog(false);
+    navigate('/cart');
+    toast.success('Produto adicionado ao carrinho');
   };
 
   return (
@@ -77,20 +105,6 @@ const ProfessionalEmail = () => {
         <p className="text-lg text-center text-muted-foreground mb-8">
           Soluções de email profissional para sua empresa
         </p>
-
-        <div className="max-w-sm mx-auto mb-12">
-          <div className="space-y-4">
-            <Label htmlFor="userCount">Número de usuários</Label>
-            <Input
-              id="userCount"
-              type="number"
-              min="1"
-              value={userCount}
-              onChange={handleUserCountChange}
-              className="text-center"
-            />
-          </div>
-        </div>
         
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           {basePlans.map((plan, index) => (
@@ -99,10 +113,47 @@ const ProfessionalEmail = () => {
               {...plan}
               price={Number(calculatePrice(plan.basePrice))}
               period="mês"
-              ctaText="Solicitar cotação"
+              ctaText="Comprar"
+              onAction={() => handlePurchase(plan)}
             />
           ))}
         </div>
+
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Configurar quantidade de usuários</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <Label htmlFor="userCountDialog">Número de usuários (1-1000)</Label>
+              <Input
+                id="userCountDialog"
+                type="number"
+                min="1"
+                max="1000"
+                value={userCount}
+                onChange={handleUserCountChange}
+                className="mt-2"
+              />
+              {selectedPlan && (
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Preço total:</p>
+                  <p className="text-lg font-semibold">
+                    {calculatePrice(selectedPlan.basePrice)} kz/mês
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleConfirmPurchase}>
+                Continuar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <div className="grid md:grid-cols-3 gap-6">
           <FeatureCard

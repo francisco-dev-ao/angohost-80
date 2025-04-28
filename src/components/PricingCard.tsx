@@ -3,7 +3,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
-import { toast } from "sonner";
 
 interface PricingFeature {
   text: string;
@@ -18,6 +17,7 @@ interface PricingCardProps {
   features: PricingFeature[];
   popular?: boolean;
   ctaText?: string;
+  onAction?: () => void;
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
@@ -28,11 +28,8 @@ const PricingCard: React.FC<PricingCardProps> = ({
   features,
   popular = false,
   ctaText = "Adicionar ao carrinho",
+  onAction,
 }) => {
-  const handleAddToCart = () => {
-    toast.success(`Plano ${title} adicionado ao carrinho!`);
-  };
-
   return (
     <Card className={`flex flex-col ${
       popular 
@@ -43,7 +40,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
         <div className="mt-4">
-          <span className="text-3xl font-bold">R${price}</span>
+          <span className="text-3xl font-bold">{price}</span>
           <span className="text-muted-foreground">/{period}</span>
         </div>
       </CardHeader>
@@ -67,7 +64,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
         <Button 
           variant={popular ? "default" : "outline"} 
           className="w-full"
-          onClick={handleAddToCart}
+          onClick={onAction}
         >
           {ctaText}
         </Button>
