@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -5,22 +6,19 @@ import { useNavigate } from "react-router-dom";
 import ClientSidebar from "@/components/client/ClientSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useLocation } from "react-router-dom";
-import { useClientRoutes } from "@/hooks/useClientRoutes";
-import ClientDashboard from "@/components/client/ClientDashboard";
-import ProfilePage from "@/components/client/ProfilePage";
-import InvoicesPage from "@/components/client/InvoicesPage";
+import { toast } from "sonner";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentComponent } = useClientRoutes();
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/register');
+      toast.error('Faça login para acessar a área do cliente');
+      navigate('/register', { state: { returnUrl: location.pathname } });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, location.pathname]);
 
   if (loading) {
     return (
@@ -39,29 +37,21 @@ const ClientArea = () => {
     return null; // Will redirect in useEffect
   }
 
-  const renderComponent = () => {
-    if (location.pathname === "/client/profile") {
-      return <ProfilePage />;
-    }
-    
-    if (location.pathname === "/client/invoices") {
-      return <InvoicesPage />;
-    }
-    
-    if (location.pathname === "/client") {
-      return <ClientDashboard />;
-    }
-    
-    return currentComponent || <ClientDashboard />;
-  };
-
   return (
     <Layout>
       <SidebarProvider>
         <div className="min-h-screen flex w-full">
           <ClientSidebar />
           <div className="flex-1 p-6">
-            {renderComponent()}
+            {location.pathname === "/client" && <ClientDashboard />}
+            {location.pathname === "/client/profile" && <ProfilePage />}
+            {location.pathname === "/client/domains" && <DomainsPage />}
+            {location.pathname === "/client/services" && <ServicesPage />}
+            {location.pathname === "/client/invoices" && <InvoicesPage />}
+            {location.pathname === "/client/payment-methods" && <PaymentMethodsPage />}
+            {location.pathname === "/client/support" && <SupportPage />}
+            {location.pathname === "/client/notifications" && <NotificationsPage />}
+            {location.pathname === "/client/promotions" && <PromotionsPage />}
           </div>
         </div>
       </SidebarProvider>

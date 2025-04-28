@@ -7,7 +7,6 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -18,19 +17,17 @@ import {
   Bell,
   Plus 
 } from "lucide-react";
+import { useClientDashboard } from "@/hooks/useClientDashboard";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const ClientDashboard = () => {
-  const { user } = useSupabaseAuth();
   const navigate = useNavigate();
+  const stats = useClientDashboard();
   
-  // Mock data - would be fetched from API in production
-  const stats = {
-    domains: 3,
-    activeServices: 2,
-    pendingInvoices: 1,
-    openTickets: 0,
-    notifications: 2
-  };
+  if (stats.loading) {
+    return <div className="py-8 text-center">Carregando dados do dashboard...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -117,29 +114,29 @@ const ClientDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="border rounded-md p-3">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">Plano cPanel Start</p>
-                    <p className="text-sm text-muted-foreground">Expira em: 25/12/2023</p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => navigate('/client/services')}>
-                    Gerenciar
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="border rounded-md p-3">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">Email Profissional</p>
-                    <p className="text-sm text-muted-foreground">Expira em: 15/01/2024</p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => navigate('/client/services')}>
-                    Gerenciar
-                  </Button>
-                </div>
-              </div>
+              {stats.services.length > 0 ? (
+                <>
+                  {stats.services.map((service) => (
+                    <div key={service.id} className="border rounded-md p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{service.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Expira em: {format(new Date(service.renewal_date), 'dd/MM/yyyy', { locale: ptBR })}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => navigate('/client/services')}>
+                          Gerenciar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  Nenhum serviço ativo encontrado
+                </p>
+              )}
               
               <Button variant="link" className="w-full" onClick={() => navigate('/client/services')}>
                 Ver todos os serviços
@@ -155,18 +152,35 @@ const ClientDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="border rounded-md p-3">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">Fatura #1234</p>
-                    <p className="text-sm text-muted-foreground">Vencimento: 10/11/2023</p>
-                    <p className="text-sm font-medium text-red-500">Pendente: 50,00 €</p>
-                  </div>
-                  <Button variant="default" size="sm" onClick={() => navigate('/client/invoices')}>
-                    Pagar Agora
-                  </Button>
-                </div>
-              </div>
+              {stats.invoices.length > 0 ? (
+                <>
+                  {stats.invoices.map((invoice) => (
+                    <div key={invoice.id} className="border rounded-md p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">Fatura #{invoice.invoice_number || invoice.id.slice(0, 8)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Vencimento: {format(new Date(invoice.due_date), 'dd/MM/yyyy', { locale: ptBR })}
+                          </p>
+                          <p className="text-sm font-medium text-red-500">
+                            Pendente: {new Intl.NumberFormat('pt-AO', {
+                              style: 'currency',
+                              currency: 'AOA'
+                            }).format(invoice.amount)}
+                          </p>
+                        </div>
+                        <Button variant="default" size="sm" onClick={() => navigate('/client/invoices')}>
+                          Pagar Agora
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  Nenhuma fatura pendente
+                </p>
+              )}
               
               <Button variant="link" className="w-full" onClick={() => navigate('/client/invoices')}>
                 Ver todas as faturas
@@ -183,41 +197,29 @@ const ClientDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="border rounded-md p-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">example.com</p>
-                  <p className="text-sm text-muted-foreground">Expira em: 15/08/2024</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => navigate('/client/domains')}>
-                  Gerenciar DNS
-                </Button>
-              </div>
-            </div>
-            
-            <div className="border rounded-md p-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">mysite.com</p>
-                  <p className="text-sm text-muted-foreground">Expira em: 22/03/2024</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => navigate('/client/domains')}>
-                  Gerenciar DNS
-                </Button>
-              </div>
-            </div>
-            
-            <div className="border rounded-md p-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">businessdomain.com</p>
-                  <p className="text-sm text-muted-foreground">Expira em: 05/02/2024</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => navigate('/client/domains')}>
-                  Gerenciar DNS
-                </Button>
-              </div>
-            </div>
+            {stats.domains_list.length > 0 ? (
+              <>
+                {stats.domains_list.map((domain) => (
+                  <div key={domain.id} className="border rounded-md p-3">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{domain.domain_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Expira em: {format(new Date(domain.expiry_date), 'dd/MM/yyyy', { locale: ptBR })}
+                        </p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => navigate('/client/domains')}>
+                        Gerenciar DNS
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p className="text-center text-muted-foreground py-4">
+                Nenhum domínio registrado
+              </p>
+            )}
             
             <Button variant="link" className="w-full" onClick={() => navigate('/client/domains')}>
               Ver todos os domínios
