@@ -12,8 +12,9 @@ export interface Invoice {
   due_date: string;
   payment_date: string | null;
   user_id: string;
-  items: any[];
+  items: any; // Changed from any[] to any to accommodate Json type from Supabase
   created_at: string;
+  updated_at?: string;
 }
 
 export const useInvoices = () => {
@@ -32,7 +33,21 @@ export const useInvoices = () => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setInvoices(data || []);
+        
+        // Convert the data to match the Invoice type
+        const typedInvoices: Invoice[] = data?.map(invoice => ({
+          id: invoice.id,
+          invoice_number: invoice.invoice_number,
+          amount: invoice.amount,
+          status: invoice.status,
+          due_date: invoice.due_date,
+          payment_date: invoice.payment_date,
+          user_id: invoice.user_id,
+          items: invoice.items,
+          created_at: invoice.created_at
+        })) || [];
+        
+        setInvoices(typedInvoices);
       } catch (error: any) {
         toast.error('Erro ao carregar faturas: ' + error.message);
       } finally {
