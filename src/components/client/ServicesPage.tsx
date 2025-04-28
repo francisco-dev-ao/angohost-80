@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,14 +16,16 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ExternalLink, Server, Mail, Globe } from "lucide-react";
+import { ExternalLink, Server, Mail, Globe, Loader2, AlertTriangle } from "lucide-react";
 import { Service } from "@/types/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ServicesPage = () => {
   const { user } = useSupabaseAuth();
   const navigate = useNavigate();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -30,6 +33,7 @@ const ServicesPage = () => {
 
       try {
         setLoading(true);
+        setError(null);
         
         const { data, error } = await supabase
           .from('client_services')
@@ -42,6 +46,7 @@ const ServicesPage = () => {
         setServices(data as Service[] || []);
       } catch (error: any) {
         console.error('Error fetching services:', error);
+        setError('Erro ao carregar serviços. Por favor, tente novamente.');
         toast.error('Erro ao carregar serviços');
       } finally {
         setLoading(false);
@@ -49,7 +54,46 @@ const ServicesPage = () => {
     };
     
     fetchServices();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('client_services_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'client_services',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('Real-time service update:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            setServices(prev => [payload.new as Service, ...prev]);
+            toast.success('Novo serviço adicionado');
+          } else if (payload.eventType === 'UPDATE') {
+            setServices(prev => prev.map(service => 
+              service.id === payload.new.id ? payload.new as Service : service
+            ));
+            toast.success('Informações de serviço atualizadas');
+          } else if (payload.eventType === 'DELETE') {
+            setServices(prev => prev.filter(service => service.id !== payload.old.id));
+            toast.info('Serviço removido');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
+
+  const handleRenewService = async (serviceId: string) => {
+    toast.info('Processando renovação...', { duration: 2000 });
+    // In a real app, this would initiate the renewal workflow
+  };
 
   const getStatusBadge = (status: string) => {
     const statusColors = {
@@ -95,6 +139,15 @@ const ServicesPage = () => {
     return `${value.toFixed(2)} ${units[unitIndex]}`;
   };
 
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -105,11 +158,14 @@ const ServicesPage = () => {
       </div>
       
       {loading ? (
-        <div className="text-center py-8">Carregando serviços...</div>
+        <div className="text-center py-8 flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin mb-2" />
+          <p>Carregando serviços...</p>
+        </div>
       ) : services.length > 0 ? (
         <div className="space-y-4">
           {services.map((service) => (
-            <Card key={service.id}>
+            <Card key={service.id} className="transition-all hover:shadow-md">
               <CardHeader className="pb-2">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-3">
@@ -184,7 +240,7 @@ const ServicesPage = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => handleRenewService(service.id)}>
                   Renovar Serviço
                 </Button>
                 
