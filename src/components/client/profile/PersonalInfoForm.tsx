@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import {
   Card,
   CardContent,
@@ -24,16 +25,16 @@ interface ProfileData {
 interface PersonalInfoFormProps {
   profile: ProfileData;
   setProfile: React.Dispatch<React.SetStateAction<ProfileData>>;
-  userId: string;
 }
 
-const PersonalInfoForm = ({ profile, setProfile, userId }: PersonalInfoFormProps) => {
+const PersonalInfoForm = ({ profile, setProfile }: PersonalInfoFormProps) => {
   const [updating, setUpdating] = useState(false);
+  const { user } = useSupabaseAuth();
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!userId) return;
+    if (!user?.id) return;
     
     try {
       setUpdating(true);
@@ -41,7 +42,7 @@ const PersonalInfoForm = ({ profile, setProfile, userId }: PersonalInfoFormProps
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: userId,
+          id: user.id,
           full_name: profile.full_name,
           email: profile.email,
           phone: profile.phone,

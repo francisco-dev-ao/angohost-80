@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import {
   Card,
@@ -8,13 +8,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 
-interface TwoFactorAuthProps {
-  enabled: boolean;
-  onToggle: () => void;
-}
+const TwoFactorAuth = () => {
+  const [enabled, setEnabled] = useState(false);
 
-const TwoFactorAuth = ({ enabled, onToggle }: TwoFactorAuthProps) => {
+  const handleToggle2FA = () => {
+    setEnabled(!enabled);
+    toast.info(enabled 
+      ? 'Autenticação de dois fatores desativada' 
+      : 'Autenticação de dois fatores ativada');
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -36,7 +41,7 @@ const TwoFactorAuth = ({ enabled, onToggle }: TwoFactorAuthProps) => {
           </div>
           <Switch
             checked={enabled}
-            onCheckedChange={onToggle}
+            onCheckedChange={handleToggle2FA}
           />
         </div>
         
