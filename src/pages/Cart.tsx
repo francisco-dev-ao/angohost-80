@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
@@ -15,8 +14,17 @@ const Cart = () => {
   const [domainType, setDomainType] = useState('new');
   const [validatedDomain, setValidatedDomain] = useState<string | null>(null);
 
+  const formatPrice = (price: number) => {
+    return `${Math.round(price).toLocaleString()}kz`;
+  };
+
   const calculateSubtotal = () => {
-    return items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return items.reduce((acc, item) => {
+      if (item.title.toLowerCase().includes('domínio') && domainType === 'existing') {
+        return acc;
+      }
+      return acc + item.price * item.quantity;
+    }, 0);
   };
 
   const calculateDiscount = () => {
@@ -30,6 +38,12 @@ const Cart = () => {
     const subtotal = calculateSubtotal();
     const discount = subtotal * calculateDiscount();
     return subtotal - discount;
+  };
+
+  const calculateRenewalDate = () => {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() + 1);
+    return date.toLocaleDateString('pt-BR');
   };
 
   const handleRemoveItem = (itemId: string) => {
@@ -87,8 +101,13 @@ const Cart = () => {
                       <h3 className="font-semibold">{item.title}</h3>
                       <div className="mt-2 text-muted-foreground">
                         <p>Quantidade: {item.quantity}</p>
-                        <p>Preço unitário: {item.basePrice.toFixed(2)} kz</p>
-                        <p>Total: {item.price.toFixed(2)} kz</p>
+                        <p>Preço unitário: {formatPrice(item.basePrice)}</p>
+                        <p>Total: {formatPrice(item.price)}</p>
+                        {item.title.toLowerCase().includes('domínio') && (
+                          <p className="mt-1 text-sm">
+                            Próxima renovação: {calculateRenewalDate()}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <Button
@@ -111,20 +130,20 @@ const Cart = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>{calculateSubtotal().toFixed(2)} kz</span>
+                  <span>{formatPrice(calculateSubtotal())}</span>
                 </div>
                 {calculateDiscount() > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Desconto ({(calculateDiscount() * 100)}%)</span>
-                    <span>-{(calculateSubtotal() * calculateDiscount()).toFixed(2)} kz</span>
+                    <span>-{formatPrice(calculateSubtotal() * calculateDiscount())}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-semibold pt-2 border-t">
                   <span>Total</span>
-                  <span>{calculateTotal().toFixed(2)} kz</span>
+                  <span>{formatPrice(calculateTotal())}</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-2">
-                  <p>Renovação: {calculateTotal().toFixed(2)} kz/ano</p>
+                  <p>Renovação: {formatPrice(calculateTotal())}/ano</p>
                 </div>
               </div>
               <Button 
