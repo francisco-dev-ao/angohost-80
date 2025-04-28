@@ -11,6 +11,7 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import EmailSection from "@/components/home/EmailSection";
 import ClientLogosCarousel from "@/components/home/ClientLogosCarousel";
 import CallToActionSection from "@/components/home/CallToActionSection";
+import FaqSection from "@/components/home/FaqSection";
 
 const Index = () => {
   return (
@@ -38,6 +39,9 @@ const Index = () => {
 
       {/* Email Profissional Section with Human Presence */}
       <EmailSection />
+
+      {/* FAQ Section */}
+      <FaqSection />
 
       {/* Client Logos Carousel Section - Only on homepage */}
       <ClientLogosCarousel />
