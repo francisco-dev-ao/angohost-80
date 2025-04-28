@@ -1,9 +1,11 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Search, Check } from "lucide-react";
+import { Search, Check, ShoppingCart } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
+import { useNavigate } from 'react-router-dom';
 import { formatPrice } from "@/utils/formatters";
 
 interface DomainResult {
@@ -16,7 +18,9 @@ const DomainSearch = () => {
   const [domain, setDomain] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<DomainResult[]>([]);
+  const [selectedDomains, setSelectedDomains] = useState<{[key: string]: boolean}>({});
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,15 +54,51 @@ const DomainSearch = () => {
     }, 800);
   };
   
-  const handleAddDomain = (domain: string, price: number) => {
-    addToCart({
-      id: `domain-${domain}`,
-      title: `Domínio ${domain}`,
-      quantity: 1,
-      price: price,
-      basePrice: price,
+  const handleSelectDomain = (domain: string, price: number) => {
+    setSelectedDomains(prev => ({
+      ...prev,
+      [domain]: !prev[domain]
+    }));
+    
+    if (!selectedDomains[domain]) {
+      addToCart({
+        id: `domain-${domain}`,
+        title: `Domínio ${domain}`,
+        quantity: 1,
+        price: price,
+        basePrice: price,
+      });
+      toast.success(`${domain} adicionado ao carrinho!`);
+    } else {
+      // Não estamos implementando remover do carrinho no momento
+      // O usuário pode remover na página de carrinho
+    }
+  };
+
+  const handleContinueToCheckout = () => {
+    navigate('/checkout');
+  };
+
+  const handleAddAllToCart = () => {
+    const availableDomains = results.filter(result => result.available);
+    
+    availableDomains.forEach(domain => {
+      if (!selectedDomains[domain.domain]) {
+        addToCart({
+          id: `domain-${domain.domain}`,
+          title: `Domínio ${domain.domain}`,
+          quantity: 1,
+          price: domain.price,
+          basePrice: domain.price,
+        });
+        setSelectedDomains(prev => ({
+          ...prev,
+          [domain.domain]: true
+        }));
+      }
     });
-    toast.success(`${domain} adicionado ao carrinho!`);
+    
+    toast.success(`${availableDomains.length} domínios adicionados ao carrinho!`);
   };
 
   return (
@@ -81,7 +121,12 @@ const DomainSearch = () => {
 
       {results.length > 0 && (
         <div className="mt-6 space-y-4">
-          <h3 className="text-lg font-medium">Resultados da pesquisa</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Resultados da pesquisa</h3>
+            <Button variant="outline" size="sm" onClick={handleAddAllToCart}>
+              Adicionar todos disponíveis
+            </Button>
+          </div>
           <div className="bg-white rounded-lg shadow-md divide-y">
             {results.map((result) => (
               <div 
@@ -108,11 +153,11 @@ const DomainSearch = () => {
                       <p className="text-sm text-muted-foreground">por ano</p>
                     </div>
                     <Button 
-                      onClick={() => handleAddDomain(result.domain, result.price)}
-                      variant="default"
+                      onClick={() => handleSelectDomain(result.domain, result.price)}
+                      variant={selectedDomains[result.domain] ? "secondary" : "default"}
                       size="sm"
                     >
-                      Selecionar
+                      {selectedDomains[result.domain] ? "Adicionado" : "Adicionar"}
                     </Button>
                   </div>
                 ) : (
@@ -126,6 +171,13 @@ const DomainSearch = () => {
                 )}
               </div>
             ))}
+          </div>
+          
+          <div className="flex justify-end mt-6">
+            <Button onClick={() => navigate('/cart')} className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Finalizar Compra
+            </Button>
           </div>
         </div>
       )}
