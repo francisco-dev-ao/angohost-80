@@ -7,11 +7,13 @@ import ClientSidebar from "@/components/client/ClientSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { useClientRoutes } from "@/hooks/useClientRoutes";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentComponent } = useClientRoutes();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,15 +45,7 @@ const ClientArea = () => {
         <div className="min-h-screen flex w-full">
           <ClientSidebar />
           <div className="flex-1 p-6">
-            {location.pathname === "/client" && <ClientDashboard />}
-            {location.pathname === "/client/profile" && <ProfilePage />}
-            {location.pathname === "/client/domains" && <DomainsPage />}
-            {location.pathname === "/client/services" && <ServicesPage />}
-            {location.pathname === "/client/invoices" && <InvoicesPage />}
-            {location.pathname === "/client/payment-methods" && <PaymentMethodsPage />}
-            {location.pathname === "/client/support" && <SupportPage />}
-            {location.pathname === "/client/notifications" && <NotificationsPage />}
-            {location.pathname === "/client/promotions" && <PromotionsPage />}
+            {currentComponent}
           </div>
         </div>
       </SidebarProvider>
