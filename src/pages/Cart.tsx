@@ -1,123 +1,31 @@
-import React, { useState, useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Trash, Check, UserPlus, AlertCircle } from 'lucide-react';
-import { formatPrice } from '@/utils/formatters';
 import { useNavigate } from 'react-router-dom';
-import { useOwnership, OwnershipProfile } from '@/contexts/OwnershipContext';
+import { useOwnership } from '@/contexts/OwnershipContext';
 import OwnershipProfileSelector from '@/components/OwnershipProfileSelector';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PricingCard from '@/components/PricingCard';
-import { emailPlans } from '@/config/emailPlans';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import DomainOwnership from '@/components/DomainOwnership';
-
-interface OwnershipData {
-  name: string;
-  email: string;
-  document: string;
-  phone: string;
-  address: string;
-}
-
-interface DomainWithOwnership {
-  domain: string;
-  hasOwnership: boolean;
-  ownershipData?: OwnershipData;
-}
-
-interface ServiceConfig {
-  userCount: number;
-  period: string;
-}
-
-const cpanelPlans = [
-  {
-    title: "Hospedagem Starter",
-    description: "Para sites pessoais",
-    basePrice: 20000,
-    features: [
-      { text: "1 website", included: true },
-      { text: "10GB SSD", included: true },
-      { text: "1 Banco de dados", included: true },
-      { text: "5 Emails", included: true },
-      { text: "SSL Grátis", included: true },
-      { text: "cPanel incluído", included: true },
-    ],
-  },
-  {
-    title: "Hospedagem Business",
-    description: "Para empresas",
-    basePrice: 30000,
-    popular: true,
-    features: [
-      { text: "10 websites", included: true },
-      { text: "30GB SSD", included: true },
-      { text: "10 Bancos de dados", included: true },
-      { text: "30 Emails", included: true },
-      { text: "SSL Grátis", included: true },
-      { text: "cPanel incluído", included: true },
-    ],
-  }
-];
-
-const wordpressPlans = [
-  {
-    title: "WordPress Basic",
-    description: "Para blogs pessoais",
-    basePrice: 25000,
-    features: [
-      { text: "1 Site WordPress", included: true },
-      { text: "10GB SSD", included: true },
-      { text: "WordPress Otimizado", included: true },
-      { text: "Instalação em 1 clique", included: true },
-      { text: "SSL Grátis", included: true },
-      { text: "Backup Diário", included: true },
-    ],
-  },
-  {
-    title: "WordPress Pro",
-    description: "Para negócios",
-    basePrice: 45000,
-    popular: true,
-    features: [
-      { text: "5 Sites WordPress", included: true },
-      { text: "30GB SSD", included: true },
-      { text: "WordPress Otimizado", included: true },
-      { text: "Instalação em 1 clique", included: true },
-      { text: "SSL Grátis", included: true },
-      { text: "Backup Diário", included: true },
-    ],
-  }
-];
+import CartItems from '@/components/cart/CartItems';
+import CartSummary from '@/components/cart/CartSummary';
+import RecommendedServices from '@/components/cart/RecommendedServices';
+import EmailPlanDialog from '@/components/cart/EmailPlanDialog';
+import { DomainWithOwnership } from '@/types/cart';
 
 const Cart = () => {
   const { items, removeFromCart, addToCart } = useCart();
-  const [domainType, setDomainType] = useState('new');
-  const [validatedDomain, setValidatedDomain] = useState<string | null>(null);
-  const [domainWithOwnershipMap, setDomainWithOwnershipMap] = useState<{[key: string]: DomainWithOwnership}>({});
-  const [currentDomainForOwnership, setCurrentDomainForOwnership] = useState<string | null>(null);
-  const [isOwnershipDialogOpen, setIsOwnershipDialogOpen] = useState(false);
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState("1");
   const navigate = useNavigate();
   
-  const [emailConfig, setEmailConfig] = useState<ServiceConfig>({
-    userCount: 1,
-    period: "1",
-  });
-  const [selectedEmailPlan, setSelectedEmailPlan] = useState<null | typeof emailPlans[0]>(null);
+  // Domain ownership state
+  const [domainWithOwnershipMap, setDomainWithOwnershipMap] = useState<{[key: string]: DomainWithOwnership}>({});
+  const [currentDomainForOwnership, setCurrentDomainForOwnership] = useState<string | null>(null);
+  const [isOwnershipDialogOpen, setIsOwnershipDialogOpen] = useState(false);
+  
+  // Email dialog state
+  const [selectedEmailPlan, setSelectedEmailPlan] = useState<null | any>(null);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
 
   const domainItems = items.filter(item => item.title.toLowerCase().includes('domínio'));
@@ -144,62 +52,6 @@ const Cart = () => {
     setDomainWithOwnershipMap(prev => ({...prev, ...initialDomainMap}));
   }, [items]);
 
-  const { getAllProfiles, addProfile } = useOwnership();
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
-  
-  // Function to handle profile selection
-  const handleProfileSelect = (profileId: string) => {
-    setSelectedProfileId(profileId);
-    const profile = getAllProfiles().find(p => p.id === profileId);
-    if (profile) {
-      setDomainWithOwnershipMap(prev => {
-        const newMap = { ...prev };
-        Object.keys(newMap).forEach(domain => {
-          newMap[domain] = {
-            domain,
-            hasOwnership: true,
-            ownershipData: {
-              name: profile.name,
-              email: profile.email,
-              document: profile.document,
-              phone: profile.phone,
-              address: profile.address
-            }
-          };
-        });
-        return newMap;
-      });
-    }
-  };
-
-  const calculateSubtotal = () => {
-    return items.reduce((acc, item) => {
-      if (item.title.toLowerCase().includes('domínio') && domainType === 'existing') {
-        return acc;
-      }
-      return acc + item.price * item.quantity;
-    }, 0);
-  };
-
-  const calculateDiscount = () => {
-    const subtotal = calculateSubtotal();
-    if (subtotal >= 500000) return 0.1; // 10% discount
-    if (subtotal >= 250000) return 0.05; // 5% discount
-    return 0;
-  };
-
-  const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
-    const discount = subtotal * calculateDiscount();
-    return subtotal - discount;
-  };
-
-  const calculateRenewalDate = () => {
-    const date = new Date();
-    date.setFullYear(date.getFullYear() + 1);
-    return date.toLocaleDateString('pt-AO');
-  };
-
   const handleRemoveItem = (itemId: string) => {
     const itemToRemove = items.find(i => i.id === itemId);
     if (itemToRemove && itemToRemove.title.toLowerCase().includes('domínio')) {
@@ -215,10 +67,6 @@ const Cart = () => {
     toast.success('Item removido do carrinho!');
   };
 
-  const handleDomainValidated = (domain: string) => {
-    setValidatedDomain(domain);
-  };
-
   const handleOpenOwnershipDialog = (domain: string) => {
     setCurrentDomainForOwnership(domain);
     setIsOwnershipDialogOpen(true);
@@ -229,9 +77,7 @@ const Cart = () => {
     setCurrentDomainForOwnership(null);
   };
 
-  // Update the ownership dialog to handle profile creation
-  const handleOwnershipSubmit = (domain: string, data: OwnershipData) => {
-    addProfile(data);
+  const handleOwnershipSubmit = (domain: string, data: any) => {
     setDomainWithOwnershipMap(prev => ({
       ...prev,
       [domain]: {
@@ -256,16 +102,20 @@ const Cart = () => {
     toast.success(`${product.title} adicionado ao carrinho!`);
   };
 
-  const handleAddEmailPlan = (plan: typeof emailPlans[0]) => {
+  const calculateSubtotal = () => {
+    return items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  };
+
+  const handleEmailPlanClick = (plan: any) => {
     setSelectedEmailPlan(plan);
     setShowEmailDialog(true);
   };
 
-  const handleConfirmEmailPlan = () => {
+  const handleConfirmEmailPlan = (config: { userCount: number; period: string }) => {
     if (!selectedEmailPlan) return;
     
-    const years = parseInt(emailConfig.period);
-    const userCount = emailConfig.userCount;
+    const years = parseInt(config.period);
+    const userCount = config.userCount;
     
     addToCart({
       id: `${selectedEmailPlan.title}-${Date.now()}`,
@@ -279,26 +129,6 @@ const Cart = () => {
     toast.success('Plano de email adicionado ao carrinho!');
   };
 
-  const handleEmailUserCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= 1 && value <= 1000) {
-      setEmailConfig(prev => ({ ...prev, userCount: value }));
-    }
-  };
-
-  const calculateEmailPrice = (basePrice: number) => {
-    return formatPrice(basePrice * emailConfig.userCount * parseInt(emailConfig.period));
-  };
-
-  const handleCheckout = () => {
-    if (domainItems.length > 0 && !allDomainsHaveOwnership) {
-      toast.error('Por favor, preencha as informações de titularidade para todos os domínios.');
-      return;
-    }
-    
-    navigate('/checkout');
-  };
-
   return (
     <Layout>
       <div className="container py-12">
@@ -307,246 +137,28 @@ const Cart = () => {
         {items.length > 0 ? (
           <div className="grid md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
-              {domainItems.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Domínios e Titularidade</CardTitle>
-                    <CardDescription>
-                      Selecione ou adicione um perfil de titularidade para seus domínios
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <OwnershipProfileSelector
-                      selectedProfileId={selectedProfileId}
-                      onSelectProfile={handleProfileSelect}
-                      onAddNew={() => setIsOwnershipDialogOpen(true)}
-                    />
-                    
-                    {/* Display selected domains */}
-                    {domainItems.map((item) => {
-                      const domainName = item.title.replace('Domínio ', '');
-                      const domainWithOwnership = domainWithOwnershipMap[domainName];
-                      
-                      return (
-                        <div key={item.id} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-semibold">{item.title}</h3>
-                              <div className="mt-2 text-muted-foreground">
-                                <p>Preço: {formatPrice(item.price)}</p>
-                                <p className="mt-1 text-sm">
-                                  Próxima renovação: {calculateRenewalDate()}
-                                </p>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRemoveItem(item.id)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          
-                          <div className="mt-4">
-                            {domainWithOwnership?.hasOwnership ? (
-                              <div className="flex justify-between items-center">
-                                <span className="text-green-600 text-sm flex items-center gap-1">
-                                  <Check className="h-4 w-4" />
-                                  Informações de titularidade preenchidas
-                                </span>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleOpenOwnershipDialog(domainName)}
-                                >
-                                  Editar titularidade
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="flex justify-between items-center">
-                                <span className="text-red-500 text-sm flex items-center gap-1">
-                                  <AlertCircle className="h-4 w-4" />
-                                  Titularidade não preenchida
-                                </span>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleOpenOwnershipDialog(domainName)}
-                                >
-                                  Adicionar titularidade
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </CardContent>
-                </Card>
-              )}
+              <CartItems
+                items={items}
+                domainItems={domainItems}
+                domainWithOwnershipMap={domainWithOwnershipMap}
+                onRemoveItem={handleRemoveItem}
+                onOpenOwnershipDialog={handleOpenOwnershipDialog}
+              />
               
-              {/* Rest of the cart items */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Outros serviços</CardTitle>
-                  <CardDescription>
-                    Serviços adicionados ao carrinho
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {items
-                    .filter(item => !item.title.toLowerCase().includes('domínio'))
-                    .map((item) => (
-                      <div key={item.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold">{item.title}</h3>
-                            <div className="mt-2 text-muted-foreground">
-                              <p>Quantidade: {item.quantity}</p>
-                              <p>Preço unitário: {formatPrice(item.basePrice)}</p>
-                              <p>Total: {formatPrice(item.price)}</p>
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemoveItem(item.id)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Serviços Recomendados</CardTitle>
-                  <CardDescription>
-                    Escolha serviços adicionais para seus domínios
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6">
-                    {domainItems.length > 0 ? (
-                      <Tabs defaultValue="email">
-                        <TabsList className="grid grid-cols-3 mb-6">
-                          <TabsTrigger value="email">Email Profissional</TabsTrigger>
-                          <TabsTrigger value="cpanel">Hospedagem cPanel</TabsTrigger>
-                          <TabsTrigger value="wordpress">Hospedagem WordPress</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="email">
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {emailPlans.map((plan, index) => (
-                              <PricingCard
-                                key={index}
-                                {...plan}
-                                price={formatPrice(plan.basePrice)}
-                                period="usuário/ano"
-                                ctaText="Configurar plano"
-                                onAction={() => handleAddEmailPlan(plan)}
-                              />
-                            ))}
-                          </div>
-                        </TabsContent>
-                        
-                        <TabsContent value="cpanel">
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {cpanelPlans.map((plan, index) => (
-                              <PricingCard
-                                key={index}
-                                {...plan}
-                                price={formatPrice(plan.basePrice * parseInt(selectedBillingPeriod))}
-                                period={`${selectedBillingPeriod} ${parseInt(selectedBillingPeriod) === 1 ? 'ano' : 'anos'}`}
-                                ctaText="Adicionar ao carrinho"
-                                onAction={() => handleAddProduct(plan, parseInt(selectedBillingPeriod))}
-                              />
-                            ))}
-                          </div>
-                        </TabsContent>
-                        
-                        <TabsContent value="wordpress">
-                          <div className="grid md:grid-cols-2 gap-4">
-                            {wordpressPlans.map((plan, index) => (
-                              <PricingCard
-                                key={index}
-                                {...plan}
-                                price={formatPrice(plan.basePrice * parseInt(selectedBillingPeriod))}
-                                period={`${selectedBillingPeriod} ${parseInt(selectedBillingPeriod) === 1 ? 'ano' : 'anos'}`}
-                                ctaText="Adicionar ao carrinho"
-                                onAction={() => handleAddProduct(plan, parseInt(selectedBillingPeriod))}
-                              />
-                            ))}
-                          </div>
-                        </TabsContent>
-                      </Tabs>
-                    ) : (
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Nenhum domínio no carrinho</AlertTitle>
-                        <AlertDescription>
-                          Adicione domínios ao seu carrinho para ver recomendações de serviços.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <RecommendedServices
+                hasDomains={domainItems.length > 0}
+                selectedBillingPeriod={selectedBillingPeriod}
+                onAddProduct={handleAddProduct}
+                onEmailPlanClick={handleEmailPlanClick}
+              />
             </div>
 
-            <div className="border rounded-lg p-6 h-fit sticky top-8">
-              <h2 className="text-xl font-semibold mb-4">Resumo do Pedido</h2>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>{formatPrice(calculateSubtotal())}</span>
-                </div>
-                {calculateDiscount() > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Desconto ({(calculateDiscount() * 100)}%)</span>
-                    <span>-{formatPrice(calculateSubtotal() * calculateDiscount())}</span>
-                  </div>
-                )}
-                <div className="flex justify-between font-semibold pt-2 border-t">
-                  <span>Total</span>
-                  <span>{formatPrice(calculateTotal())}</span>
-                </div>
-              </div>
-              
-              <div className="mt-6 space-y-4">
-                <h3 className="text-sm font-medium">Período de contratação</h3>
-                <select
-                  value={selectedBillingPeriod}
-                  onChange={(e) => setSelectedBillingPeriod(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="1">1 ano</option>
-                  <option value="2">2 anos</option>
-                  <option value="3">3 anos</option>
-                  <option value="4">4 anos</option>
-                  <option value="5">5 anos</option>
-                </select>
-              </div>
-              
-              <Button 
-                className="w-full mt-6" 
-                onClick={handleCheckout}
-                disabled={domainItems.length > 0 && !allDomainsHaveOwnership}
-              >
-                Finalizar Compra
-              </Button>
-              
-              {domainItems.length > 0 && !allDomainsHaveOwnership && (
-                <p className="text-sm text-red-500 mt-2">
-                  Preencha as informações de titularidade para todos os domínios
-                </p>
-              )}
-            </div>
+            <CartSummary
+              subtotal={calculateSubtotal()}
+              hasUnownedDomains={!allDomainsHaveOwnership}
+              selectedBillingPeriod={selectedBillingPeriod}
+              onBillingPeriodChange={setSelectedBillingPeriod}
+            />
           </div>
         ) : (
           <div className="text-center py-12">
@@ -561,7 +173,7 @@ const Cart = () => {
           </div>
         )}
       </div>
-      
+
       {/* Ownership dialog */}
       {currentDomainForOwnership && (
         <DomainOwnership 
@@ -569,72 +181,18 @@ const Cart = () => {
           isOpen={isOwnershipDialogOpen}
           onClose={handleCloseOwnershipDialog}
           onSubmit={handleOwnershipSubmit}
-          existingProfiles={getAllProfiles()}
+          existingProfiles={[]}
         />
       )}
 
-      {/* Email configuration dialog */}
+      {/* Email plan dialog */}
       {selectedEmailPlan && (
-        <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{selectedEmailPlan.title}</DialogTitle>
-              <DialogDescription>
-                Configure o seu plano de email profissional
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="users" className="text-right">
-                  Usuários
-                </Label>
-                <Input
-                  id="users"
-                  type="number"
-                  min="1"
-                  max="1000"
-                  value={emailConfig.userCount}
-                  onChange={handleEmailUserCountChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="period" className="text-right">
-                  Período
-                </Label>
-                <Select
-                  value={emailConfig.period}
-                  onValueChange={(value) => setEmailConfig(prev => ({ ...prev, period: value }))}
-                >
-                  <SelectTrigger id="period" className="col-span-3">
-                    <SelectValue placeholder="Selecione o período" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 ano</SelectItem>
-                    <SelectItem value="2">2 anos</SelectItem>
-                    <SelectItem value="3">3 anos</SelectItem>
-                    <SelectItem value="4">4 anos</SelectItem>
-                    <SelectItem value="5">5 anos</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Preço Total</Label>
-                <div className="col-span-3 font-medium">
-                  {calculateEmailPrice(selectedEmailPlan.basePrice)}
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleConfirmEmailPlan}>
-                Adicionar ao Carrinho
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <EmailPlanDialog
+          selectedPlan={selectedEmailPlan}
+          isOpen={showEmailDialog}
+          onClose={() => setShowEmailDialog(false)}
+          onConfirm={handleConfirmEmailPlan}
+        />
       )}
     </Layout>
   );
