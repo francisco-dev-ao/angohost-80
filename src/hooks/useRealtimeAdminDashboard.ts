@@ -36,13 +36,25 @@ export const useRealtimeAdminDashboard = () => {
       setLoading(true);
       
       // Fetch orders with counts by status
-      const { data: orders, error: ordersError } = await supabase
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(5);
 
       if (ordersError) throw ordersError;
+
+      // Map orders data to match Order type
+      const orders: Order[] = ordersData ? ordersData.map(order => ({
+        id: order.id,
+        userId: order.user_id,
+        orderNumber: order.order_number,
+        status: order.status,
+        totalAmount: order.total_amount,
+        items: order.items,
+        createdAt: order.created_at,
+        updatedAt: order.updated_at
+      })) : [];
 
       // Count orders by status
       const { count: pendingOrders, error: pendingOrdersError } = await supabase
@@ -114,7 +126,7 @@ export const useRealtimeAdminDashboard = () => {
         pendingInvoices: pendingInvoices || 0,
         paidInvoices: paidInvoices || 0,
         totalRevenue,
-        recentOrders: orders || [],
+        recentOrders: orders,
         recentInvoices: invoices || [],
         paymentMethodCount: paymentMethodCount || 0
       });
