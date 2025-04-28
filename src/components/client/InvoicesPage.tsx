@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
 import { FileText, Download } from 'lucide-react';
-import { InvoiceViewDialog } from './InvoiceViewDialog';
+import InvoiceViewDialog from './InvoiceViewDialog';
 import { useState } from 'react';
 
 const InvoicesPage = () => {
