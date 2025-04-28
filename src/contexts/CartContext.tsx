@@ -1,6 +1,8 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCartData } from '@/hooks/useCartData';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 export interface CartItem {
   id: string;
@@ -17,11 +19,13 @@ interface CartContextType {
   clearCart: () => void;
   isLoading?: boolean;
   error?: Error | null;
+  isAuthenticated: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useSupabaseAuth();
   const { items, isLoading, error, addToCart, removeFromCart, clearCart } = useCartData();
 
   return (
@@ -32,7 +36,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         removeFromCart, 
         clearCart, 
         isLoading,
-        error
+        error,
+        isAuthenticated: !!user
       }}
     >
       {children}

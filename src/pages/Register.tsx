@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -8,9 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { toast } from 'sonner';
 
 export default function Register() {
   const [tab, setTab] = useState('login');
+  const location = useLocation();
+  const returnUrl = location.state?.returnUrl || '/client';
   
   // Login state
   const [loginEmail, setLoginEmail] = useState('');
@@ -24,8 +27,16 @@ export default function Register() {
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   
-  const { signIn, signUp } = useSupabaseAuth();
+  const { signIn, signUp, user } = useSupabaseAuth();
   const navigate = useNavigate();
+  
+  // Redirecionar se já estiver logado
+  useEffect(() => {
+    if (user) {
+      toast.success('Você já está logado');
+      navigate(returnUrl);
+    }
+  }, [user, navigate, returnUrl]);
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +44,8 @@ export default function Register() {
     
     try {
       await signIn(loginEmail, loginPassword);
-      navigate('/client');
+      toast.success('Login realizado com sucesso');
+      navigate(returnUrl);
     } catch (error) {
       console.error('Login error:', error);
     } finally {
@@ -45,7 +57,7 @@ export default function Register() {
     e.preventDefault();
     
     if (registerPassword !== registerConfirmPassword) {
-      alert('As senhas não coincidem');
+      toast.error('As senhas não coincidem');
       return;
     }
     
@@ -53,7 +65,8 @@ export default function Register() {
     
     try {
       await signUp(registerEmail, registerPassword, registerName);
-      navigate('/client');
+      toast.success('Cadastro realizado com sucesso');
+      navigate(returnUrl);
     } catch (error) {
       console.error('Registration error:', error);
     } finally {
@@ -69,6 +82,11 @@ export default function Register() {
             <CardTitle className="text-2xl text-center">Área do Cliente</CardTitle>
             <CardDescription className="text-center">
               Faça login ou crie uma conta para gerenciar seus serviços
+              {returnUrl !== '/client' && (
+                <p className="mt-2 font-medium text-primary">
+                  Você será redirecionado após o login
+                </p>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent>

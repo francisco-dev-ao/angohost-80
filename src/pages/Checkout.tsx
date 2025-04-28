@@ -16,27 +16,37 @@ import { Skeleton } from '@/components/ui/skeleton';
 const Checkout = () => {
   const { user } = useSupabaseAuth();
   const navigate = useNavigate();
-  const { items, clearCart, isLoading } = useCart();
+  const { items, clearCart, isLoading, isAuthenticated } = useCart();
   
   useEffect(() => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast.error('Faça login para finalizar a compra');
-      navigate('/register');
+      navigate('/register', { state: { returnUrl: '/checkout' } });
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const [paymentMethod, setPaymentMethod] = useState('credit-card');
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: user?.user_metadata?.full_name || '',
+    email: user?.email || '',
     phone: '',
     address: '',
     creditCardNumber: '',
     expiryDate: '',
     cvv: '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.user_metadata?.full_name || '',
+        email: user.email || ''
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,13 +68,20 @@ const Checkout = () => {
 
   const handleSubmitPayment = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAuthenticated) {
+      toast.error('Você precisa estar logado para finalizar a compra');
+      navigate('/register');
+      return;
+    }
+    
     setLoading(true);
     
     setTimeout(() => {
       setLoading(false);
       clearCart();
       toast.success('Pagamento processado com sucesso!');
-      navigate('/', { replace: true });
+      navigate('/client', { replace: true });
     }, 2000);
   };
   
@@ -281,7 +298,7 @@ const Checkout = () => {
             
             <Button 
               className="w-full" 
-              disabled={loading}
+              disabled={loading || !isAuthenticated}
               onClick={handleSubmitPayment}
             >
               {loading ? (
