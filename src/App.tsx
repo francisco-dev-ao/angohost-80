@@ -22,6 +22,16 @@ import Checkout from "./pages/Checkout";
 import Domains from "./pages/Domains";
 import Register from "./pages/Register";
 import AdminIndex from "./pages/AdminIndex";
+import AdminStats from "./pages/admin/AdminStats";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminDomains from "./pages/admin/AdminDomains";
+import AdminHosting from "./pages/admin/AdminHosting";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminInvoices from "./pages/admin/AdminInvoices";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
+import AdminSettings from "./pages/admin/AdminSettings";
 import ProfilePage from "./components/client/ProfilePage";
 
 const queryClient = new QueryClient();
@@ -57,7 +67,20 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
+              
+              {/* Admin Routes */}
               <Route path="/admin" element={<AdminIndex />} />
+              <Route path="/admin/stats" element={<AdminStats />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/domains" element={<AdminDomains />} />
+              <Route path="/admin/hosting" element={<AdminHosting />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/invoices" element={<AdminInvoices />} />
+              <Route path="/admin/tickets" element={<AdminTickets />} />
+              <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
