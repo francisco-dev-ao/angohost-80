@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Search, Check } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
+import { formatPrice } from "@/utils/formatters";
 
 interface DomainResult {
   domain: string;
@@ -41,13 +41,13 @@ const DomainSearch = () => {
       
       const searchResults = extensions.map(ext => ({
         domain: `${baseSearch}${ext.ext}`,
-        available: Math.random() > 0.3, // Simulated availability
+        available: Math.random() > 0.3,
         price: ext.price
       }));
       
       setResults(searchResults);
       setIsSearching(false);
-    }, 800); // Faster response for better UX
+    }, 800);
   };
   
   const handleAddDomain = (domain: string, price: number) => {
@@ -104,7 +104,7 @@ const DomainSearch = () => {
                 {result.available ? (
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="font-medium">{(result.price / 100).toFixed(2)} kz</p>
+                      <p className="font-medium">{formatPrice(result.price)}</p>
                       <p className="text-sm text-muted-foreground">por ano</p>
                     </div>
                     <Button 

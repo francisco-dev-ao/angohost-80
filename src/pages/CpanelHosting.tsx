@@ -1,17 +1,17 @@
-
 import React from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check } from "lucide-react";
+import { formatPrice } from "@/utils/formatters";
 
 const CpanelHosting = () => {
   const hostingPlans = [
     {
       title: "Iniciante",
       description: "Ideal para sites pessoais e blogs",
-      price: 14.90,
+      price: formatPrice(14900),
       period: "mês",
       features: [
         { text: "1 Site", included: true },
@@ -27,7 +27,7 @@ const CpanelHosting = () => {
     {
       title: "Business",
       description: "Perfeito para pequenos negócios",
-      price: 29.90,
+      price: formatPrice(29900),
       period: "mês",
       popular: true,
       features: [
@@ -44,7 +44,7 @@ const CpanelHosting = () => {
     {
       title: "Profissional",
       description: "Para médias e grandes empresas",
-      price: 59.90,
+      price: formatPrice(59900),
       period: "mês",
       features: [
         { text: "Sites Ilimitados", included: true },

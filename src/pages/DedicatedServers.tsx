@@ -1,16 +1,16 @@
-
 import React from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
 import FeatureCard from "@/components/FeatureCard";
 import { Server, HardDrive, Globe } from "lucide-react";
+import { formatPrice } from "@/utils/formatters";
 
 const DedicatedServers = () => {
   const plans = [
     {
       title: "Dedicado Start",
       description: "Servidor básico dedicado",
-      price: 299.99,
+      price: formatPrice(299990),
       period: "mês",
       features: [
         { text: "Intel Xeon E-2236", included: true },
@@ -24,7 +24,7 @@ const DedicatedServers = () => {
     {
       title: "Dedicado Pro",
       description: "Alto desempenho",
-      price: 499.99,
+      price: formatPrice(499990),
       period: "mês",
       popular: true,
       features: [
@@ -39,7 +39,7 @@ const DedicatedServers = () => {
     {
       title: "Dedicado Enterprise",
       description: "Máxima performance",
-      price: 899.99,
+      price: formatPrice(899990),
       period: "mês",
       features: [
         { text: "2x Intel Xeon Gold", included: true },

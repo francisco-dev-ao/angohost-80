@@ -1,16 +1,16 @@
-
 import React from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
 import FeatureCard from "@/components/FeatureCard";
 import { Server, HardDrive, Globe } from "lucide-react";
+import { formatPrice } from "@/utils/formatters";
 
 const VpsHosting = () => {
   const plans = [
     {
       title: "VPS Start",
       description: "Ideal para começar",
-      price: 49.99,
+      price: formatPrice(49990),
       period: "mês",
       features: [
         { text: "2 vCPUs", included: true },
@@ -24,7 +24,7 @@ const VpsHosting = () => {
     {
       title: "VPS Pro",
       description: "Para aplicações profissionais",
-      price: 99.99,
+      price: formatPrice(99990),
       period: "mês",
       popular: true,
       features: [
@@ -39,7 +39,7 @@ const VpsHosting = () => {
     {
       title: "VPS Enterprise",
       description: "Máximo desempenho",
-      price: 199.99,
+      price: formatPrice(199990),
       period: "mês",
       features: [
         { text: "8 vCPUs", included: true },

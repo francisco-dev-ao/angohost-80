@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
@@ -12,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatPrice } from "@/utils/formatters";
 
 const ProfessionalEmail = () => {
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ const ProfessionalEmail = () => {
   };
 
   const calculatePrice = (basePrice: number) => {
-    return (basePrice * userCount * parseInt(period)).toFixed(2);
+    return formatPrice(basePrice * userCount * parseInt(period));
   };
 
   const handlePurchase = (plan: { title: string; basePrice: number }) => {
