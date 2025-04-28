@@ -16,8 +16,6 @@ export const useCartData = () => {
       try {
         // If user is logged in, try to load cart from database
         if (user) {
-          // Instead of using a shopping_carts table that doesn't exist,
-          // we'll store the cart data in the user's profile
           const { data, error } = await supabase
             .from('profiles')
             .select('id, cart_items')
@@ -37,7 +35,7 @@ export const useCartData = () => {
             }
           } else if (data && data.cart_items) {
             // Use cart items from profile
-            setItems(data.cart_items);
+            setItems(data.cart_items as CartItem[]);
           } else {
             // No cart items in profile, try local storage
             const localCart = localStorage.getItem('cart');
@@ -80,7 +78,7 @@ export const useCartData = () => {
           .from('profiles')
           .update({
             cart_items: newItems,
-            updated_at: new Date()
+            updated_at: new Date().toISOString() // Convert Date to ISO string
           })
           .eq('id', user.id);
           

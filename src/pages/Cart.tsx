@@ -13,7 +13,7 @@ import EmptyCart from '@/components/cart/EmptyCart';
 import { useCartPage } from '@/hooks/useCartPage';
 import { toast } from "sonner";
 import { useCart } from '@/contexts/CartContext';
-import { DomainWithOwnership, DomainOwnershipData } from '@/types/cart';
+import { DomainWithOwnership } from '@/types/cart';
 
 const Cart = () => {
   const { user } = useSupabaseAuth();

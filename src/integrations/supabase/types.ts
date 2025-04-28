@@ -647,6 +647,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          cart_items: Json | null
           company_name: string | null
           created_at: string | null
           document_number: string | null
@@ -665,6 +666,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          cart_items?: Json | null
           company_name?: string | null
           created_at?: string | null
           document_number?: string | null
@@ -683,6 +685,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          cart_items?: Json | null
           company_name?: string | null
           created_at?: string | null
           document_number?: string | null
