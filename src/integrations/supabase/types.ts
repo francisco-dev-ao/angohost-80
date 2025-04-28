@@ -36,6 +36,168 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_abandonment_settings: {
+        Row: {
+          allow_save_carts: boolean | null
+          allow_skip_email: boolean | null
+          created_at: string | null
+          force_login: boolean | null
+          id: string
+          max_days_to_track: number | null
+          require_guest_email: boolean | null
+          support_department_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          allow_save_carts?: boolean | null
+          allow_skip_email?: boolean | null
+          created_at?: string | null
+          force_login?: boolean | null
+          id?: string
+          max_days_to_track?: number | null
+          require_guest_email?: boolean | null
+          support_department_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          allow_save_carts?: boolean | null
+          allow_skip_email?: boolean | null
+          created_at?: string | null
+          force_login?: boolean | null
+          id?: string
+          max_days_to_track?: number | null
+          require_guest_email?: boolean | null
+          support_department_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      cart_abandonments: {
+        Row: {
+          cart_items: Json
+          created_at: string | null
+          email: string | null
+          id: string
+          is_guest: boolean | null
+          is_recovered: boolean | null
+          last_notification_at: string | null
+          notification_count: number | null
+          recovered_at: string | null
+          token: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cart_items: Json
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_guest?: boolean | null
+          is_recovered?: boolean | null
+          last_notification_at?: string | null
+          notification_count?: number | null
+          recovered_at?: string | null
+          token?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cart_items?: Json
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_guest?: boolean | null
+          is_recovered?: boolean | null
+          last_notification_at?: string | null
+          notification_count?: number | null
+          recovered_at?: string | null
+          token?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      cart_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          email: string | null
+          id: string
+          ip_address: string | null
+          item_details: Json
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          item_details: Json
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          item_details?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      cart_reminder_configurations: {
+        Row: {
+          cart_type: string[] | null
+          created_at: string | null
+          delay_hours: number
+          email_template_id: string | null
+          guest_email_template_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          cart_type?: string[] | null
+          created_at?: string | null
+          delay_hours: number
+          email_template_id?: string | null
+          guest_email_template_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          cart_type?: string[] | null
+          created_at?: string | null
+          delay_hours?: number
+          email_template_id?: string | null
+          guest_email_template_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_reminder_configurations_email_template_id_fkey"
+            columns: ["email_template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_reminder_configurations_guest_email_template_id_fkey"
+            columns: ["guest_email_template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_domains: {
         Row: {
           auto_renew: boolean | null
@@ -439,6 +601,7 @@ export type Database = {
       orders: {
         Row: {
           billing_address: Json | null
+          client_details: Json | null
           completed_at: string | null
           created_at: string | null
           discount_amount: number | null
@@ -457,6 +620,7 @@ export type Database = {
         }
         Insert: {
           billing_address?: Json | null
+          client_details?: Json | null
           completed_at?: string | null
           created_at?: string | null
           discount_amount?: number | null
@@ -475,6 +639,7 @@ export type Database = {
         }
         Update: {
           billing_address?: Json | null
+          client_details?: Json | null
           completed_at?: string | null
           created_at?: string | null
           discount_amount?: number | null
@@ -755,6 +920,39 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_carts: {
+        Row: {
+          cart_items: Json
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          token: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cart_items: Json
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          token?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cart_items?: Json
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          token?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ticket_messages: {
         Row: {
           attachments: Json | null
@@ -956,6 +1154,10 @@ export type Database = {
       can_use_promotion: {
         Args: { _user_id: string; _promotion_id: string }
         Returns: boolean
+      }
+      generate_cart_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       is_admin: {
         Args: { uid: string }

@@ -36,6 +36,7 @@ import AdminTickets from "./pages/admin/AdminTickets";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
+import AdminAbandonedCarts from "./pages/admin/AdminAbandonedCarts";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/cart/shared/:token" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/client/orders" element={<ClientArea />} />
               
@@ -90,6 +92,7 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/payment-methods" element={<AdminPaymentMethods />} />
               <Route path="/admin/services" element={<AdminHosting />} />
+              <Route path="/admin/abandoned-carts" element={<AdminAbandonedCarts />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

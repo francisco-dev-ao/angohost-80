@@ -36,6 +36,23 @@ export const useSaveOrder = () => {
       const orderNumber = generateOrderNumber();
       const totalAmount = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
       
+      // Mark any abandoned cart as recovered
+      if (user) {
+        try {
+          await supabase
+            .from('cart_abandonments')
+            .update({ 
+              is_recovered: true,
+              recovered_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+            .eq('is_recovered', false);
+        } catch (e) {
+          // Non-critical, just log the error
+          console.error('Failed to mark cart as recovered:', e);
+        }
+      }
+      
       const { data: order, error } = await supabase
         .from('orders')
         .insert({

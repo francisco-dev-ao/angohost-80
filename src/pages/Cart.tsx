@@ -10,6 +10,7 @@ import RecommendedServices from '@/components/cart/RecommendedServices';
 import EmailPlanDialog from '@/components/cart/email-plan-dialog';
 import CartLoading from '@/components/cart/CartLoading';
 import EmptyCart from '@/components/cart/EmptyCart';
+import CartActions from '@/components/cart/CartActions';
 import { useCartPage } from '@/hooks/useCartPage';
 import { toast } from "sonner";
 import { useCart } from '@/contexts/CartContext';
@@ -86,6 +87,10 @@ const Cart = () => {
     <Layout>
       <div className="container py-12">
         <h1 className="text-3xl font-bold mb-8">Carrinho de Compras</h1>
+        
+        <div className="flex justify-end mb-4">
+          <CartActions />
+        </div>
         
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
