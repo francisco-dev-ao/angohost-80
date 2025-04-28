@@ -16,20 +16,30 @@ export const useCartData = () => {
       try {
         // If user is logged in, try to load cart from database
         if (user) {
+          // Instead of using a shopping_carts table that doesn't exist,
+          // we'll store the cart data in the user's profile
           const { data, error } = await supabase
-            .from('shopping_carts')
-            .select('items')
-            .eq('user_id', user.id)
+            .from('profiles')
+            .select('id, cart_items')
+            .eq('id', user.id)
             .single();
             
-          if (error && error.code !== 'PGRST116') {
-            throw error;
-          }
-          
-          if (data) {
-            setItems(data.items || []);
+          if (error) {
+            // If there's an error but not "no rows returned", throw it
+            if (error.code !== 'PGRST116') {
+              throw error;
+            }
+            
+            // No profile found, use local storage
+            const localCart = localStorage.getItem('cart');
+            if (localCart) {
+              setItems(JSON.parse(localCart));
+            }
+          } else if (data && data.cart_items) {
+            // Use cart items from profile
+            setItems(data.cart_items);
           } else {
-            // Load from local storage if no DB record
+            // No cart items in profile, try local storage
             const localCart = localStorage.getItem('cart');
             if (localCart) {
               setItems(JSON.parse(localCart));
@@ -63,18 +73,16 @@ export const useCartData = () => {
     // Always save to local storage
     localStorage.setItem('cart', JSON.stringify(newItems));
     
-    // If user is logged in, also save to database
+    // If user is logged in, also save to database in profiles table
     if (user) {
       try {
         const { error } = await supabase
-          .from('shopping_carts')
-          .upsert({
-            user_id: user.id,
-            items: newItems,
+          .from('profiles')
+          .update({
+            cart_items: newItems,
             updated_at: new Date()
-          }, {
-            onConflict: 'user_id'
-          });
+          })
+          .eq('id', user.id);
           
         if (error) throw error;
       } catch (err) {

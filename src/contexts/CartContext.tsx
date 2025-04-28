@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartData } from '@/hooks/useCartData';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { DomainOwnershipData } from '@/types/cart';
 
 export interface CartItem {
   id: string;
@@ -13,13 +14,7 @@ export interface CartItem {
   type?: string;
   domain?: string;
   description?: string;
-  ownershipData?: {
-    name: string;
-    email: string;
-    document: string;
-    phone: string;
-    address: string;
-  };
+  ownershipData?: DomainOwnershipData;
   contactProfileId?: string | null;
   years?: number;
 }

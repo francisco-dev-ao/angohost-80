@@ -51,24 +51,26 @@ export const useInvoices = () => {
 
         if (error) throw error;
         
-        const typedInvoices: Invoice[] = data?.map(invoice => ({
-          id: invoice.id,
-          invoice_number: invoice.invoice_number,
-          amount: invoice.amount,
-          status: invoice.status,
-          due_date: invoice.due_date,
-          payment_date: invoice.payment_date,
-          user_id: invoice.user_id,
-          items: invoice.items,
-          created_at: invoice.created_at,
-          updated_at: invoice.updated_at,
-          company_details: invoice.company_details,
-          client_details: invoice.client_details,
-          order_id: invoice.order_id,
-          download_url: invoice.download_url
-        })) || [];
-        
-        setInvoices(typedInvoices);
+        if (data) {
+          const typedInvoices: Invoice[] = data.map(invoice => ({
+            id: invoice.id,
+            invoice_number: invoice.invoice_number,
+            amount: invoice.amount,
+            status: invoice.status,
+            due_date: invoice.due_date,
+            payment_date: invoice.payment_date,
+            user_id: invoice.user_id,
+            items: invoice.items,
+            created_at: invoice.created_at,
+            updated_at: invoice.updated_at,
+            company_details: invoice.company_details,
+            client_details: invoice.client_details,
+            order_id: invoice.order_id,
+            download_url: invoice.download_url
+          }));
+          
+          setInvoices(typedInvoices);
+        }
       } catch (error: any) {
         toast.error('Erro ao carregar faturas: ' + error.message);
       } finally {

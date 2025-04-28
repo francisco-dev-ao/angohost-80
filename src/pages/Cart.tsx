@@ -10,10 +10,10 @@ import RecommendedServices from '@/components/cart/RecommendedServices';
 import EmailPlanDialog from '@/components/cart/EmailPlanDialog';
 import CartLoading from '@/components/cart/CartLoading';
 import EmptyCart from '@/components/cart/EmptyCart';
-import { useCartPage, DomainOwnershipData } from '@/hooks/useCartPage';
+import { useCartPage } from '@/hooks/useCartPage';
 import { toast } from "sonner";
 import { useCart } from '@/contexts/CartContext';
-import { DomainWithOwnership } from '@/types/cart';
+import { DomainWithOwnership, DomainOwnershipData } from '@/types/cart';
 
 const Cart = () => {
   const { user } = useSupabaseAuth();
