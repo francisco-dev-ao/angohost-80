@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,7 +83,7 @@ const ContactProfilesPage = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      setProfiles((data as unknown) as ContactProfile[] || []);
+      setProfiles(data as ContactProfile[] || []);
     } catch (error: any) {
       toast.error('Erro ao carregar perfis de contato: ' + error.message);
     } finally {

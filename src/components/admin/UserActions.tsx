@@ -58,9 +58,7 @@ const UserActions = ({ userId, email, isActive = true, role = 'customer', onActi
       // Update using is_active field which was added in the migration
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          is_active: !isActive 
-        })
+        .update({ is_active: !isActive })
         .eq('id', userId);
 
       if (error) throw error;
@@ -78,9 +76,7 @@ const UserActions = ({ userId, email, isActive = true, role = 'customer', onActi
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          role: newRole 
-        })
+        .update({ role: newRole })
         .eq('id', userId);
 
       if (error) throw error;
