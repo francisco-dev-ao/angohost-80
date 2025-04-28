@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,6 @@ export default function Register() {
   const { signIn, signUp, user } = useSupabaseAuth();
   const navigate = useNavigate();
   
-  // Redirecionar se já estiver logado
   useEffect(() => {
     if (user) {
       toast.success('Você já está logado');
@@ -75,35 +73,48 @@ export default function Register() {
   };
 
   return (
-    <Layout>
-      <div className="container flex items-center justify-center py-16">
-        <Card className="mx-auto w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Área do Cliente</CardTitle>
+    <div className="min-h-screen flex">
+      {/* Left side - Image */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        <img
+          src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png"
+          alt="Login Background"
+          className="w-full h-full object-cover"
+        />
+      </div>
+      
+      {/* Right side - Login/Register Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader className="space-y-4">
+            <div className="flex justify-center mb-8">
+              <img
+                src="/logo.png"
+                alt="Petrohost Logo"
+                className="h-12"
+              />
+            </div>
+            <CardTitle className="text-2xl text-center">Acesse a sua conta</CardTitle>
             <CardDescription className="text-center">
-              Faça login ou crie uma conta para gerenciar seus serviços
-              {returnUrl !== '/client' && (
-                <p className="mt-2 font-medium text-primary">
-                  Você será redirecionado após o login
-                </p>
-              )}
+              Bem-vindo de volta! Por favor, insira seus detalhes
             </CardDescription>
           </CardHeader>
+          
           <CardContent>
             <Tabs value={tab} onValueChange={setTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-8">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="register">Cadastro</TabsTrigger>
               </TabsList>
               
               <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4 pt-4">
+                <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
                     <Input 
                       id="login-email" 
                       type="email" 
-                      placeholder="seu@email.com" 
+                      placeholder="nome@petrohost.ao" 
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       required
@@ -111,12 +122,7 @@ export default function Register() {
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="login-password">Senha</Label>
-                      <Link to="/forgot-password" className="text-xs text-primary">
-                        Esqueceu a senha?
-                      </Link>
-                    </div>
+                    <Label htmlFor="login-password">Senha</Label>
                     <Input 
                       id="login-password" 
                       type="password" 
@@ -128,13 +134,13 @@ export default function Register() {
                   </div>
                   
                   <Button className="w-full" type="submit" disabled={isLoggingIn}>
-                    {isLoggingIn ? 'Entrando...' : 'Entrar'}
+                    {isLoggingIn ? 'Entrando...' : 'Entrar na minha conta'}
                   </Button>
                 </form>
               </TabsContent>
               
               <TabsContent value="register">
-                <form onSubmit={handleRegister} className="space-y-4 pt-4">
+                <form onSubmit={handleRegister} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="register-name">Nome Completo</Label>
                     <Input 
@@ -151,7 +157,7 @@ export default function Register() {
                     <Input 
                       id="register-email" 
                       type="email" 
-                      placeholder="seu@email.com"
+                      placeholder="nome@petrohost.ao"
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       required
@@ -183,27 +189,14 @@ export default function Register() {
                   </div>
                   
                   <Button className="w-full" type="submit" disabled={isRegistering}>
-                    {isRegistering ? 'Cadastrando...' : 'Criar Conta'}
+                    {isRegistering ? 'Cadastrando...' : 'Criar nova conta'}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-center text-sm text-muted-foreground">
-              Ao continuar, você concorda com nossos{' '}
-              <Link to="/terms" className="underline underline-offset-4 hover:text-primary">
-                Termos de Serviço
-              </Link>{' '}
-              e{' '}
-              <Link to="/privacy" className="underline underline-offset-4 hover:text-primary">
-                Política de Privacidade
-              </Link>
-              .
-            </div>
-          </CardFooter>
         </Card>
       </div>
-    </Layout>
+    </div>
   );
 }
