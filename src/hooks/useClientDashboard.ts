@@ -67,19 +67,19 @@ export const useClientDashboard = () => {
           
         if (invoicesError) throw invoicesError;
         
-        // Count open tickets
-        const { data: ticketsData, error: ticketsError } = await supabase
+        // Count open tickets - Corrigido para usar { count: 'exact' }
+        const { count: ticketsCount, error: ticketsError } = await supabase
           .from('client_tickets')
-          .select('id')
+          .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('status', 'open');
           
         if (ticketsError) throw ticketsError;
         
-        // Count unread notifications
-        const { data: notificationsData, error: notificationsError } = await supabase
+        // Count unread notifications - Corrigido para usar { count: 'exact' }
+        const { count: notificationsCount, error: notificationsError } = await supabase
           .from('user_notifications')
-          .select('id')
+          .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('read', false);
           
@@ -90,8 +90,8 @@ export const useClientDashboard = () => {
           domains: domains?.length || 0,
           activeServices: services?.length || 0,
           pendingInvoices: invoices?.length || 0,
-          openTickets: ticketsData?.length || 0,
-          notifications: notificationsData?.length || 0,
+          openTickets: ticketsCount || 0,
+          notifications: notificationsCount || 0,
           services: services || [],
           domains_list: domains || [],
           invoices: invoices || [],
