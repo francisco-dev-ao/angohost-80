@@ -37,16 +37,16 @@ const Checkout = () => {
     });
   };
   
-  const calculateSubtotal = () => {
-    return items.reduce((acc, item) => acc + item.price, 0);
-  };
-
-  const calculateTax = () => {
-    return calculateSubtotal() * 0.14; // 14% IVA in Angola
-  };
-
   const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax();
+    // Calcular o total sem IVA
+    const subtotal = items.reduce((acc, item) => acc + item.price, 0);
+    
+    // Aplicar desconto se aplicável
+    let discount = 0;
+    if (subtotal >= 500000) discount = 0.1; // 10% discount
+    else if (subtotal >= 250000) discount = 0.05; // 5% discount
+    
+    return subtotal - (subtotal * discount);
   };
 
   const handleSubmitPayment = (e: React.FormEvent) => {
@@ -268,14 +268,6 @@ const Checkout = () => {
             <h2 className="text-xl font-semibold mb-4">Resumo do Pedido</h2>
             <div className="space-y-2 mb-6">
               <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>{formatPrice(calculateSubtotal())}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>IVA (14%)</span>
-                <span>{formatPrice(calculateTax())}</span>
-              </div>
-              <div className="flex justify-between font-semibold pt-2 border-t">
                 <span>Total</span>
                 <span>{formatPrice(calculateTotal())}</span>
               </div>

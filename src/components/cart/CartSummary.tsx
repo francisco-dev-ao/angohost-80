@@ -2,21 +2,25 @@
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/utils/formatters";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 interface CartSummaryProps {
   subtotal: number;
   hasUnownedDomains: boolean;
+  hasDomains: boolean; // Nova propriedade para verificar se tem domínios
   selectedBillingPeriod: string;
   onBillingPeriodChange: (period: string) => void;
+  onRecalculatePrices: (period: string) => void; // Nova função para recalcular preços
 }
 
 const CartSummary = ({ 
   subtotal, 
   hasUnownedDomains,
+  hasDomains,
   selectedBillingPeriod,
   onBillingPeriodChange,
+  onRecalculatePrices,
 }: CartSummaryProps) => {
   const navigate = useNavigate();
   const [discount, setDiscount] = useState(0);
@@ -33,6 +37,12 @@ const CartSummary = ({
     setDiscount(discountValue);
     setTotal(subtotal - (subtotal * discountValue));
   }, [subtotal]);
+
+  const handlePeriodChange = (period: string) => {
+    onBillingPeriodChange(period);
+    // Recalcular preços quando o período muda
+    onRecalculatePrices(period);
+  };
 
   return (
     <div className="border rounded-lg p-6 h-fit sticky top-8">
@@ -58,7 +68,7 @@ const CartSummary = ({
         <h3 className="text-sm font-medium">Período de contratação</h3>
         <select
           value={selectedBillingPeriod}
-          onChange={(e) => onBillingPeriodChange(e.target.value)}
+          onChange={(e) => handlePeriodChange(e.target.value)}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         >
           <option value="1">1 ano</option>
@@ -72,10 +82,17 @@ const CartSummary = ({
       <Button 
         className="w-full mt-6" 
         onClick={() => navigate('/checkout')}
-        disabled={hasUnownedDomains}
+        disabled={hasUnownedDomains || !hasDomains}
       >
         Finalizar Compra
       </Button>
+      
+      {!hasDomains && (
+        <p className="text-sm text-amber-500 mt-2 flex items-center gap-2">
+          <Info className="h-4 w-4" />
+          É necessário adicionar pelo menos um domínio
+        </p>
+      )}
       
       {hasUnownedDomains && (
         <p className="text-sm text-red-500 mt-2 flex items-center gap-2">

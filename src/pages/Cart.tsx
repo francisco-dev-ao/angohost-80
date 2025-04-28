@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useOwnership } from '@/contexts/OwnershipContext';
 import DomainOwnership from '@/components/DomainOwnership';
 import CartItems from '@/components/cart/CartItems';
 import CartSummary from '@/components/cart/CartSummary';
@@ -128,6 +128,30 @@ const Cart = () => {
     toast.success('Plano de email adicionado ao carrinho!');
   };
 
+  // Função para recalcular os preços quando o período muda
+  const handleRecalculatePrices = (period: string) => {
+    // Encontrar todos os itens exceto domínios que precisam ser recalculados
+    const itemsToRecalculate = items.filter(item => 
+      !item.title.toLowerCase().includes('domínio') && 
+      !item.title.toLowerCase().includes('email')
+    );
+    
+    // Remove e readiciona os itens com o novo período
+    itemsToRecalculate.forEach(item => {
+      removeFromCart(item.id);
+      
+      // Extrair o produto base
+      const titleParts = item.title.split('(')[0].trim();
+      const product = {
+        title: titleParts,
+        basePrice: item.basePrice,
+      };
+      
+      // Adicionar novamente com o novo período
+      handleAddProduct(product, parseInt(period));
+    });
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -172,8 +196,10 @@ const Cart = () => {
             <CartSummary
               subtotal={calculateSubtotal()}
               hasUnownedDomains={!allDomainsHaveOwnership}
+              hasDomains={domainItems.length > 0} // Adicionado para verificar se existem domínios
               selectedBillingPeriod={selectedBillingPeriod}
               onBillingPeriodChange={setSelectedBillingPeriod}
+              onRecalculatePrices={handleRecalculatePrices} // Nova função para recalcular preços
             />
           </div>
         ) : (

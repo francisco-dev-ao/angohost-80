@@ -6,12 +6,12 @@ import { CartItem } from '@/contexts/CartContext';
 let cartItems: CartItem[] = [];
 
 // Cart data functions
-const getCartItems = (): CartItem[] => {
+const getCartItems = async (): Promise<CartItem[]> => {
   // You could retrieve from localStorage here
-  return cartItems;
+  return Promise.resolve(cartItems);
 };
 
-const addCartItem = (item: CartItem): CartItem[] => {
+const addCartItem = async (item: CartItem): Promise<CartItem[]> => {
   const existingItemIndex = cartItems.findIndex((i) => i.id === item.id);
   
   if (existingItemIndex >= 0) {
@@ -25,19 +25,19 @@ const addCartItem = (item: CartItem): CartItem[] => {
   }
   
   // You could save to localStorage here
-  return cartItems;
+  return Promise.resolve(cartItems);
 };
 
-const removeCartItem = (itemId: string): CartItem[] => {
+const removeCartItem = async (itemId: string): Promise<CartItem[]> => {
   cartItems = cartItems.filter(item => item.id !== itemId);
   // You could save to localStorage here
-  return cartItems;
+  return Promise.resolve(cartItems);
 };
 
-const clearCartItems = (): CartItem[] => {
+const clearCartItems = async (): Promise<CartItem[]> => {
   cartItems = [];
   // You could clear localStorage here
-  return cartItems;
+  return Promise.resolve(cartItems);
 };
 
 // React Query hook
