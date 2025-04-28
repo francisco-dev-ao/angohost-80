@@ -22,6 +22,7 @@ import Checkout from "./pages/Checkout";
 import Domains from "./pages/Domains";
 import Register from "./pages/Register";
 import AdminIndex from "./pages/AdminIndex";
+import ProfilePage from "./components/client/ProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,14 @@ const App = () => (
               <Route path="/products/exchange" element={<ExchangeOnline />} />
               <Route path="/domains" element={<Domains />} />
               <Route path="/client" element={<ClientArea />} />
+              <Route path="/client/profile" element={<ClientArea />} />
+              <Route path="/client/domains" element={<ClientArea />} />
+              <Route path="/client/services" element={<ClientArea />} />
+              <Route path="/client/invoices" element={<ClientArea />} />
+              <Route path="/client/payment-methods" element={<ClientArea />} />
+              <Route path="/client/support" element={<ClientArea />} />
+              <Route path="/client/notifications" element={<ClientArea />} />
+              <Route path="/client/promotions" element={<ClientArea />} />
               <Route path="/register" element={<Register />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
