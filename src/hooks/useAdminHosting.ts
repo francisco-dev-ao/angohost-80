@@ -44,6 +44,12 @@ export const useAdminHosting = () => {
           ? (service.status as 'active' | 'suspended' | 'pending' | 'cancelled')
           : 'pending';
         
+        // Safely access email property with optional chaining and type check
+        let userEmail: string | undefined = undefined;
+        if (service.profiles && typeof service.profiles === 'object' && service.profiles !== null) {
+          userEmail = (service.profiles as { email?: string })?.email;
+        }
+        
         return {
           id: service.id,
           name: service.name,
@@ -54,7 +60,7 @@ export const useAdminHosting = () => {
           expiryDate: service.renewal_date,
           creationDate: service.created_at,
           userId: service.user_id,
-          userEmail: service.profiles?.email,
+          userEmail: userEmail,
           controlPanelUrl: service.control_panel_url
         };
       });
