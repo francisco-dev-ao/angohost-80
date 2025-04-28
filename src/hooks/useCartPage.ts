@@ -1,15 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { useCart } from '@/contexts/CartContext';
+import { useCart, CartItem } from '@/contexts/CartContext';
 import { emailPlans } from '@/config/emailPlans';
-
-export interface DomainOwnershipData {
-  name: string;
-  email: string;
-  phone: string;
-  document: string;
-  address: string;
-}
+import { DomainOwnershipData } from '@/types/cart';
 
 export const useCartPage = () => {
   const { items, removeFromCart, updateItemPrice, addToCart } = useCart();
@@ -26,7 +19,9 @@ export const useCartPage = () => {
     items
       .filter(item => item.type === 'domain')
       .forEach(item => {
-        map[item.domain] = item.ownershipData || null;
+        if (item.domain) {
+          map[item.domain] = item.ownershipData || null;
+        }
       });
     setDomainWithOwnershipMap(map);
     setIsLoading(false);
@@ -88,7 +83,7 @@ export const useCartPage = () => {
     const years = parseInt(config.period);
 
     // Add email product to cart
-    const emailItem = {
+    const emailItem: CartItem = {
       id: `${selectedEmailPlan.title}-${Date.now()}`,
       title: `${selectedEmailPlan.title} (${config.userCount} usuários por ${years} ${years === 1 ? 'ano' : 'anos'})`,
       quantity: config.userCount,
@@ -101,7 +96,7 @@ export const useCartPage = () => {
     
     // If user selected to register a new domain, add domain item
     if (config.domainOption === 'new' && config.selectedDomain) {
-      const domainItem = {
+      const domainItem: CartItem = {
         id: `domain-${config.selectedDomain}-${Date.now()}`,
         title: `Domínio: ${config.selectedDomain}`,
         quantity: 1,

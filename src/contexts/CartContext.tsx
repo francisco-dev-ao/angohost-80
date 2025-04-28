@@ -10,6 +10,18 @@ export interface CartItem {
   quantity: number;
   price: number;
   basePrice: number;
+  type?: string;
+  domain?: string;
+  description?: string;
+  ownershipData?: {
+    name: string;
+    email: string;
+    document: string;
+    phone: string;
+    address: string;
+  };
+  contactProfileId?: string | null;
+  years?: number;
 }
 
 interface CartContextType {
@@ -17,6 +29,7 @@ interface CartContextType {
   addToCart: (item: CartItem) => void;
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
+  updateItemPrice: (itemId: string, newPrice: number) => void;
   isLoading?: boolean;
   error?: Error | null;
   isAuthenticated: boolean;
@@ -26,7 +39,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useSupabaseAuth();
-  const { items, isLoading, error, addToCart, removeFromCart, clearCart } = useCartData();
+  const { items, isLoading, error, addToCart, removeFromCart, clearCart, updateItemPrice } = useCartData();
 
   return (
     <CartContext.Provider 
@@ -35,6 +48,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         addToCart, 
         removeFromCart, 
         clearCart, 
+        updateItemPrice,
         isLoading,
         error,
         isAuthenticated: !!user

@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import Layout from '@/components/Layout';
@@ -9,10 +10,10 @@ import RecommendedServices from '@/components/cart/RecommendedServices';
 import EmailPlanDialog from '@/components/cart/EmailPlanDialog';
 import CartLoading from '@/components/cart/CartLoading';
 import EmptyCart from '@/components/cart/EmptyCart';
-import { useCartPage } from '@/hooks/useCartPage';
-import { useState } from 'react';
+import { useCartPage, DomainOwnershipData } from '@/hooks/useCartPage';
 import { toast } from "sonner";
 import { useCart } from '@/contexts/CartContext';
+import { DomainWithOwnership } from '@/types/cart';
 
 const Cart = () => {
   const { user } = useSupabaseAuth();
@@ -50,6 +51,16 @@ const Cart = () => {
     handleRecalculatePrices,
   } = useCartPage();
 
+  // Convert to the expected type for CartItems component
+  const convertedDomainWithOwnershipMap: Record<string, DomainWithOwnership> = {};
+  Object.keys(domainWithOwnershipMap).forEach(key => {
+    convertedDomainWithOwnershipMap[key] = {
+      domain: key,
+      hasOwnership: !!domainWithOwnershipMap[key],
+      ownershipData: domainWithOwnershipMap[key] || undefined
+    };
+  });
+
   if (isLoading) {
     return (
       <Layout>
@@ -79,7 +90,7 @@ const Cart = () => {
             <CartItems
               items={items}
               domainItems={domainItems}
-              domainWithOwnershipMap={domainWithOwnershipMap}
+              domainWithOwnershipMap={convertedDomainWithOwnershipMap}
               onRemoveItem={handleRemoveItem}
               onOpenOwnershipDialog={handleOpenOwnershipDialog}
             />

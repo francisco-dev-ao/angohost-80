@@ -1,43 +1,65 @@
 
-export const emailPlans = [
+export interface EmailPlan {
+  id: string;
+  title: string;
+  description: string;
+  basePrice: number;
+  features: { text: string; included: boolean; }[];
+  popular?: boolean;
+}
+
+export const emailPlans: EmailPlan[] = [
   {
-    title: "Email Premium",
-    description: "Para pequenas empresas",
-    basePrice: 12000,
+    id: "basic",
+    title: "Email Básico",
+    description: "Para pequenas empresas e freelancers",
+    basePrice: 1500,
     features: [
-      { text: "5GB por usuário", included: true },
-      { text: "Webmail responsivo", included: true },
-      { text: "Antispam", included: true },
-      { text: "Antivírus", included: true },
-      { text: "Suporte 24/7", included: true },
-      { text: "Backup diário", included: true },
-    ],
+      { text: "5 GB de armazenamento", included: true },
+      { text: "Domínio personalizado", included: true },
+      { text: "Proteção contra spam", included: true },
+      { text: "Acesso webmail", included: true },
+      { text: "Suporte limitado", included: true },
+      { text: "Backup diário", included: false },
+      { text: "Calendário compartilhado", included: false },
+      { text: "Integração com aplicativos", included: false }
+    ]
   },
   {
-    title: "Avançado Pro",
-    description: "Para médias empresas",
-    basePrice: 40000,
+    id: "business",
+    title: "Email Business",
+    description: "Para empresas em crescimento",
+    basePrice: 3000,
     popular: true,
     features: [
-      { text: "25GB por usuário", included: true },
-      { text: "Webmail responsivo", included: true },
-      { text: "Antispam avançado", included: true },
-      { text: "Antivírus", included: true },
-      { text: "Suporte 24/7", included: true },
+      { text: "15 GB de armazenamento", included: true },
+      { text: "Domínio personalizado", included: true },
+      { text: "Proteção contra spam", included: true },
+      { text: "Acesso webmail", included: true },
+      { text: "Suporte prioritário", included: true },
       { text: "Backup diário", included: true },
-    ],
+      { text: "Calendário compartilhado", included: true },
+      { text: "Integração com aplicativos", included: false }
+    ]
   },
   {
-    title: "Business",
+    id: "enterprise",
+    title: "Email Enterprise",
     description: "Para grandes empresas",
-    basePrice: 30000,
+    basePrice: 5000,
     features: [
-      { text: "50GB por usuário", included: true },
-      { text: "Webmail responsivo", included: true },
-      { text: "Antispam avançado", included: true },
-      { text: "Antivírus", included: true },
-      { text: "Suporte 24/7 prioritário", included: true },
+      { text: "50 GB de armazenamento", included: true },
+      { text: "Domínio personalizado", included: true },
+      { text: "Proteção contra spam", included: true },
+      { text: "Acesso webmail", included: true },
+      { text: "Suporte dedicado", included: true },
       { text: "Backup diário", included: true },
-    ],
-  },
+      { text: "Calendário compartilhado", included: true },
+      { text: "Integração com aplicativos", included: true }
+    ]
+  }
 ];
+
+export const getPlanById = (id: string): EmailPlan | undefined => {
+  return emailPlans.find(plan => plan.id === id);
+};

@@ -10,3 +10,11 @@ export interface DomainWithOwnership {
     address: string;
   };
 }
+
+export interface DomainOwnershipData {
+  name: string;
+  email: string;
+  phone: string;
+  document: string;
+  address: string;
+}

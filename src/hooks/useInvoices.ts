@@ -21,14 +21,14 @@ export interface Invoice {
     phone: string;
     email: string;
     vat: string;
-  } | null;
+  } | null | any;
   client_details?: {
     name: string;
     email: string;
     phone: string;
     address: string;
     document: string;
-  } | null;
+  } | null | any;
   order_id?: string | null;
   download_url?: string | null;
 }

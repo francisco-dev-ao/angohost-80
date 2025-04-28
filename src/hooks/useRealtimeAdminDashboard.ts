@@ -101,7 +101,7 @@ export const useRealtimeAdminDashboard = () => {
   
   // Fetch recent invoices
   const fetchRecentInvoices = async () => {
-    const { data: invoices, error: invoicesError } = await supabase
+    const { data: invoicesData, error: invoicesError } = await supabase
       .from('invoices')
       .select('*')
       .order('created_at', { ascending: false })
@@ -109,7 +109,24 @@ export const useRealtimeAdminDashboard = () => {
     
     if (invoicesError) throw invoicesError;
     
-    return invoices || [];
+    const invoices: Invoice[] = invoicesData?.map(invoice => ({
+      id: invoice.id,
+      invoice_number: invoice.invoice_number,
+      amount: invoice.amount,
+      status: invoice.status,
+      due_date: invoice.due_date,
+      payment_date: invoice.payment_date,
+      user_id: invoice.user_id,
+      items: invoice.items,
+      created_at: invoice.created_at,
+      updated_at: invoice.updated_at,
+      company_details: invoice.company_details,
+      client_details: invoice.client_details,
+      order_id: invoice.order_id,
+      download_url: invoice.download_url
+    })) || [];
+    
+    return invoices;
   };
   
   // Count invoices by status
@@ -260,4 +277,3 @@ export const useRealtimeAdminDashboard = () => {
 
   return { stats, loading, refreshStats: fetchDashboardStats };
 };
-

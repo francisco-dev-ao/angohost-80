@@ -7,7 +7,7 @@ import { Mail, Server, Globe, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { emailPlans } from "@/config/emailPlans";
+import { emailPlans, EmailPlan } from "@/config/emailPlans";
 import { formatPrice } from "@/utils/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,7 +47,7 @@ const ProfessionalEmail = () => {
   const [selectedTab, setSelectedTab] = useState("business");
   const [userCount, setUserCount] = useState(1);
   const [period, setPeriod] = useState("1");
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<EmailPlan | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [domainOption, setDomainOption] = useState("new");
   const [newDomainName, setNewDomainName] = useState("");
@@ -125,7 +125,7 @@ const ProfessionalEmail = () => {
     return emailPrice + domainPrice;
   };
 
-  const handlePurchase = (plan: any) => {
+  const handlePurchase = (plan: EmailPlan) => {
     if (!user) {
       toast.error("Faça login para continuar");
       navigate("/register");
