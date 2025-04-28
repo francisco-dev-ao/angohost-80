@@ -1,11 +1,15 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
 import FeatureCard from "@/components/FeatureCard";
 import { Server, Database, Globe } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatPrice } from "@/utils/formatters";
 
 const WordPressHosting = () => {
+  const [billingYears, setBillingYears] = useState("1");
+  
   const plans = [
     {
       title: "WordPress Basic",
@@ -52,16 +56,37 @@ const WordPressHosting = () => {
     },
   ];
 
+  const yearlyPlans = plans.map(plan => ({
+    ...plan,
+    price: formatPrice(Number(plan.price.toString().replace(/[^\d]/g, '')) * parseInt(billingYears)),
+    period: `${billingYears} ${parseInt(billingYears) === 1 ? 'ano' : 'anos'}`
+  }));
+
   return (
     <Layout>
       <div className="container py-12">
         <h1 className="text-4xl font-bold text-center mb-4">Hospedagem WordPress</h1>
-        <p className="text-lg text-center text-muted-foreground mb-12">
+        <p className="text-lg text-center text-muted-foreground mb-8">
           Hospedagem otimizada para WordPress com instalação em 1 clique
         </p>
         
+        <div className="max-w-xs mx-auto mb-8">
+          <Select value={billingYears} onValueChange={setBillingYears}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1 ano</SelectItem>
+              <SelectItem value="2">2 anos</SelectItem>
+              <SelectItem value="3">3 anos</SelectItem>
+              <SelectItem value="4">4 anos</SelectItem>
+              <SelectItem value="5">5 anos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid md:grid-cols-3 gap-6 mb-16">
-          {plans.map((plan, index) => (
+          {yearlyPlans.map((plan, index) => (
             <PricingCard key={index} {...plan} />
           ))}
         </div>

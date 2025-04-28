@@ -1,13 +1,15 @@
-
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import PricingCard from "@/components/PricingCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check } from "lucide-react";
 import { formatPrice } from "@/utils/formatters";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CpanelHosting = () => {
+  const [billingYears, setBillingYears] = useState("1");
+  
   const hostingPlans = [
     {
       title: "Iniciante",
@@ -60,10 +62,10 @@ const CpanelHosting = () => {
     },
   ];
 
-  const annualHostingPlans = hostingPlans.map(plan => ({
+  const yearlyHostingPlans = hostingPlans.map(plan => ({
     ...plan,
-    price: formatPrice(Number(plan.price.replace(/[^\d]/g, '')) * 10), // 2 months free with annual billing
-    period: "ano"
+    price: formatPrice(Number(plan.price.replace(/[^\d]/g, '')) * parseInt(billingYears)),
+    period: `${billingYears} ${parseInt(billingYears) === 1 ? 'ano' : 'anos'}`
   }));
 
   return (
@@ -81,41 +83,29 @@ const CpanelHosting = () => {
 
       <section className="py-16">
         <div className="container">
-          <Tabs defaultValue="monthly" className="max-w-5xl mx-auto">
-            <div className="flex justify-center mb-8">
-              <TabsList>
-                <TabsTrigger value="monthly">Pagamento Mensal</TabsTrigger>
-                <TabsTrigger value="annual">
-                  Pagamento Anual
-                  <span className="ml-2 bg-primary text-white text-xs py-0.5 px-2 rounded-full">
-                    -16%
-                  </span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <TabsContent value="monthly">
-              <div className="grid md:grid-cols-3 gap-8">
-                {hostingPlans.map((plan) => (
-                  <PricingCard
-                    key={plan.title}
-                    {...plan}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="annual">
-              <div className="grid md:grid-cols-3 gap-8">
-                {annualHostingPlans.map((plan) => (
-                  <PricingCard
-                    key={plan.title}
-                    {...plan}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="max-w-xs mx-auto mb-8">
+            <Select value={billingYears} onValueChange={setBillingYears}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 ano</SelectItem>
+                <SelectItem value="2">2 anos</SelectItem>
+                <SelectItem value="3">3 anos</SelectItem>
+                <SelectItem value="4">4 anos</SelectItem>
+                <SelectItem value="5">5 anos</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {yearlyHostingPlans.map((plan) => (
+              <PricingCard
+                key={plan.title}
+                {...plan}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
