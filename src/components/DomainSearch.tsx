@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, Check } from "lucide-react";
+import { useCart } from '@/contexts/CartContext';
 
 interface DomainResult {
   domain: string;
@@ -15,6 +16,7 @@ const DomainSearch = () => {
   const [domain, setDomain] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<DomainResult[]>([]);
+  const { addToCart } = useCart();
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,25 +32,32 @@ const DomainSearch = () => {
     setTimeout(() => {
       const baseSearch = domain.includes('.') ? domain.split('.')[0] : domain;
       const extensions = [
-        { ext: '.com.br', available: Math.random() > 0.5, price: 39.9 },
-        { ext: '.com', available: Math.random() > 0.3, price: 29.9 },
-        { ext: '.net', available: Math.random() > 0.2, price: 34.9 },
-        { ext: '.org', available: Math.random() > 0.7, price: 44.9 },
-        { ext: '.info', available: true, price: 19.9 },
+        { ext: '.co.ao', price: 199900 },
+        { ext: '.ao', price: 149900 },
+        { ext: '.it.ao', price: 179900 },
+        { ext: '.org.ao', price: 159900 },
+        { ext: '.edu.ao', price: 169900 },
       ];
       
       const searchResults = extensions.map(ext => ({
         domain: `${baseSearch}${ext.ext}`,
-        available: ext.available,
+        available: Math.random() > 0.3, // Simulated availability
         price: ext.price
       }));
       
       setResults(searchResults);
       setIsSearching(false);
-    }, 1500);
+    }, 800); // Faster response for better UX
   };
   
-  const addToCart = (domain: string, price: number) => {
+  const handleAddDomain = (domain: string, price: number) => {
+    addToCart({
+      id: `domain-${domain}`,
+      title: `Domínio ${domain}`,
+      quantity: 1,
+      price: price,
+      basePrice: price,
+    });
     toast.success(`${domain} adicionado ao carrinho!`);
   };
 
@@ -66,36 +75,54 @@ const DomainSearch = () => {
           />
         </div>
         <Button type="submit" disabled={isSearching}>
-          {isSearching ? "Pesquisando..." : "Pesquisar"}
+          {isSearching ? "Pesquisando..." : "Verificar"}
         </Button>
       </form>
 
       {results.length > 0 && (
         <div className="mt-6 space-y-4">
           <h3 className="text-lg font-medium">Resultados da pesquisa</h3>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white rounded-lg shadow-md divide-y">
             {results.map((result) => (
               <div 
                 key={result.domain} 
-                className="flex items-center justify-between p-4 border-b last:border-b-0"
+                className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
-                <div>
+                <div className="space-y-1">
                   <p className="font-medium">{result.domain}</p>
-                  <p className={`text-sm ${result.available ? "text-green-600" : "text-red-600"}`}>
-                    {result.available ? "Disponível" : "Indisponível"}
+                  <p className={`text-sm ${result.available ? "text-green-600" : "text-red-600"} flex items-center gap-1`}>
+                    {result.available ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Disponível
+                      </>
+                    ) : (
+                      'Indisponível'
+                    )}
                   </p>
                 </div>
-                {result.available && (
+                {result.available ? (
                   <div className="flex items-center gap-4">
-                    <p className="font-medium">R$ {result.price.toFixed(2)}/ano</p>
+                    <div className="text-right">
+                      <p className="font-medium">{(result.price / 100).toFixed(2)} kz</p>
+                      <p className="text-sm text-muted-foreground">por ano</p>
+                    </div>
                     <Button 
-                      onClick={() => addToCart(result.domain, result.price)}
+                      onClick={() => handleAddDomain(result.domain, result.price)}
                       variant="default"
                       size="sm"
                     >
-                      Adicionar
+                      Selecionar
                     </Button>
                   </div>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    disabled
+                  >
+                    Não disponível
+                  </Button>
                 )}
               </div>
             ))}
