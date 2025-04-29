@@ -18,7 +18,6 @@ import DedicatedServers from './pages/DedicatedServers';
 import ProfessionalEmail from './pages/ProfessionalEmail';
 import ExchangeOnline from './pages/ExchangeOnline';
 import Register from './pages/Register';
-import Cart from './pages/Cart';
 import { Toaster } from "sonner";
 import { CartProvider } from './contexts/CartContext';
 import EnhancedCheckoutPage from './pages/EnhancedCheckout';
@@ -42,7 +41,9 @@ function App() {
           <Route path="/professional-email" element={<ProfessionalEmail />} />
           <Route path="/exchange-online" element={<ExchangeOnline />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/cart" element={<Cart />} />
+          
+          {/* Redirect cart page to enhanced-checkout */}
+          <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
           
           {/* Redirect checkout page to enhanced-checkout */}
           <Route path="/checkout" element={<Navigate to="/enhanced-checkout" replace />} />

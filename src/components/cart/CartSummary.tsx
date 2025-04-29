@@ -8,10 +8,10 @@ import { useNavigate } from 'react-router-dom';
 interface CartSummaryProps {
   subtotal: number;
   hasUnownedDomains: boolean;
-  hasDomains: boolean; // Nova propriedade para verificar se tem domínios
+  hasDomains: boolean; 
   selectedBillingPeriod: string;
   onBillingPeriodChange: (period: string) => void;
-  onRecalculatePrices: (period: string) => void; // Nova função para recalcular preços
+  onRecalculatePrices: (period: string) => void;
 }
 
 const CartSummary = ({ 
@@ -81,7 +81,7 @@ const CartSummary = ({
       
       <Button 
         className="w-full mt-6" 
-        onClick={() => navigate('/checkout')}
+        onClick={() => navigate('/enhanced-checkout')}
         disabled={hasUnownedDomains || !hasDomains}
       >
         Finalizar Compra
