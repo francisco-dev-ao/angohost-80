@@ -1,8 +1,8 @@
-
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SidebarProvider } from './components/ui/sidebar';
 import { CartProvider } from './contexts/CartContext';
+import { ThemeProvider } from './components/ui/theme-provider';
 
 // Import pages that exist in the read-only files
 import About from './pages/About';
@@ -44,67 +44,69 @@ import DomainTransfer from './pages/DomainTransfer';
 
 function App() {
   return (
-    <CartProvider>
-      <SidebarProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/domains" element={<Domains />} />
-          <Route path="/domain-transfer" element={<DomainTransfer />} />
-          <Route path="/cpanel-hosting" element={<CpanelHosting />} />
-          <Route path="/wordpress-hosting" element={<WordPressHosting />} />
-          <Route path="/vps-hosting" element={<VpsHosting />} />
-          <Route path="/dedicated-servers" element={<DedicatedServers />} />
-          <Route path="/professional-email" element={<ProfessionalEmail />} />
-          <Route path="/exchange-online" element={<ExchangeOnline />} />
-          <Route path="/hosting" element={<CpanelHosting />} /> {/* Agora aponta para CpanelHosting */}
-          <Route path="/email" element={<ProfessionalEmail />} /> {/* Agora aponta para ProfessionalEmail */}
-          <Route path="/vps" element={<VpsHosting />} /> {/* Agora aponta para VpsHosting */}
-          
-          {/* Redirect cart to enhanced-checkout */}
-          <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
-          
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Register />} /> {/* Using Register as it has login tab */}
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/enhanced-checkout" element={<EnhancedCheckout />} />
+    <ThemeProvider>
+      <CartProvider>
+        <SidebarProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/domains" element={<Domains />} />
+            <Route path="/domain-transfer" element={<DomainTransfer />} />
+            <Route path="/cpanel-hosting" element={<CpanelHosting />} />
+            <Route path="/wordpress-hosting" element={<WordPressHosting />} />
+            <Route path="/vps-hosting" element={<VpsHosting />} />
+            <Route path="/dedicated-servers" element={<DedicatedServers />} />
+            <Route path="/professional-email" element={<ProfessionalEmail />} />
+            <Route path="/exchange-online" element={<ExchangeOnline />} />
+            <Route path="/hosting" element={<CpanelHosting />} /> {/* Agora aponta para CpanelHosting */}
+            <Route path="/email" element={<ProfessionalEmail />} /> {/* Agora aponta para ProfessionalEmail */}
+            <Route path="/vps" element={<VpsHosting />} /> {/* Agora aponta para VpsHosting */}
+            
+            {/* Redirect cart to enhanced-checkout */}
+            <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
+            
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Register />} /> {/* Using Register as it has login tab */}
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/enhanced-checkout" element={<EnhancedCheckout />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminProtectedRoute><AdminIndex /></AdminProtectedRoute>} />
-          <Route path="/admin/domains" element={<AdminProtectedRoute><AdminDomains /></AdminProtectedRoute>} />
-          <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
-          <Route path="/admin/products" element={<AdminProtectedRoute><AdminProducts /></AdminProtectedRoute>} />
-          <Route path="/admin/domain-extensions" element={<AdminProtectedRoute><AdminDomainExtensions /></AdminProtectedRoute>} />
-          <Route path="/admin/service-plans" element={<AdminProtectedRoute><AdminServicePlans /></AdminProtectedRoute>} />
-          <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
-          <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
-          <Route path="/admin/invoices" element={<AdminProtectedRoute><AdminInvoices /></AdminProtectedRoute>} />
-          <Route path="/admin/abandoned-carts" element={<AdminProtectedRoute><AdminAbandonedCarts /></AdminProtectedRoute>} />
-          <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
-          <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminProtectedRoute><AdminIndex /></AdminProtectedRoute>} />
+            <Route path="/admin/domains" element={<AdminProtectedRoute><AdminDomains /></AdminProtectedRoute>} />
+            <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
+            <Route path="/admin/products" element={<AdminProtectedRoute><AdminProducts /></AdminProtectedRoute>} />
+            <Route path="/admin/domain-extensions" element={<AdminProtectedRoute><AdminDomainExtensions /></AdminProtectedRoute>} />
+            <Route path="/admin/service-plans" element={<AdminProtectedRoute><AdminServicePlans /></AdminProtectedRoute>} />
+            <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
+            <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
+            <Route path="/admin/invoices" element={<AdminProtectedRoute><AdminInvoices /></AdminProtectedRoute>} />
+            <Route path="/admin/abandoned-carts" element={<AdminProtectedRoute><AdminAbandonedCarts /></AdminProtectedRoute>} />
+            <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
+            <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
 
-          {/* Client Routes - Support both /client/* and direct access to /client-area */}
-          <Route path="/client" element={<ClientLayout />}>
-            <Route index element={<ClientDomains />} />
-            <Route path="domains" element={<ClientDomains />} />
-            <Route path="profile" element={<ClientProfile />} />
-            <Route path="services" element={<ClientServices />} />
-            <Route path="orders" element={<ClientArea />} />
-            <Route path="invoices" element={<ClientInvoices />} />
-          </Route>
+            {/* Client Routes - Support both /client/* and direct access to /client-area */}
+            <Route path="/client" element={<ClientLayout />}>
+              <Route index element={<ClientDomains />} />
+              <Route path="domains" element={<ClientDomains />} />
+              <Route path="profile" element={<ClientProfile />} />
+              <Route path="services" element={<ClientServices />} />
+              <Route path="orders" element={<ClientArea />} />
+              <Route path="invoices" element={<ClientInvoices />} />
+            </Route>
 
-          {/* Direct routes */}
-          <Route path="/client-area" element={<ClientArea />} />
-          <Route path="/client-area/*" element={<ClientArea />} />
-          <Route path="/services" element={<Navigate to="/client/services" replace />} />
-          <Route path="/orders" element={<Navigate to="/client/orders" replace />} />
-          <Route path="/invoices" element={<Navigate to="/client/invoices" replace />} />
+            {/* Direct routes */}
+            <Route path="/client-area" element={<ClientArea />} />
+            <Route path="/client-area/*" element={<ClientArea />} />
+            <Route path="/services" element={<Navigate to="/client/services" replace />} />
+            <Route path="/orders" element={<Navigate to="/client/orders" replace />} />
+            <Route path="/invoices" element={<Navigate to="/client/invoices" replace />} />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </SidebarProvider>
-    </CartProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </SidebarProvider>
+      </CartProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from "@/components/admin/AdminLayout";
 import {
   Card,
@@ -17,8 +17,24 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { useTheme } from "@/components/ui/theme-provider";
+import { Moon, Sun } from "lucide-react";
 
 const AdminSettings = () => {
+  const { theme, setTheme } = useTheme();
+  const [isSaving, setIsSaving] = useState(false);
   const [generalSettings, setGeneralSettings] = useState({
     siteName: "AngoHost",
     siteUrl: "https://angohost.ao",
@@ -51,34 +67,239 @@ const AdminSettings = () => {
     systemNotifications: true,
   });
 
-  const handleGeneralSubmit = (e: React.FormEvent) => {
+  const [smtpSettings, setSmtpSettings] = useState({
+    smtpServer: "",
+    smtpPort: "587",
+    smtpUser: "",
+    smtpPassword: "",
+    smtpFromEmail: "",
+    smtpFromName: "AngoHost",
+    smtpSecureConnection: true,
+  });
+
+  // Load settings from Supabase
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const { data: generalData, error: generalError } = await supabase
+          .from('settings')
+          .select('*')
+          .eq('category', 'general')
+          .single();
+        
+        if (generalData && !generalError) {
+          setGeneralSettings(generalData.settings);
+        }
+        
+        const { data: securityData, error: securityError } = await supabase
+          .from('settings')
+          .select('*')
+          .eq('category', 'security')
+          .single();
+        
+        if (securityData && !securityError) {
+          setSecuritySettings(securityData.settings);
+        }
+        
+        const { data: paymentData, error: paymentError } = await supabase
+          .from('settings')
+          .select('*')
+          .eq('category', 'payment')
+          .single();
+        
+        if (paymentData && !paymentError) {
+          setPaymentSettings(paymentData.settings);
+        }
+        
+        const { data: notificationData, error: notificationError } = await supabase
+          .from('settings')
+          .select('*')
+          .eq('category', 'notification')
+          .single();
+        
+        if (notificationData && !notificationError) {
+          setNotificationSettings(notificationData.settings);
+        }
+        
+        const { data: smtpData, error: smtpError } = await supabase
+          .from('settings')
+          .select('*')
+          .eq('category', 'smtp')
+          .single();
+        
+        if (smtpData && !smtpError) {
+          setSmtpSettings(smtpData.settings);
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+        toast.error("Erro ao carregar configurações");
+      }
+    };
+    
+    loadSettings();
+  }, []);
+
+  const handleGeneralSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Configurações gerais atualizadas com sucesso");
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ 
+          category: 'general', 
+          settings: generalSettings 
+        }, { 
+          onConflict: 'category' 
+        });
+
+      if (error) throw error;
+      toast.success("Configurações gerais atualizadas com sucesso");
+    } catch (error) {
+      console.error("Error saving general settings:", error);
+      toast.error("Erro ao salvar configurações gerais");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSecuritySubmit = (e: React.FormEvent) => {
+  const handleSecuritySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Configurações de segurança atualizadas com sucesso");
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ 
+          category: 'security', 
+          settings: securitySettings 
+        }, { 
+          onConflict: 'category' 
+        });
+
+      if (error) throw error;
+      toast.success("Configurações de segurança atualizadas com sucesso");
+    } catch (error) {
+      console.error("Error saving security settings:", error);
+      toast.error("Erro ao salvar configurações de segurança");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handlePaymentSubmit = (e: React.FormEvent) => {
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Configurações de pagamento atualizadas com sucesso");
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ 
+          category: 'payment', 
+          settings: paymentSettings 
+        }, { 
+          onConflict: 'category' 
+        });
+
+      if (error) throw error;
+      toast.success("Configurações de pagamento atualizadas com sucesso");
+    } catch (error) {
+      console.error("Error saving payment settings:", error);
+      toast.error("Erro ao salvar configurações de pagamento");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleNotificationSubmit = (e: React.FormEvent) => {
+  const handleNotificationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Configurações de notificação atualizadas com sucesso");
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ 
+          category: 'notification', 
+          settings: notificationSettings 
+        }, { 
+          onConflict: 'category' 
+        });
+
+      if (error) throw error;
+      toast.success("Configurações de notificação atualizadas com sucesso");
+    } catch (error) {
+      console.error("Error saving notification settings:", error);
+      toast.error("Erro ao salvar configurações de notificação");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSmtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ 
+          category: 'smtp', 
+          settings: smtpSettings 
+        }, { 
+          onConflict: 'category' 
+        });
+
+      if (error) throw error;
+      toast.success("Configurações SMTP atualizadas com sucesso");
+    } catch (error) {
+      console.error("Error saving SMTP settings:", error);
+      toast.error("Erro ao salvar configurações SMTP");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const testSmtpConnection = async () => {
+    setIsSaving(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('test-smtp', {
+        body: { smtpSettings }
+      });
+
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error testing SMTP:", error);
+      toast.error("Erro ao testar conexão SMTP");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configurações</h1>
-          <p className="text-muted-foreground">
-            Gerencie as configurações do sistema
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Configurações</h1>
+            <p className="text-muted-foreground">
+              Gerencie as configurações do sistema
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-[1.2rem] w-[1.2rem]" />
+              ) : (
+                <Moon className="h-[1.2rem] w-[1.2rem]" />
+              )}
+              <span className="sr-only">Alternar tema</span>
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="general" className="space-y-4">
@@ -86,6 +307,7 @@ const AdminSettings = () => {
             <TabsTrigger value="general">Geral</TabsTrigger>
             <TabsTrigger value="security">Segurança</TabsTrigger>
             <TabsTrigger value="payment">Pagamento</TabsTrigger>
+            <TabsTrigger value="smtp">SMTP</TabsTrigger>
             <TabsTrigger value="notification">Notificações</TabsTrigger>
           </TabsList>
           
@@ -141,7 +363,9 @@ const AdminSettings = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit">Salvar alterações</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Salvando..." : "Salvar alterações"}
+                  </Button>
                 </CardFooter>
               </form>
             </Card>
@@ -201,7 +425,9 @@ const AdminSettings = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit">Salvar alterações</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Salvando..." : "Salvar alterações"}
+                  </Button>
                 </CardFooter>
               </form>
             </Card>
@@ -262,7 +488,100 @@ const AdminSettings = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit">Salvar alterações</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Salvando..." : "Salvar alterações"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="smtp" className="space-y-4">
+            <Card>
+              <form onSubmit={handleSmtpSubmit}>
+                <CardHeader>
+                  <CardTitle>Configurações SMTP</CardTitle>
+                  <CardDescription>
+                    Configure os parâmetros para envio de emails
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="smtpServer">Servidor SMTP</Label>
+                    <Input 
+                      id="smtpServer" 
+                      value={smtpSettings.smtpServer}
+                      onChange={e => setSmtpSettings({...smtpSettings, smtpServer: e.target.value})}
+                      placeholder="smtp.example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtpPort">Porta SMTP</Label>
+                    <Input 
+                      id="smtpPort" 
+                      value={smtpSettings.smtpPort}
+                      onChange={e => setSmtpSettings({...smtpSettings, smtpPort: e.target.value})}
+                      placeholder="587"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtpUser">Usuário SMTP</Label>
+                    <Input 
+                      id="smtpUser" 
+                      value={smtpSettings.smtpUser}
+                      onChange={e => setSmtpSettings({...smtpSettings, smtpUser: e.target.value})}
+                      placeholder="user@example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtpPassword">Senha SMTP</Label>
+                    <Input 
+                      id="smtpPassword" 
+                      type="password"
+                      value={smtpSettings.smtpPassword}
+                      onChange={e => setSmtpSettings({...smtpSettings, smtpPassword: e.target.value})}
+                      placeholder="••••••••••••"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtpFromEmail">Email de Origem</Label>
+                    <Input 
+                      id="smtpFromEmail" 
+                      value={smtpSettings.smtpFromEmail}
+                      onChange={e => setSmtpSettings({...smtpSettings, smtpFromEmail: e.target.value})}
+                      placeholder="no-reply@example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtpFromName">Nome de Origem</Label>
+                    <Input 
+                      id="smtpFromName" 
+                      value={smtpSettings.smtpFromName}
+                      onChange={e => setSmtpSettings({...smtpSettings, smtpFromName: e.target.value})}
+                      placeholder="AngoHost"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="smtpSecureConnection"
+                      checked={smtpSettings.smtpSecureConnection}
+                      onCheckedChange={checked => setSmtpSettings({...smtpSettings, smtpSecureConnection: checked})}
+                    />
+                    <Label htmlFor="smtpSecureConnection">Usar conexão segura (SSL/TLS)</Label>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={testSmtpConnection}
+                    disabled={isSaving || !smtpSettings.smtpServer || !smtpSettings.smtpUser || !smtpSettings.smtpPassword}
+                  >
+                    Testar Conexão
+                  </Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Salvando..." : "Salvar alterações"}
+                  </Button>
                 </CardFooter>
               </form>
             </Card>
@@ -322,7 +641,9 @@ const AdminSettings = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit">Salvar alterações</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Salvando..." : "Salvar alterações"}
+                  </Button>
                 </CardFooter>
               </form>
             </Card>
