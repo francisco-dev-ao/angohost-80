@@ -1,8 +1,5 @@
 
-import { Eye, ArrowUpDown } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Order } from "@/types/admin";
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -10,18 +7,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/utils/formatters";
-import OrderActions from "@/components/admin/orders/OrderActions";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import { formatPrice } from '@/utils/formatters';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface OrderTableProps {
-  orders: Order[];
-  sortBy: "date" | "number" | "amount";
-  sortDirection: "asc" | "desc";
-  handleSort: (column: "date" | "number" | "amount") => void;
-  handleViewOrder: (order: Order) => void;
+  orders: any[];
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+  handleSort: (column: string) => void;
+  handleViewOrder: (order: any) => void;
+  actionMenu?: (order: any) => React.ReactNode;
 }
 
 const OrderTable = ({
@@ -30,94 +30,126 @@ const OrderTable = ({
   sortDirection,
   handleSort,
   handleViewOrder,
+  actionMenu,
 }: OrderTableProps) => {
-  const getStatusColor = (status: string) => {
+  const getSortIcon = (column: string) => {
+    if (sortBy !== column) return null;
+    return sortDirection === 'asc' ? (
+      <ChevronUp className="h-4 w-4" />
+    ) : (
+      <ChevronDown className="h-4 w-4" />
+    );
+  };
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "processing":
-        return "bg-blue-100 text-blue-800";
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "canceled":
-        return "bg-red-100 text-red-800";
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
+      case 'processing':
+        return <Badge className="bg-blue-100 text-blue-800">Processando</Badge>;
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800">Concluído</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
       default:
-        return "bg-gray-100 text-gray-800";
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return <Badge className="bg-green-100 text-green-800">Pago</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
+      case 'refunded':
+        return <Badge className="bg-blue-100 text-blue-800">Reembolsado</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[150px]">
-              <div
-                className="flex items-center cursor-pointer"
-                onClick={() => handleSort("number")}
-              >
-                Número do Pedido
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+            <TableHead 
+              className="cursor-pointer"
+              onClick={() => handleSort('order_number')}
+            >
+              <div className="flex items-center">
+                Nº do Pedido
+                {getSortIcon('order_number')}
               </div>
             </TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>
-              <div
-                className="flex items-center cursor-pointer"
-                onClick={() => handleSort("amount")}
-              >
-                Valor
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </div>
-            </TableHead>
-            <TableHead>
-              <div
-                className="flex items-center cursor-pointer"
-                onClick={() => handleSort("date")}
-              >
+            <TableHead 
+              className="cursor-pointer"
+              onClick={() => handleSort('created_at')}
+            >
+              <div className="flex items-center">
                 Data
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                {getSortIcon('created_at')}
               </div>
             </TableHead>
-            <TableHead>Ações</TableHead>
+            <TableHead>Cliente</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Pagamento</TableHead>
+            <TableHead 
+              className="cursor-pointer text-right"
+              onClick={() => handleSort('total_amount')}
+            >
+              <div className="flex items-center justify-end">
+                Total
+                {getSortIcon('total_amount')}
+              </div>
+            </TableHead>
+            <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-4">
-                Nenhum pedido encontrado
+              <TableCell colSpan={7} className="h-24 text-center">
+                Nenhum pedido encontrado.
               </TableCell>
             </TableRow>
           ) : (
             orders.map((order) => (
               <TableRow key={order.id}>
-                <TableCell>{order.orderNumber}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={getStatusColor(order.status)}>
-                    {order.status === "pending" && "Pendente"}
-                    {order.status === "processing" && "Processando"}
-                    {order.status === "completed" && "Concluído"}
-                    {order.status === "canceled" && "Cancelado"}
-                  </Badge>
-                </TableCell>
-                <TableCell>{formatPrice(order.totalAmount)}</TableCell>
-                <TableCell>
-                  {format(new Date(order.createdAt), "dd/MM/yyyy HH:mm", {
-                    locale: ptBR,
-                  })}
+                <TableCell className="font-medium">
+                  {order.order_number}
                 </TableCell>
                 <TableCell>
-                  <div className="flex space-x-2">
+                  {format(new Date(order.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                </TableCell>
+                <TableCell>
+                  {order.client_details?.name || 'Cliente'}
+                </TableCell>
+                <TableCell>
+                  {getStatusBadge(order.status)}
+                </TableCell>
+                <TableCell>
+                  {getPaymentStatusBadge(order.payment_status)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatPrice(order.total_amount)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {actionMenu ? (
+                    actionMenu(order)
+                  ) : (
                     <Button
-                      variant="ghost"
-                      size="icon"
+                      size="sm"
+                      variant="outline"
                       onClick={() => handleViewOrder(order)}
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="mr-2 h-4 w-4" />
+                      Ver
                     </Button>
-                    <OrderActions order={order} onActionComplete={() => {}} />
-                  </div>
+                  )}
                 </TableCell>
               </TableRow>
             ))

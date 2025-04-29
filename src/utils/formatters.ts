@@ -5,11 +5,12 @@
 export const formatPrice = (price: number | string): string => {
   const value = typeof price === 'string' ? parseFloat(price) : price;
   
+  // Format with dot as thousand separator and no decimal places, with Kz suffix
   return new Intl.NumberFormat('pt-AO', {
-    style: 'currency',
-    currency: 'AOA',
-    minimumFractionDigits: 2,
-  }).format(value);
+    style: 'decimal',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value) + 'Kz';
 };
 
 /**

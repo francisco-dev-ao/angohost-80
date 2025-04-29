@@ -19,21 +19,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronDown, FileText, Eye, Printer, Download } from "lucide-react";
+import { Search, FileText, Download } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import AdminActionMenu from "@/components/admin/AdminActionMenu";
 
 const AdminInvoices = () => {
   const { invoices, isLoading } = useInvoices();
@@ -69,10 +62,28 @@ const AdminInvoices = () => {
       if (error) throw error;
       
       toast.success('Status da fatura atualizado com sucesso');
-      // The real-time subscription in useInvoices will update the UI
     } catch (error: any) {
       toast.error('Erro ao atualizar status da fatura: ' + error.message);
     }
+  };
+  
+  const deleteInvoice = async (invoiceId: string) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', invoiceId);
+        
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error deleting invoice:', error);
+      throw error;
+    }
+  };
+
+  const viewInvoice = (id: string) => {
+    // Function to view invoice details
+    console.log(`View invoice ${id}`);
   };
 
   return (
@@ -153,10 +164,7 @@ const AdminInvoices = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            {invoice.amount.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "AOA",
-                            })}
+                            {formatPrice(invoice.amount)}
                           </TableCell>
                           <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                           <TableCell>
@@ -172,42 +180,13 @@ const AdminInvoices = () => {
                               : "-"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <span className="sr-only">Abrir menu</span>
-                                  <ChevronDown className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  Visualizar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Printer className="mr-2 h-4 w-4" />
-                                  Imprimir
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => updateInvoiceStatus(invoice.id, 'paid')}>
-                                  Marcar como Paga
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateInvoiceStatus(invoice.id, 'pending')}>
-                                  Marcar como Pendente
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateInvoiceStatus(invoice.id, 'cancelled')}>
-                                  Cancelar Fatura
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateInvoiceStatus(invoice.id, 'refunded')}>
-                                  Marcar como Reembolsada
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <AdminActionMenu 
+                              id={invoice.id}
+                              name={invoice.invoice_number}
+                              type="invoice"
+                              onDelete={deleteInvoice}
+                              onView={() => viewInvoice(invoice.id)}
+                            />
                           </TableCell>
                         </TableRow>
                       ))
