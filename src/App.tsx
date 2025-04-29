@@ -26,6 +26,7 @@ import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 import ClientLayout from './pages/client/ClientLayout';
 import ClientDomains from './pages/client/ClientDomains';
 import ClientProfile from './pages/client/ClientProfile';
+import ClientServices from './pages/client/ClientServices';
 
 function App() {
   return (
@@ -59,7 +60,11 @@ function App() {
             <Route index element={<ClientDomains />} />
             <Route path="domains" element={<ClientDomains />} />
             <Route path="profile" element={<ClientProfile />} />
+            <Route path="services" element={<ClientServices />} />
           </Route>
+
+          {/* Redirect da rota /services para /client/services */}
+          <Route path="/services" element={<ClientServices />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
