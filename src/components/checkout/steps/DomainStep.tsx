@@ -28,8 +28,8 @@ const DomainStep = ({ prevStep, nextStep }: DomainStepProps) => {
       return;
     }
     
-    // Verifica se todos os domínios têm ownership_id definido
-    const allHaveOwnership = domainItems.every(item => item.ownership_id);
+    // Verifica se todos os domínios têm contactProfileId ou ownershipData definido
+    const allHaveOwnership = domainItems.every(item => item.contactProfileId || item.ownershipData);
     setAllDomainsHaveOwnership(allHaveOwnership);
   }, [items]);
   
