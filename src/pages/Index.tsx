@@ -1,15 +1,14 @@
 
 import React, { useState, useEffect } from "react";
 import HeroSection from "@/components/home/HeroSection";
-import FeaturesSection from "@/components/home/FeaturesSection";
-import PricingSection from "@/components/home/PricingSection";
+import ServicesSection from "@/components/home/ServicesSection";
+import PricingTabsSection from "@/components/home/PricingTabsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
-import FaqSection from "@/components/home/FaqSection";
-import CallToActionSection from "@/components/home/CallToActionSection";
+import SupportSection from "@/components/home/SupportSection";
+import CtaSection from "@/components/home/CtaSection";
 import DomainSearchSection from "@/components/home/DomainSearchSection";
 import Layout from "@/components/Layout";
-import ClientLogosCarousel from "@/components/home/ClientLogosCarousel";
-import PartnerLogos from "@/components/home/PartnerLogos";
+import TrustpilotSection from "@/components/home/TrustpilotSection";
 import AdminSetupDialog from "@/components/admin/AdminSetupDialog";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
@@ -59,14 +58,13 @@ const Index = () => {
       </div>
       
       <HeroSection />
-      <PartnerLogos />
+      <TrustpilotSection />
       <DomainSearchSection />
-      <FeaturesSection />
-      <ClientLogosCarousel />
-      <PricingSection />
+      <ServicesSection />
+      <PricingTabsSection />
       <TestimonialsSection />
-      <FaqSection />
-      <CallToActionSection />
+      <SupportSection />
+      <CtaSection />
       
       <AdminSetupDialog
         isOpen={isAdminSetupOpen}

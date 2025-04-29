@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 239 84% 67%;
+    --primary: 221 70% 20%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 214 32% 91%;
@@ -31,7 +31,7 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 239 84% 67%;
+    --ring: 221 70% 20%;
 
     --radius: 0.5rem;
 
@@ -55,7 +55,7 @@
     --popover: 222 47% 11%;
     --popover-foreground: 214 32% 91%;
 
-    --primary: 239 84% 67%;
+    --primary: 221 70% 40%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217 33% 18%;
@@ -72,7 +72,7 @@
 
     --border: 217 33% 18%;
     --input: 217 33% 18%;
-    --ring: 239 84% 67%;
+    --ring: 221 70% 40%;
 
     --sidebar-background: 240 6% 10%;
     --sidebar-foreground: 240 5% 96%;
@@ -95,20 +95,22 @@
 }
 
 .hero-pattern {
-  background-color: #4158D0;
-  background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-  background-size: 200% 200%;
-  animation: gradient-animation 15s ease infinite;
+  background-color: #1a365d;
+  background-image: linear-gradient(to right, rgba(26, 54, 93, 1), rgba(26, 54, 93, 0.9));
 }
 
-@keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.service-icon {
+  @apply bg-primary/10 text-primary rounded-lg p-4 w-16 h-16 flex items-center justify-center mb-4;
+}
+
+.pricing-tab.active {
+  @apply bg-primary text-white;
+}
+
+.pricing-feature-check {
+  @apply text-green-500;
+}
+
+.pricing-feature-missing {
+  @apply text-gray-300;
 }

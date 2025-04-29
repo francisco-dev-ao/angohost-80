@@ -6,24 +6,23 @@ import { Check } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="bg-[#345990] text-white relative overflow-hidden">
+    <section className="bg-angohost-primary text-white relative overflow-hidden">
       <div className="container py-16 md:py-24 relative z-10">
         <div className="flex flex-col lg:flex-row items-center max-w-6xl mx-auto">
           <div className="lg:w-1/2 mb-12 lg:mb-0">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Hospedagem de Sites de <br/> Alto Desempenho em Angola
+              O seu site sempre <br/> no ar, protegido.
             </h1>
             <p className="text-lg mb-8 text-white/90 max-w-lg">
-              Impulsione seu negócio online com a melhor e mais confiável solução de hospedagem web em Angola, com uptime garantido e suporte local 24/7.
+              Hospedagem confiável, domínios .AO e soluções completas para o mercado angolano.
             </p>
             <div className="flex flex-wrap gap-4">
               <Button
                 asChild
                 size="lg"
-                variant="secondary"
-                className="bg-white hover:bg-gray-100 text-[#345990]"
+                className="bg-orange-400 hover:bg-orange-500 text-white border-0"
               >
-                <Link to="/products/cpanel">Ver planos</Link>
+                <Link to="/products/cpanel">Saber mais</Link>
               </Button>
               <Button
                 asChild
@@ -62,11 +61,9 @@ const HeroSection = () => {
               alt="Especialista AngoHost" 
               className="relative z-10 rounded-lg shadow-2xl mx-auto"
             />
-            <div className="absolute top-4 -right-4 w-72 h-72 bg-[#264473] rounded-full filter blur-3xl opacity-30 z-0"></div>
           </div>
         </div>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#345990] to-[#264473]"></div>
     </section>
   );
 };

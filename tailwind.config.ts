@@ -63,18 +63,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				hostify: {
-					50: '#f0f3ff',
-					100: '#e4e9ff',
-					200: '#ccd5ff',
-					300: '#a5b4ff',
-					400: '#7a8cff',
-					500: '#4f59ff',
-					600: '#3437ff',
-					700: '#2a28e5',
-					800: '#2224bc',
-					900: '#212494',
-					950: '#0f0f56',
+				angohost: {
+					primary: '#1a365d',
+					secondary: '#3182ce',
+					accent: '#f6ad55',
 				},
 			},
 			borderRadius: {

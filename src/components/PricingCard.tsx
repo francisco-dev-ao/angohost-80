@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface PricingFeature {
@@ -36,15 +36,15 @@ const PricingCard: React.FC<PricingCardProps> = ({
   return (
     <Card className={`flex flex-col h-full ${
       popular 
-        ? "border-primary shadow-lg relative" 
+        ? "border-angohost-primary shadow-lg relative" 
         : ""
     }`}>
       {popular && (
         <div className="absolute -top-3 left-0 right-0 flex justify-center">
-          <Badge className="bg-primary hover:bg-primary text-sm px-3 py-1">Mais popular</Badge>
+          <Badge className="bg-angohost-primary hover:bg-angohost-primary text-sm px-3 py-1">Mais popular</Badge>
         </div>
       )}
-      <CardHeader className={`${popular ? "pt-8" : ""} ${popular ? "bg-primary/5" : ""}`}>
+      <CardHeader className={`${popular ? "pt-8" : ""} ${popular ? "bg-angohost-primary/5" : ""}`}>
         <CardTitle className="text-2xl">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
         <div className="mt-4">
@@ -56,11 +56,11 @@ const PricingCard: React.FC<PricingCardProps> = ({
         <ul className="space-y-3 mt-4">
           {features.map((feature, i) => (
             <li key={i} className="flex items-start gap-2">
-              <span className={`flex-shrink-0 mt-1 flex items-center justify-center h-5 w-5 rounded-full ${
-                feature.included ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-              }`}>
-                {feature.included && <Check className="h-3 w-3" />}
-              </span>
+              {feature.included ? (
+                <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+              ) : (
+                <X className="h-5 w-5 text-gray-300 flex-shrink-0 mt-0.5" />
+              )}
               <span className={`${!feature.included ? "text-muted-foreground" : ""} ${
                 highlightFeatures && highlightFeatures.includes(feature.text) 
                   ? "font-medium" 
@@ -75,7 +75,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <CardFooter className="mt-auto">
         <Button 
           variant={popular ? "default" : "outline"} 
-          className="w-full"
+          className={`w-full ${popular ? "bg-angohost-primary hover:bg-angohost-primary/90" : "border-angohost-primary text-angohost-primary hover:bg-angohost-primary hover:text-white"}`}
           onClick={onAction}
         >
           {ctaText}
