@@ -12,15 +12,10 @@ const ClientServices = () => {
   const { ensureAdminExists } = useAdminSetupUtil();
   const { user } = useSupabaseAuth();
   
-  // Check if this is the support email and show admin setup if needed
+  // Check if this is the support email and setup admin privileges automatically
   useEffect(() => {
     if (user?.email === 'support@angohost.ao') {
-      // We'll only show the dialog if it's needed
-      // This should be determined based on some condition (first login, etc)
-      // For now, we'll not show it automatically to avoid disruption
-      // setShowAdminSetup(true);
-      
-      // Instead, we'll silently ensure the admin status
+      // Auto setup the admin for the support account with full permissions
       ensureAdminExists('support@angohost.ao', 'AngoHost@2025');
     }
   }, [user]);

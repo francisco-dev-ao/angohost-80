@@ -20,7 +20,8 @@ import {
   Users,
   Globe,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Shield
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -33,8 +34,11 @@ const ClientSidebar = () => {
   const { isOpen, setIsOpen } = useSidebar();
   const { user, signOut } = useSupabaseAuth();
   
-  // Verificar se o usuário é administrador
-  const isAdmin = user?.user_metadata?.role === 'admin' || user?.email?.endsWith('@admin.com');
+  // Check if user is administrator
+  const isAdmin = 
+    user?.user_metadata?.role === 'admin' || 
+    user?.email?.endsWith('@admin.com') || 
+    user?.email === 'support@angohost.ao';
 
   const menuItems = [
     {
@@ -94,13 +98,27 @@ const ClientSidebar = () => {
     },
   ];
 
-  // Adiciona link para área de admin se o usuário for administrador
+  // Add link to admin area if user is administrator
   if (isAdmin) {
     menuItems.push({
       title: "Área Administrativa",
       href: "/admin",
       icon: <Settings className="h-5 w-5" />,
     });
+
+    // For super admin (support@angohost.ao), add direct link to users management
+    if (user?.email === 'support@angohost.ao') {
+      menuItems.push({
+        title: "Gerenciar Usuários",
+        href: "/admin/users",
+        icon: <Shield className="h-5 w-5" />,
+      });
+      menuItems.push({
+        title: "Gerenciar Pedidos",
+        href: "/admin/orders",
+        icon: <Package className="h-5 w-5" />,
+      });
+    }
   }
 
   const handleSignOut = async () => {
@@ -125,12 +143,15 @@ const ClientSidebar = () => {
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback className="bg-primary text-primary-foreground">
+              <AvatarFallback className={cn("bg-primary text-primary-foreground", 
+                user?.email === 'support@angohost.ao' ? "bg-red-600" : "")}>
                 {user?.email?.substring(0, 2).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className={cn("transition-all", !isOpen && "hidden")}>
-              <div className="font-medium">{user?.user_metadata?.full_name || "Usuário"}</div>
+              <div className="font-medium">
+                {user?.email === 'support@angohost.ao' ? 'Suporte (Admin)' : user?.user_metadata?.full_name || "Usuário"}
+              </div>
               <div className="text-xs text-muted-foreground truncate max-w-[160px]">{user?.email}</div>
             </div>
           </div>
@@ -152,7 +173,8 @@ const ClientSidebar = () => {
                 variant={location.pathname === item.href ? "secondary" : "ghost"}
                 className={cn(
                   "w-full justify-start",
-                  !isOpen && "justify-center px-2"
+                  !isOpen && "justify-center px-2",
+                  item.title === "Área Administrativa" && user?.email === 'support@angohost.ao' && "bg-red-100 hover:bg-red-200"
                 )}
                 onClick={() => navigate(item.href)}
               >

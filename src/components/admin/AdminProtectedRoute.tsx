@@ -16,8 +16,11 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     if (!loading && !user) {
       toast.error('Você precisa estar logado para acessar esta página');
     } else if (!loading && user) {
-      // Verificar se o usuário é administrador
-      const isAdmin = user.user_metadata?.role === 'admin' || user.email?.endsWith('@admin.com');
+      // Check if user is admin
+      const isAdmin = 
+        user.user_metadata?.role === 'admin' || 
+        user.email?.endsWith('@admin.com') || 
+        user.email === 'support@angohost.ao';
       
       if (!isAdmin) {
         toast.error('Você não tem permissão para acessar esta área');
@@ -25,7 +28,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     }
   }, [loading, user]);
 
-  // Exibir carregamento enquanto verifica autenticação
+  // Display loading while checking authentication
   if (loading) {
     return (
       <div className="container py-16 flex items-center justify-center">
@@ -38,11 +41,17 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     );
   }
 
-  // Verificar se o usuário é administrador
+  // Verify if the user is administrator
   if (!user) {
     return <Navigate to="/register" replace />;
   }
   
+  // Special treatment for support@angohost.ao - always allow access
+  if (user.email === 'support@angohost.ao') {
+    return <>{children}</>;
+  }
+  
+  // Check normal admin roles for other users
   const isAdmin = user.user_metadata?.role === 'admin' || user.email?.endsWith('@admin.com');
   if (!isAdmin) {
     return <Navigate to="/client" replace />;

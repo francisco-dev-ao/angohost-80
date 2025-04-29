@@ -25,9 +25,9 @@ export const useAdminSetupUtil = () => {
             .eq('id', existingUser.id);
             
           if (updateError) throw updateError;
-          toast.success(`Usuário ${email} atualizado para administrador`);
+          toast.success(`Usuário ${email} atualizado para administrador com permissões totais`);
         } else {
-          toast.info(`Usuário ${email} já é administrador`);
+          toast.info(`Usuário ${email} já é administrador com permissões totais`);
         }
         return;
       }
@@ -39,6 +39,7 @@ export const useAdminSetupUtil = () => {
         options: {
           data: {
             full_name: 'Suporte AngoHost',
+            role: 'admin',
           },
         },
       });
@@ -49,12 +50,15 @@ export const useAdminSetupUtil = () => {
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({ role: 'admin' })
+          .update({ 
+            role: 'admin',
+            full_name: 'Suporte AngoHost'
+          })
           .eq('id', data.user.id);
 
         if (profileError) throw profileError;
         
-        toast.success(`Administrador ${email} criado com sucesso`);
+        toast.success(`Administrador ${email} criado com sucesso e permissões totais concedidas`);
       }
     } catch (error: any) {
       toast.error('Erro ao configurar administrador: ' + error.message);
