@@ -3,8 +3,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://izkmemlswyvvvupcnpxs.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a21lbWxzd3l2dnZ1cGNucHhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4NDYwOTcsImV4cCI6MjA2MTQyMjA5N30.4D1iCrXHGWl1LstS0IfEquTuJGhc2tAGsQTbR-zq8bU";
+const SUPABASE_URL = "https://grkwevrddcfykfrwjjbv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdya3dldnJkZGNmeWtmcndqamJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5Mzk1NzEsImV4cCI6MjA2MTUxNTU3MX0.Lx2p2ibO8zBTcCWxFoYTTLanvKxWXq6ITy5bXfQTVNg";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
@@ -13,21 +13,514 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 type CustomDatabase = Database & {
   public: {
     Tables: {
-      admin_settings: {
+      admin_permissions: {
         Row: {
           id: string;
-          settings: any;
+          user_id: string;
+          full_access: boolean;
+          permissions: any;
+          last_updated: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          full_access: boolean;
+          permissions: any;
+          last_updated?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          full_access?: boolean;
+          permissions?: any;
+          last_updated?: string | null;
+        };
+      };
+      profiles: {
+        Row: {
+          id: string;
+          email: string | null;
+          full_name: string | null;
+          role: string | null;
+          is_active: boolean;
+          created_at: string | null;
           updated_at: string | null;
         };
         Insert: {
           id: string;
-          settings: any;
+          email?: string | null;
+          full_name?: string | null;
+          role?: string | null;
+          is_active?: boolean;
+          created_at?: string | null;
           updated_at?: string | null;
         };
         Update: {
           id?: string;
-          settings?: any;
+          email?: string | null;
+          full_name?: string | null;
+          role?: string | null;
+          is_active?: boolean;
+          created_at?: string | null;
           updated_at?: string | null;
+        };
+      };
+      client_services: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          service_type: string;
+          status: string;
+          renewal_date: string;
+          control_panel_url: string | null;
+          control_panel_username: string | null;
+          description: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          service_type: string;
+          status?: string;
+          renewal_date: string;
+          control_panel_url?: string | null;
+          control_panel_username?: string | null;
+          description?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          service_type?: string;
+          status?: string;
+          renewal_date?: string;
+          control_panel_url?: string | null;
+          control_panel_username?: string | null;
+          description?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      domains: {
+        Row: {
+          id: string;
+          user_id: string;
+          domain_name: string;
+          registration_date: string | null;
+          expiry_date: string | null;
+          status: string;
+          is_locked: boolean;
+          whois_privacy: boolean;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          domain_name: string;
+          registration_date?: string | null;
+          expiry_date?: string | null;
+          status?: string;
+          is_locked?: boolean;
+          whois_privacy?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          domain_name?: string;
+          registration_date?: string | null;
+          expiry_date?: string | null;
+          status?: string;
+          is_locked?: boolean;
+          whois_privacy?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      payment_methods: {
+        Row: {
+          id: string;
+          user_id: string;
+          payment_type: string;
+          card_last_four: string | null;
+          card_expiry: string | null;
+          card_brand: string | null;
+          billing_name: string | null;
+          billing_address: string | null;
+          is_default: boolean;
+          is_active: boolean;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          payment_type: string;
+          card_last_four?: string | null;
+          card_expiry?: string | null;
+          card_brand?: string | null;
+          billing_name?: string | null;
+          billing_address?: string | null;
+          is_default?: boolean;
+          is_active?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          payment_type?: string;
+          card_last_four?: string | null;
+          card_expiry?: string | null;
+          card_brand?: string | null;
+          billing_name?: string | null;
+          billing_address?: string | null;
+          is_default?: boolean;
+          is_active?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      tickets: {
+        Row: {
+          id: string;
+          user_id: string;
+          subject: string;
+          description: string | null;
+          status: string;
+          priority: string;
+          assigned_to: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          subject: string;
+          description?: string | null;
+          status?: string;
+          priority?: string;
+          assigned_to?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          subject?: string;
+          description?: string | null;
+          status?: string;
+          priority?: string;
+          assigned_to?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      email_templates: {
+        Row: {
+          id: string;
+          name: string;
+          subject: string;
+          content: string;
+          variables: any | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          subject: string;
+          content: string;
+          variables?: any | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          subject?: string;
+          content?: string;
+          variables?: any | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      orders: {
+        Row: {
+          id: string;
+          user_id: string;
+          order_number: string;
+          total_amount: number;
+          status: string;
+          items: any;
+          created_at: string | null;
+          updated_at: string | null;
+          contact_profile_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          order_number: string;
+          total_amount: number;
+          status?: string;
+          items?: any;
+          created_at?: string | null;
+          updated_at?: string | null;
+          contact_profile_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          order_number?: string;
+          total_amount?: number;
+          status?: string;
+          items?: any;
+          created_at?: string | null;
+          updated_at?: string | null;
+          contact_profile_id?: string | null;
+        };
+      };
+      products: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          price_monthly: number | null;
+          price_yearly: number | null;
+          is_active: boolean;
+          features: any | null;
+          created_at: string | null;
+          updated_at: string | null;
+          category_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          price_monthly?: number | null;
+          price_yearly?: number | null;
+          is_active?: boolean;
+          features?: any | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          category_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          price_monthly?: number | null;
+          price_yearly?: number | null;
+          is_active?: boolean;
+          features?: any | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          category_id?: string | null;
+        };
+      };
+      service_plans: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          service_type: string;
+          price_monthly: number;
+          price_yearly: number;
+          features: any | null;
+          is_popular: boolean;
+          is_active: boolean;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          service_type: string;
+          price_monthly: number;
+          price_yearly: number;
+          features?: any | null;
+          is_popular?: boolean;
+          is_active?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          service_type?: string;
+          price_monthly?: number;
+          price_yearly?: number;
+          features?: any | null;
+          is_popular?: boolean;
+          is_active?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      domain_extensions: {
+        Row: {
+          id: string;
+          extension: string;
+          price: number;
+          renewal_price: number | null;
+          is_popular: boolean;
+          is_active: boolean;
+          description: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          extension: string;
+          price: number;
+          renewal_price?: number | null;
+          is_popular?: boolean;
+          is_active?: boolean;
+          description?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          extension?: string;
+          price?: number;
+          renewal_price?: number | null;
+          is_popular?: boolean;
+          is_active?: boolean;
+          description?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      page_contents: {
+        Row: {
+          id: string;
+          page_slug: string;
+          title: string;
+          content: any;
+          updated_at: string | null;
+          updated_by: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          page_slug: string;
+          title: string;
+          content?: any;
+          updated_at?: string | null;
+          updated_by?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          page_slug?: string;
+          title?: string;
+          content?: any;
+          updated_at?: string | null;
+          updated_by?: string | null;
+          created_at?: string | null;
+        };
+      };
+      invoices: {
+        Row: {
+          id: string;
+          user_id: string;
+          invoice_number: string;
+          amount: number;
+          status: string;
+          due_date: string | null;
+          paid_date: string | null;
+          items: any;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          invoice_number: string;
+          amount: number;
+          status?: string;
+          due_date?: string | null;
+          paid_date?: string | null;
+          items?: any;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          invoice_number?: string;
+          amount?: number;
+          status?: string;
+          due_date?: string | null;
+          paid_date?: string | null;
+          items?: any;
+          created_at?: string | null;
+        };
+      };
+      contact_profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          email: string;
+          phone: string | null;
+          address: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          email: string;
+          phone?: string | null;
+          address?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          email?: string;
+          phone?: string | null;
+          address?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      user_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          created_at: string;
+          ip_address: string | null;
+          location: string | null;
+          device_info: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          created_at?: string;
+          ip_address?: string | null;
+          location?: string | null;
+          device_info?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          created_at?: string;
+          ip_address?: string | null;
+          location?: string | null;
+          device_info?: string | null;
         };
       };
       wallets: {
