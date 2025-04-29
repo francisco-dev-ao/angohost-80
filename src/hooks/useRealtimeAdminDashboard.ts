@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Order } from '@/types/admin';
 import { Invoice } from '@/hooks/useInvoices';
+import { Json } from '@/integrations/supabase/types';
 
 interface AdminDashboardStats {
   pendingOrders: number;
@@ -28,14 +28,13 @@ interface SupabaseOrder {
   updated_at: string;
 }
 
-// Function to map Supabase order format to our Order type
 const mapSupabaseOrderToOrder = (order: SupabaseOrder): Order => ({
   id: order.id,
   userId: order.user_id,
   orderNumber: order.order_number,
   status: order.status as "pending" | "processing" | "completed" | "canceled",
   totalAmount: order.total_amount,
-  items: Array.isArray(order.items) ? order.items : [], // Ensure items is an array
+  items: Array.isArray(order.items) ? order.items : [],
   createdAt: order.created_at,
   updatedAt: order.updated_at
 });
@@ -54,7 +53,6 @@ export const useRealtimeAdminDashboard = () => {
     paymentMethodCount: 0
   });
 
-  // Fetch recent orders
   const fetchRecentOrders = async () => {
     const { data: ordersData, error: ordersError } = await supabase
       .from('orders')
@@ -69,7 +67,6 @@ export const useRealtimeAdminDashboard = () => {
       : [];
   };
   
-  // Count orders by status
   const fetchOrderCounts = async () => {
     const { count: pendingOrders, error: pendingOrdersError } = await supabase
       .from('orders')
@@ -99,7 +96,6 @@ export const useRealtimeAdminDashboard = () => {
     };
   };
   
-  // Fetch recent invoices
   const fetchRecentInvoices = async () => {
     const { data: invoicesData, error: invoicesError } = await supabase
       .from('invoices')
@@ -109,27 +105,11 @@ export const useRealtimeAdminDashboard = () => {
     
     if (invoicesError) throw invoicesError;
     
-    const invoices: Invoice[] = invoicesData?.map(invoice => ({
-      id: invoice.id,
-      invoice_number: invoice.invoice_number,
-      amount: invoice.amount,
-      status: invoice.status,
-      due_date: invoice.due_date,
-      payment_date: invoice.payment_date,
-      user_id: invoice.user_id,
-      items: invoice.items,
-      created_at: invoice.created_at,
-      updated_at: invoice.updated_at,
-      company_details: invoice.company_details,
-      client_details: invoice.client_details,
-      order_id: invoice.order_id,
-      download_url: invoice.download_url
-    })) || [];
+    const invoices = (invoicesData || []) as Invoice[];
     
     return invoices;
   };
   
-  // Count invoices by status
   const fetchInvoiceCounts = async () => {
     const { count: pendingInvoices, error: pendingInvoicesError } = await supabase
       .from('invoices')
@@ -151,7 +131,6 @@ export const useRealtimeAdminDashboard = () => {
     };
   };
   
-  // Calculate total revenue
   const fetchTotalRevenue = async () => {
     const { data: revenueData, error: revenueError } = await supabase
       .from('invoices')
@@ -163,7 +142,6 @@ export const useRealtimeAdminDashboard = () => {
     return revenueData?.reduce((acc, invoice) => acc + Number(invoice.amount), 0) || 0;
   };
   
-  // Get payment method count
   const fetchPaymentMethodCount = async () => {
     const { count: paymentMethodCount, error: paymentMethodError } = await supabase
       .from('payment_methods')
@@ -178,7 +156,6 @@ export const useRealtimeAdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Run all fetch operations in parallel for better performance
       const [
         recentOrders,
         orderCounts,
@@ -211,7 +188,6 @@ export const useRealtimeAdminDashboard = () => {
     }
   };
   
-  // Set up real-time listeners
   const setupRealtimeListeners = () => {
     const ordersChannel = supabase
       .channel('admin-dashboard-orders')
@@ -264,10 +240,8 @@ export const useRealtimeAdminDashboard = () => {
   useEffect(() => {
     fetchDashboardStats();
 
-    // Set up real-time listeners
     const channels = setupRealtimeListeners();
 
-    // Cleanup function to remove channels on unmount
     return () => {
       supabase.removeChannel(channels.ordersChannel);
       supabase.removeChannel(channels.invoicesChannel);

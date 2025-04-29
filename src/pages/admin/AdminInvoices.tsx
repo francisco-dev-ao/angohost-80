@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
+import { formatPrice } from "@/utils/formatters";
 
 const AdminInvoices = () => {
   const { invoices, isLoading } = useInvoices();

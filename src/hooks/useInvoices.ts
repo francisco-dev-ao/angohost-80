@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
+import { Json } from '@/integrations/supabase/types';
 
 export interface Invoice {
   id: string;
@@ -11,7 +12,7 @@ export interface Invoice {
   due_date: string;
   payment_date: string | null;
   user_id: string;
-  items: any[];
+  items: any; // Changed from any[] to any to match Json type from Supabase
   created_at: string;
   updated_at: string;
   company_details?: any;
@@ -53,7 +54,8 @@ export const useInvoices = (userId?: string) => {
 
       if (error) throw error;
       
-      setInvoices(data || []);
+      // Cast the data to Invoice[] type to ensure type safety
+      setInvoices((data || []) as Invoice[]);
     } catch (error: any) {
       console.error('Error fetching invoices:', error);
       toast.error('Erro ao carregar faturas');
