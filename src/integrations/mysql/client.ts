@@ -8,7 +8,7 @@ export const getConnection = async () => {
   // Check if we have credentials stored in localStorage
   const storedCredentials = localStorage.getItem('db_credentials');
   let user = 'placeholder_username';
-  let password = 'Bayathu60@@'; // Updated password
+  let password = 'Bayathu60@@'; // Senha confirmada
 
   // If we have stored credentials, use them
   if (storedCredentials) {
@@ -32,6 +32,8 @@ export const getConnection = async () => {
       connectionLimit: 10,
       queueLimit: 0
     });
+    
+    console.log('Database connection pool created with user:', user);
   }
   
   return pool;
@@ -65,18 +67,19 @@ export const executeQuery = async (query: string, params: any[] = []) => {
 export const testConnection = async () => {
   try {
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT NOW() as timestamp');
+    const [rows] = await connection.execute('SELECT NOW() as timestamp, VERSION() as version');
     return { 
       success: true, 
-      message: 'Database connection successful',
+      message: 'Conexão com banco de dados realizada com sucesso',
       timestamp: rows[0]?.timestamp || new Date().toISOString(),
+      version: rows[0]?.version || 'Desconhecida',
       host: '194.163.146.215',
       database: 'angodb11'
     };
   } catch (error: any) {
     return { 
       success: false, 
-      message: `Connection failed: ${error.message}`,
+      message: `Falha na conexão: ${error.message}`,
       error: error.message
     };
   }

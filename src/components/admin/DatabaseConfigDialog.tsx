@@ -21,7 +21,7 @@ interface DatabaseConfigDialogProps {
 
 const DatabaseConfigDialog = ({ isOpen, onOpenChange }: DatabaseConfigDialogProps) => {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('Bayathu60@@'); // Set default password
+  const [password, setPassword] = useState('Bayathu60@@'); // Senha padrão definida
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<any>(null);
 
@@ -169,10 +169,17 @@ const DatabaseConfigDialog = ({ isOpen, onOpenChange }: DatabaseConfigDialogProp
               <p className={connectionStatus.success ? 'text-green-800' : 'text-red-800'}>
                 {connectionStatus.message}
               </p>
-              {connectionStatus.success && connectionStatus.timestamp && (
-                <p className="text-sm text-green-700 mt-1">
-                  Timestamp do servidor: {connectionStatus.timestamp}
-                </p>
+              {connectionStatus.success && (
+                <>
+                  <p className="text-sm text-green-700 mt-1">
+                    Timestamp do servidor: {connectionStatus.timestamp}
+                  </p>
+                  {connectionStatus.version && (
+                    <p className="text-sm text-green-700">
+                      Versão MySQL: {connectionStatus.version}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
