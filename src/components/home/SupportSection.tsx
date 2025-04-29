@@ -1,92 +1,137 @@
 
 import React from "react";
+import { motion } from "framer-motion";
+import { Phone, Mail, MessageCircle, Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Phone, Mail, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SupportSection = () => {
+  const supportFeatures = [
+    {
+      icon: Phone,
+      title: "Suporte por Telefone",
+      description: "Atendimento direto com nossos especialistas.",
+      color: "bg-blue-50 text-blue-600"
+    },
+    {
+      icon: Mail,
+      title: "Suporte por Email",
+      description: "Resposta em menos de 2 horas.",
+      color: "bg-indigo-50 text-indigo-600"
+    },
+    {
+      icon: MessageCircle,
+      title: "Chat ao Vivo",
+      description: "Converse em tempo real com nossa equipe.",
+      color: "bg-green-50 text-green-600"
+    },
+    {
+      icon: Clock,
+      title: "24/7 Disponível",
+      description: "Estamos sempre prontos para ajudar.",
+      color: "bg-amber-50 text-amber-600"
+    }
+  ];
+
+  const containerAnimation = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemAnimation = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    },
+    hover: {
+      y: -5,
+      transition: { duration: 0.2 }
+    }
+  };
+
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4 text-angohost-primary">Suporte Técnico Especializado</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Nossa equipe de especialistas está sempre disponível para ajudar com qualquer questão técnica ou dúvida sobre nossos serviços.
-          </p>
-        </div>
-        
-        <div className="flex flex-col md:flex-row items-center justify-between max-w-5xl mx-auto">
-          <div className="md:w-5/12 mb-8 md:mb-0">
-            <div className="relative">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-lg shadow-sm transform rotate-[-3deg]">
-                  <img 
-                    src="https://randomuser.me/api/portraits/women/32.jpg" 
-                    alt="Especialista de Suporte" 
-                    className="rounded-lg w-full h-auto object-cover"
-                  />
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm transform rotate-[3deg] translate-y-4">
-                  <img 
-                    src="https://randomuser.me/api/portraits/men/43.jpg" 
-                    alt="Especialista de Suporte" 
-                    className="rounded-lg w-full h-auto object-cover"
-                  />
-                </div>
-              </div>
-              <div className="absolute inset-0 -z-10 bg-angohost-primary/10 rounded-full blur-3xl"></div>
+    <section className="py-24 bg-white relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-angohost-primary/5 rounded-l-[100px] -z-0"></div>
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-angohost-accent/5 rounded-full -z-0"></div>
+      
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-16">
+          <motion.div 
+            className="lg:w-1/2"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <h2 className="text-4xl font-bold text-angohost-primary mb-6">
+              Suporte Técnico Especializado
+            </h2>
+            <div className="w-20 h-1.5 bg-angohost-accent mb-8 rounded-full"></div>
+            
+            <p className="text-xl text-gray-600 mb-8">
+              Nossa equipe de especialistas está disponível 24 horas por dia, 7 dias por semana para garantir 
+              que seu site esteja sempre no ar e funcionando perfeitamente.
+            </p>
+            
+            <ul className="space-y-5 mb-10">
+              {["Suporte técnico 24/7", "Profissionais certificados", "Resposta rápida", "Resolução eficaz"].map((item, idx) => (
+                <li key={idx} className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                  <span className="text-lg text-gray-700">{item}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="flex space-x-4">
+              <Button 
+                asChild 
+                className="bg-angohost-primary hover:bg-angohost-primary/90 px-8"
+              >
+                <Link to="/contact">Entrar em Contato</Link>
+              </Button>
+              <Button 
+                asChild 
+                variant="outline" 
+                className="border-angohost-primary text-angohost-primary hover:bg-angohost-primary/10"
+              >
+                <a href="tel:+244999999999">Ligar Agora</a>
+              </Button>
             </div>
-          </div>
+          </motion.div>
           
-          <div className="md:w-6/12 md:pl-12">
-            <div className="space-y-6">
-              <div className="flex items-start feature-card hover-scale">
-                <div className="bg-angohost-primary/10 p-3 rounded-full mr-4">
-                  <Clock className="h-6 w-6 text-angohost-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-1">Disponível 24/7</h3>
-                  <p className="text-gray-600">
-                    Nossa equipe de suporte está disponível 24 horas por dia, 7 dias por semana para atender suas necessidades.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start feature-card hover-scale">
-                <div className="bg-angohost-primary/10 p-3 rounded-full mr-4">
-                  <MessageCircle className="h-6 w-6 text-angohost-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-1">Chat ao Vivo</h3>
-                  <p className="text-gray-600 mb-2">Tire suas dúvidas em tempo real com nossos especialistas</p>
-                  <Button size="sm" className="bg-angohost-primary hover:bg-angohost-primary/90">
-                    Iniciar Chat
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex items-start feature-card hover-scale">
-                <div className="bg-angohost-primary/10 p-3 rounded-full mr-4">
-                  <Phone className="h-6 w-6 text-angohost-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-1">Atendimento por Telefone</h3>
-                  <p className="text-gray-600 mb-1">Fale diretamente com nossa equipe técnica</p>
-                  <p className="text-angohost-primary font-medium">+244 923 456 789</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start feature-card hover-scale">
-                <div className="bg-angohost-primary/10 p-3 rounded-full mr-4">
-                  <Mail className="h-6 w-6 text-angohost-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-1">Suporte por Email</h3>
-                  <p className="text-gray-600 mb-1">Envie suas dúvidas para nossa equipe</p>
-                  <p className="text-angohost-primary font-medium">suporte@angohost.ao</p>
-                </div>
-              </div>
+          <motion.div 
+            className="lg:w-1/2"
+            variants={containerAnimation}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {supportFeatures.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemAnimation}
+                  whileHover="hover"
+                  className="bg-white rounded-xl p-8 shadow-xl border border-gray-100 h-full flex flex-col"
+                >
+                  <div className={`${feature.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-6`}>
+                    <feature.icon className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </motion.div>
+              ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
