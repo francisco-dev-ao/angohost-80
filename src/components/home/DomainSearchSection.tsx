@@ -14,7 +14,6 @@ const DomainSearchSection = () => {
   
   return (
     <section className="py-24 bg-white relative overflow-hidden">
-      {/* Decorative elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-full h-full">
           <svg width="100%" height="100%" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +51,7 @@ const DomainSearchSection = () => {
           transition={{ duration: 0.7, delay: 0.2 }}
           viewport={{ once: true, amount: 0.3 }}
         >
-          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100">
             <h3 className="text-xl font-bold text-angohost-primary mb-6">Digite o nome do domínio desejado</h3>
             <DomainSearch />
             

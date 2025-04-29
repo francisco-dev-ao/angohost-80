@@ -9,7 +9,7 @@ const CtaSection = () => {
   return (
     <section className="py-20 bg-angohost-primary relative overflow-hidden">
       {/* Decorative shapes */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-1/3 h-full opacity-10">
           <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
             <path d="M488.5,274.5Q446,299,422.5,338.5Q399,378,365.5,412Q332,446,282,455.5Q232,465,191,432.5Q150,400,106,376.5Q62,353,56.5,303Q51,253,51.5,201.5Q52,150,101.5,128Q151,106,183,74Q215,42,266,36Q317,30,361,54.5Q405,79,423,123Q441,167,486,208.5Q531,250,488.5,274.5Z" fill="#ffffff"></path>

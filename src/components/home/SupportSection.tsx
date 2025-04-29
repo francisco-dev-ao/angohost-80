@@ -17,19 +17,19 @@ const SupportSection = () => {
       icon: Mail,
       title: "Suporte por Email",
       description: "Resposta em menos de 2 horas.",
-      color: "bg-indigo-50 text-indigo-600"
+      color: "bg-blue-50 text-blue-600"
     },
     {
       icon: MessageCircle,
       title: "Chat ao Vivo",
       description: "Converse em tempo real com nossa equipe.",
-      color: "bg-green-50 text-green-600"
+      color: "bg-blue-50 text-blue-600"
     },
     {
       icon: Clock,
       title: "24/7 Disponível",
       description: "Estamos sempre prontos para ajudar.",
-      color: "bg-amber-50 text-amber-600"
+      color: "bg-blue-50 text-blue-600"
     }
   ];
 
@@ -59,9 +59,7 @@ const SupportSection = () => {
 
   return (
     <section className="py-24 bg-white relative overflow-hidden">
-      {/* Background decorative elements */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-angohost-primary/5 rounded-l-[100px] -z-0"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-angohost-accent/5 rounded-full -z-0"></div>
       
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -121,7 +119,7 @@ const SupportSection = () => {
                   key={index}
                   variants={itemAnimation}
                   whileHover="hover"
-                  className="bg-white rounded-xl p-8 shadow-xl border border-gray-100 h-full flex flex-col"
+                  className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 h-full flex flex-col"
                 >
                   <div className={`${feature.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-6`}>
                     <feature.icon className="h-8 w-8" />
