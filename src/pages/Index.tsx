@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from "react";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
+import PricingSection from "@/components/home/PricingSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import FaqSection from "@/components/home/FaqSection";
 import CallToActionSection from "@/components/home/CallToActionSection";
+import DomainSearchSection from "@/components/home/DomainSearchSection";
 import Layout from "@/components/Layout";
 import ClientLogosCarousel from "@/components/home/ClientLogosCarousel";
 import PartnerLogos from "@/components/home/PartnerLogos";
@@ -12,9 +14,6 @@ import AdminSetupDialog from "@/components/admin/AdminSetupDialog";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import ServicesOverview from "@/components/home/ServicesOverview";
-import EmailPlansSection from "@/components/home/EmailPlansSection";
-import TablePricing from "@/components/TablePricing";
 
 const Index = () => {
   const [isAdminSetupOpen, setIsAdminSetupOpen] = useState(false);
@@ -59,45 +58,14 @@ const Index = () => {
         </Button>
       </div>
       
-      {/* Hero section with domain search below it */}
       <HeroSection />
-      
-      {/* Services Overview Grid */}
-      <div className="pt-32">
-        <ServicesOverview />
-      </div>
-      
-      {/* Main Features */}
-      <FeaturesSection />
-      
-      {/* Email Plans Section */}
-      <EmailPlansSection />
-      
-      {/* Detailed Pricing Table */}
-      <section className="py-20 bg-gray-50">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Planos e Preços Detalhados</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Compare nossos planos e escolha a melhor opção para o seu negócio
-            </p>
-          </div>
-          
-          <TablePricing />
-        </div>
-      </section>
-      
-      {/* Partners and Clients */}
       <PartnerLogos />
+      <DomainSearchSection />
+      <FeaturesSection />
       <ClientLogosCarousel />
-      
-      {/* Testimonials */}
+      <PricingSection />
       <TestimonialsSection />
-      
-      {/* FAQ */}
       <FaqSection />
-      
-      {/* Call to Action */}
       <CallToActionSection />
       
       <AdminSetupDialog

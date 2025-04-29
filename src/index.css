@@ -90,15 +90,10 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Improved hero gradient */
 .hero-pattern {
   background-color: #4158D0;
   background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
@@ -106,7 +101,6 @@
   animation: gradient-animation 15s ease infinite;
 }
 
-/* Modern animations */
 @keyframes gradient-animation {
   0% {
     background-position: 0% 50%;
@@ -116,70 +110,5 @@
   }
   100% {
     background-position: 0% 50%;
-  }
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-/* Hover effects for cards */
-.feature-card {
-  @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-lg;
-}
-
-/* Gradients */
-.bg-gradient-blue {
-  @apply bg-gradient-to-r from-blue-600 to-blue-400;
-}
-
-.bg-gradient-purple {
-  @apply bg-gradient-to-r from-purple-600 to-blue-500;
-}
-
-/* Glassmorphism effect */
-.glass-card {
-  @apply backdrop-blur-lg bg-white/80 border border-gray-200;
-}
-
-/* Enhanced scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c5c5c5;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Custom utility classes */
-@layer utilities {
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600;
   }
 }
