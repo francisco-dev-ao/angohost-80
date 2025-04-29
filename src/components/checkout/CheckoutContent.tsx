@@ -50,9 +50,10 @@ const CheckoutContent = ({
         return (
           <ServiceStep 
             items={items} 
-            handleRemoveItem={handleRemoveItem} 
-            handleUpdateBillingCycle={handleUpdateBillingCycle}
+            onRemoveItem={handleRemoveItem} 
+            onUpdateBillingCycle={handleUpdateBillingCycle}
             nextStep={nextStep}
+            prevStep={prevStep}
             completedSteps={completedSteps}
           />
         );
@@ -62,8 +63,6 @@ const CheckoutContent = ({
             paymentMethod={paymentMethod} 
             paymentMethods={paymentMethods} 
             handlePaymentMethodChange={handlePaymentMethodChange} 
-            formData={formData}
-            setFormData={setFormData}
             nextStep={nextStep}
             prevStep={prevStep}
             isSaving={isSaving}

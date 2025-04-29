@@ -69,7 +69,7 @@ function App() {
             
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth" element={<Auth type="login" />} />
             <Route path="/login" element={<Navigate to="/auth" replace />} /> {/* Redirecting to new Auth page */}
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />

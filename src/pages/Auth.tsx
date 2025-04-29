@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AuthLayout from '@/components/auth/AuthLayout';
-import LoginForm from '@/components/auth/LoginForm';
-import RegisterForm from '@/components/auth/RegisterForm';
-import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { RegisterForm } from '@/components/auth/RegisterForm';
+import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
@@ -36,18 +36,18 @@ const Auth = ({ type }: { type: 'login' | 'register' | 'forgot-password' }) => {
   const renderForm = () => {
     switch (type) {
       case 'login':
-        return <LoginForm returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <LoginForm onSubmit={() => {}} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
       case 'register':
-        return <RegisterForm returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <RegisterForm onSubmit={() => {}} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
       case 'forgot-password':
-        return <ForgotPasswordForm />;
+        return <ForgotPasswordForm onSubmit={() => {}} isLoading={false} />;
       default:
-        return <LoginForm returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <LoginForm onSubmit={() => {}} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
     }
   };
   
   return (
-    <AuthLayout>
+    <AuthLayout title="Entre na sua conta" subtitle="Faça login ou crie uma conta para continuar">
       {renderForm()}
     </AuthLayout>
   );

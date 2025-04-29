@@ -8,9 +8,10 @@ import { toast } from 'sonner';
 interface RegisterFormProps {
   onSubmit: (email: string, password: string, fullName: string) => Promise<void>;
   isLoading: boolean;
+  returnUrl?: string;
 }
 
-export function RegisterForm({ onSubmit, isLoading }: RegisterFormProps) {
+export function RegisterForm({ onSubmit, isLoading, returnUrl }: RegisterFormProps) {
   const [nif, setNif] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

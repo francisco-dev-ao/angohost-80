@@ -9,12 +9,13 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 
-interface ServiceStepProps {
+export interface ServiceStepProps {
   items: CartItem[];
-  prevStep: () => void;
+  prevStep?: () => void;
   nextStep: () => void;
   onRemoveItem?: (id: string) => void;
   onUpdateBillingCycle?: (itemId: string, years: number) => void;
+  completedSteps: Record<string, boolean>;
 }
 
 const ServiceStep = ({ 
@@ -22,7 +23,8 @@ const ServiceStep = ({
   prevStep, 
   nextStep, 
   onRemoveItem,
-  onUpdateBillingCycle
+  onUpdateBillingCycle,
+  completedSteps
 }: ServiceStepProps) => {
   const handleRemoveItem = (id: string) => {
     if (onRemoveItem) {
@@ -270,17 +272,19 @@ const ServiceStep = ({
       </div>
       
       <div className="flex justify-between mt-8">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={prevStep}
-        >
-          Voltar
-        </Button>
+        {prevStep && (
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={prevStep}
+          >
+            Voltar
+          </Button>
+        )}
         <Button 
           type="button" 
           onClick={nextStep}
-          className="group"
+          className="group ml-auto"
         >
           Próximo
           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

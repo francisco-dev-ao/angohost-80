@@ -6,12 +6,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Banknote, CreditCard, CheckCircle } from "lucide-react";
 
-interface PaymentStepProps {
+export interface PaymentStepProps {
   paymentMethod: string | null;
   paymentMethods: any[];
   handlePaymentMethodChange: (methodId: string) => void;
+  nextStep?: () => void;
   prevStep: () => void;
   isSaving: boolean;
+  completedSteps: Record<string, boolean>;
 }
 
 const PaymentStep = ({ 
@@ -19,7 +21,9 @@ const PaymentStep = ({
   paymentMethods, 
   handlePaymentMethodChange, 
   prevStep,
-  isSaving 
+  nextStep,
+  isSaving,
+  completedSteps
 }: PaymentStepProps) => {
   return (
     <>
