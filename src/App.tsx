@@ -27,33 +27,35 @@ import { SidebarProvider } from './components/ui/sidebar';
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/domains" element={<Domains />} />
-        <Route path="/domain-transfer" element={<DomainTransfer />} />
-        <Route path="/wordpress-hosting" element={<WordPressHosting />} />
-        <Route path="/vps-hosting" element={<VpsHosting />} />
-        <Route path="/cpanel-hosting" element={<CpanelHosting />} />
-        <Route path="/dedicated-servers" element={<DedicatedServers />} />
-        <Route path="/professional-email" element={<ProfessionalEmail />} />
-        <Route path="/exchange-online" element={<ExchangeOnline />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
-        
-        {/* Client area routes with sidebar provider */}
-        <Route path="/client/*" element={
-          <SidebarProvider>
-            <ClientArea />
-          </SidebarProvider>
-        } />
-      </Routes>
-      <Toaster position="top-center" />
-    </>
+    <Router>
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/domains" element={<Domains />} />
+          <Route path="/domain-transfer" element={<DomainTransfer />} />
+          <Route path="/wordpress-hosting" element={<WordPressHosting />} />
+          <Route path="/vps-hosting" element={<VpsHosting />} />
+          <Route path="/cpanel-hosting" element={<CpanelHosting />} />
+          <Route path="/dedicated-servers" element={<DedicatedServers />} />
+          <Route path="/professional-email" element={<ProfessionalEmail />} />
+          <Route path="/exchange-online" element={<ExchangeOnline />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
+          
+          {/* Client area routes with sidebar provider */}
+          <Route path="/client/*" element={
+            <SidebarProvider>
+              <ClientArea />
+            </SidebarProvider>
+          } />
+        </Routes>
+        <Toaster position="top-center" />
+      </CartProvider>
+    </Router>
   );
 }
 
