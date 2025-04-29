@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Ban, Check, Edit, Lock, MoreHorizontal, Shield, Trash, Unlock, UserCog, Eye } from 'lucide-react';
+import { Ban, Check, Edit, Lock, MoreHorizontal, Shield, Trash, Unlock, UserCog, Eye, Loader2 } from 'lucide-react';
 import UserForm from './UserForm';
 import { AdminUser } from '@/types/admin';
 import UserSessions from './UserSessions';

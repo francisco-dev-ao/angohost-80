@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import UAParser from 'ua-parser-js';
+import { UAParser } from 'ua-parser-js';
 
 export const useLoginTracker = (userId?: string) => {
   useEffect(() => {
