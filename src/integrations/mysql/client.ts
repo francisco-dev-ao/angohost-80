@@ -34,7 +34,7 @@ export const initializeDatabase = async () => {
   }
 };
 
-// Helper to execute queries with error handling
+// Helper to execute query with error handling
 export const executeQuery = async (query: string, params: any[] = []) => {
   try {
     const connection = await getConnection();
