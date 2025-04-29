@@ -9,9 +9,11 @@ export interface ServicePlan {
   service_type: string;
   price_monthly: number;
   price_yearly: number;
-  features?: Record<string, any>;
+  features: Record<string, any>;
   is_popular: boolean;
   is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const useServicePlans = (serviceType?: string) => {
@@ -36,7 +38,16 @@ export const useServicePlans = (serviceType?: string) => {
         const { data, error } = await query;
 
         if (error) throw error;
-        setPlans(data || []);
+        
+        // Transform the features from Json to Record<string, any>
+        const transformedData = (data || []).map(item => ({
+          ...item,
+          features: typeof item.features === 'string' 
+            ? JSON.parse(item.features) 
+            : item.features || {}
+        }));
+        
+        setPlans(transformedData as ServicePlan[]);
       } catch (error) {
         console.error('Error fetching service plans:', error);
       } finally {
