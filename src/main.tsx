@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { initializeDatabase, testConnection } from './integrations/mysql/client';
+import { testConnection } from './integrations/mysql/client';
 import { initializeSchema } from './utils/initSchema';
 import { Toaster, toast } from 'sonner';
 
