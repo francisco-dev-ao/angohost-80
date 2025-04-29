@@ -11,25 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from '@/utils/formatters';
 import { toast } from 'sonner';
 import { Wallet, Plus, CreditCard, ArrowDownUp, Clock, CheckCheck } from 'lucide-react';
-
-interface WalletTransaction {
-  id: string;
-  amount: number;
-  type: 'deposit' | 'payment' | 'refund';
-  description: string;
-  created_at: string;
-  status: 'pending' | 'completed' | 'failed';
-  user_id?: string;
-}
-
-interface WalletData {
-  id?: string;
-  user_id?: string;
-  balance: number;
-  auto_pay: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
+import { WalletData, WalletTransaction } from '@/types/client';
 
 const WalletPage = () => {
   const { user } = useSupabaseAuth();
@@ -52,74 +34,87 @@ const WalletPage = () => {
     try {
       setLoading(true);
       
-      // Check if table exists first
-      const { data: tableExists } = await supabase
-        .from('wallets')
-        .select('count')
-        .limit(1)
-        .single();
-      
-      // If table doesn't exist yet, we'll create it with a function later
-      let walletData: WalletData | null = null;
-      
-      if (tableExists) {
-        // Fetch wallet balance
-        const { data, error } = await supabase
+      // Check if wallets table exists in the database
+      try {
+        const { data: walletData, error } = await supabase
           .from('wallets')
           .select('*')
           .eq('user_id', user.id)
           .single();
           
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching wallet data:', error);
-        }
-        
-        if (data) {
-          walletData = data as WalletData;
+        if (!error) {
+          // Table exists and we have data
           setBalance(walletData.balance || 0);
           setAutoPayEnabled(walletData.auto_pay || false);
+        } else if (error.code === 'PGRST116') {
+          // No wallet found for user, but table exists
+          await createNewWallet();
+        } else if (error.code === '42P01') {
+          // Table doesn't exist, we'll create it via API later
+          console.log('Wallets table does not exist yet');
+          setBalance(0);
+          setAutoPayEnabled(false);
         } else {
-          // Create wallet if it doesn't exist
-          const { data: newWallet, error: createError } = await supabase
-            .from('wallets')
-            .insert({
-              user_id: user.id,
-              balance: 0,
-              auto_pay: false
-            })
-            .select()
-            .single();
-            
-          if (createError) {
-            console.error('Error creating wallet:', createError);
-          } else if (newWallet) {
-            walletData = newWallet as WalletData;
-            setBalance(0);
-            setAutoPayEnabled(false);
-          }
+          console.error('Error fetching wallet:', error);
         }
+      } catch (err) {
+        console.warn('Error checking wallet:', err);
+        // Assume table doesn't exist yet
+        setBalance(0);
+        setAutoPayEnabled(false);
       }
       
-      // Fetch transactions if table exists
-      const { data: transactionData, error: txError } = await supabase
-        .from('wallet_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
-        
-      if (txError && txError.message !== 'relation "wallet_transactions" does not exist') {
-        console.error('Error fetching transactions:', txError);
-      }
-      
-      if (transactionData) {
-        setTransactions(transactionData as WalletTransaction[]);
+      // Try to fetch transactions if they exist
+      try {
+        const { data: transactionData, error: txError } = await supabase
+          .from('wallet_transactions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+          
+        if (!txError && transactionData) {
+          setTransactions(transactionData as WalletTransaction[]);
+        }
+      } catch (err) {
+        console.warn('Error fetching transactions:', err);
+        // Assume table doesn't exist yet
       }
     } catch (error: any) {
-      console.error('Error fetching wallet data:', error);
+      console.error('Error in wallet data fetch:', error);
       toast.error('Erro ao carregar dados da carteira');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const createNewWallet = async () => {
+    if (!user) return;
+    
+    try {
+      // Create wallet if it doesn't exist
+      const { data: newWallet, error: createError } = await supabase
+        .from('wallets')
+        .insert({
+          user_id: user.id,
+          balance: 0,
+          auto_pay: false
+        })
+        .select()
+        .single();
+        
+      if (createError) {
+        if (createError.code === '42P01') {
+          console.warn('Wallets table does not exist yet');
+        } else {
+          console.error('Error creating wallet:', createError);
+        }
+      } else if (newWallet) {
+        setBalance(0);
+        setAutoPayEnabled(false);
+      }
+    } catch (err) {
+      console.warn('Error creating wallet:', err);
     }
   };
 
@@ -138,56 +133,65 @@ const WalletPage = () => {
       
       // Simulating a successful deposit for demo purposes
       setTimeout(async () => {
-        // Add balance directly since the RPC may not exist yet
-        const { data: walletData, error: fetchError } = await supabase
-          .from('wallets')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+        try {
+          // Try to update wallet balance
+          const { data: walletData, error: fetchError } = await supabase
+            .from('wallets')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
           
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          throw fetchError;
-        }
-        
-        let currentBalance = 0;
-        if (walletData) {
-          currentBalance = walletData.balance || 0;
-        }
-        
-        const newBalance = currentBalance + depositAmount;
-        
-        const { error: updateError } = await supabase
-          .from('wallets')
-          .upsert({ 
-            user_id: user.id,
-            balance: newBalance,
-            auto_pay: autoPayEnabled
-          });
-        
-        if (updateError) throw updateError;
-        
-        // Add transaction record
-        const { error: txError } = await supabase
-          .from('wallet_transactions')
-          .insert({
-            user_id: user.id,
-            amount: depositAmount,
-            type: 'deposit',
-            description: 'Depósito na carteira',
-            status: 'completed'
-          });
+          if (fetchError) {
+            if (fetchError.code === 'PGRST116') {
+              // No wallet found, create one
+              await createNewWallet();
+            } else if (fetchError.code !== '42P01') {
+              throw fetchError;
+            }
+          }
           
-        if (txError && txError.message !== 'relation "wallet_transactions" does not exist') {
-          console.warn('Could not record transaction:', txError);
+          let currentBalance = walletData?.balance || 0;
+          const newBalance = currentBalance + depositAmount;
+          
+          // Update or insert wallet data
+          const { error: updateError } = await supabase
+            .from('wallets')
+            .upsert({ 
+              user_id: user.id,
+              balance: newBalance,
+              auto_pay: autoPayEnabled
+            });
+          
+          if (updateError && updateError.code !== '42P01') {
+            throw updateError;
+          }
+          
+          // Add transaction record if the table exists
+          try {
+            await supabase
+              .from('wallet_transactions')
+              .insert({
+                user_id: user.id,
+                amount: depositAmount,
+                type: 'deposit',
+                description: 'Depósito na carteira',
+                status: 'completed'
+              });
+          } catch (txErr) {
+            console.warn('Could not record transaction (table may not exist):', txErr);
+          }
+          
+          setBalance(newBalance);
+          toast.success(`Depósito de ${formatPrice(depositAmount)} processado com sucesso!`);
+          fetchWalletData();
+        } catch (error: any) {
+          console.error('Error processing deposit:', error);
+          toast.error('Erro ao processar depósito');
         }
-        
-        setBalance(newBalance);
-        toast.success(`Depósito de ${formatPrice(depositAmount)} processado com sucesso!`);
-        fetchWalletData();
       }, 2000);
     } catch (error: any) {
-      console.error('Error processing deposit:', error);
-      toast.error('Erro ao processar depósito');
+      console.error('Error initiating deposit:', error);
+      toast.error('Erro ao iniciar depósito');
     }
   };
 
@@ -197,12 +201,18 @@ const WalletPage = () => {
     try {
       const newValue = !autoPayEnabled;
       
-      const { error } = await supabase
-        .from('wallets')
-        .update({ auto_pay: newValue })
-        .eq('user_id', user.id);
-        
-      if (error) throw error;
+      try {
+        const { error } = await supabase
+          .from('wallets')
+          .update({ auto_pay: newValue })
+          .eq('user_id', user.id);
+          
+        if (error && error.code !== '42P01') {
+          throw error;
+        }
+      } catch (err) {
+        console.warn('Could not update auto-pay setting (table may not exist):', err);
+      }
       
       setAutoPayEnabled(newValue);
       toast.success(`Pagamento automático ${newValue ? 'ativado' : 'desativado'}`);

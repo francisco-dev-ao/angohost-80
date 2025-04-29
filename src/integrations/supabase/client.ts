@@ -30,6 +30,61 @@ type CustomDatabase = Database & {
           updated_at?: string | null;
         };
       };
+      wallets: {
+        Row: {
+          id: string;
+          user_id: string;
+          balance: number;
+          auto_pay: boolean;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          balance: number;
+          auto_pay: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          balance?: number;
+          auto_pay?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      wallet_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          type: string;
+          description: string;
+          created_at: string;
+          status: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          amount: number;
+          type: string;
+          description: string;
+          created_at?: string;
+          status: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          amount?: number;
+          type?: string;
+          description?: string;
+          created_at?: string;
+          status?: string;
+        };
+      };
     } & Database['public']['Tables'];
   };
 };

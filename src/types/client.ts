@@ -98,3 +98,22 @@ export interface TicketMessage {
   created_at: string;
   attachments?: any[];
 }
+
+export interface WalletData {
+  id?: string;
+  user_id?: string;
+  balance: number;
+  auto_pay: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface WalletTransaction {
+  id: string;
+  amount: number;
+  type: 'deposit' | 'payment' | 'refund';
+  description: string;
+  created_at: string;
+  status: 'pending' | 'completed' | 'failed';
+  user_id?: string;
+}
