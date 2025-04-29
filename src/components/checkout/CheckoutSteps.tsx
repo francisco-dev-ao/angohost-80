@@ -22,22 +22,22 @@ const CheckoutSteps = ({ activeStep, completedSteps, onStepChange }: CheckoutSte
         <React.Fragment key={step.id}>
           <motion.button 
             onClick={() => onStepChange(step.id)}
-            className={`flex flex-col items-center ${activeStep === step.id ? 'text-primary' : completedSteps[step.id] ? 'text-green-600' : 'text-gray-400'}`}
+            className={`flex flex-col items-center ${activeStep === step.id ? 'text-primary font-semibold' : completedSteps[step.id] ? 'text-green-600' : 'text-gray-400'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
               activeStep === step.id ? 'bg-primary text-white' : 
               completedSteps[step.id] ? 'bg-green-100 text-green-600' : 'bg-gray-100'
             }`}>
-              {completedSteps[step.id] ? <Check className="h-4 w-4" /> : index + 1}
+              {completedSteps[step.id] ? <Check className="h-5 w-5" /> : index + 1}
             </div>
-            <span className="text-xs sm:text-sm">{step.label}</span>
+            <span className="text-xs sm:text-sm md:text-base">{step.label}</span>
           </motion.button>
           
           {index < array.length - 1 && (
             <motion.div 
-              className={`flex-1 h-1 mx-2 ${
+              className={`flex-1 h-1.5 mx-2 rounded-full ${
                 completedSteps[step.id] ? 'bg-green-300' : 'bg-gray-200'
               }`}
               initial={{ scaleX: 0 }}
