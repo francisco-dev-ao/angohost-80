@@ -22,7 +22,7 @@ import OrderSummary from './OrderSummary';
 export const EnhancedCheckout = () => {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
-  const { items, clearCart } = useCart();
+  const { items, clearCart, removeFromCart, updateItemPrice } = useCart();
   const { saveCartAsOrder, isSaving } = useSaveOrder();
   const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
   
@@ -57,13 +57,7 @@ export const EnhancedCheckout = () => {
   const [addingDomain, setAddingDomain] = useState(false);
   
   useEffect(() => {
-    const cartSubtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const cartTax = cartSubtotal * 0.14; // 14% IVA
-    const cartTotal = cartSubtotal + cartTax - discount;
-    
-    setSubtotal(cartSubtotal);
-    setTax(cartTax);
-    setTotal(cartTotal);
+    calculateTotals();
     
     if (user) {
       setCompletedSteps(prev => ({ ...prev, client: true }));
@@ -75,7 +69,7 @@ export const EnhancedCheckout = () => {
     }
     
     setIsLoading(false);
-  }, [user, items, discount, billingCycle]);
+  }, [user, items]);
   
   useEffect(() => {
     if (profiles && profiles.length > 0) {
@@ -83,6 +77,16 @@ export const EnhancedCheckout = () => {
       setCompletedSteps(prev => ({ ...prev, client: true }));
     }
   }, [profiles]);
+  
+  const calculateTotals = () => {
+    const cartSubtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const cartTax = cartSubtotal * 0.14; // 14% IVA
+    const cartTotal = cartSubtotal + cartTax - discount;
+    
+    setSubtotal(cartSubtotal);
+    setTax(cartTax);
+    setTotal(cartTotal);
+  };
   
   const loadUserProfile = async () => {
     if (!user) return;
@@ -164,11 +168,65 @@ export const EnhancedCheckout = () => {
   const handleBillingCycleChange = (cycle: string) => {
     setBillingCycle(cycle);
     
-    if (cycle === 'monthly') {
-      // Calculate prices for monthly billing
+    // Recalcular preços com base no ciclo de cobrança
+    items.forEach(item => {
+      if (item.type === 'service' || item.type === 'hosting') {
+        const basePrice = item.basePrice;
+        let newPrice = basePrice;
+        
+        if (cycle === 'monthly') {
+          // Preço mensal (sem desconto)
+          newPrice = basePrice;
+        } else {
+          // Preço anual (com desconto de 15%)
+          newPrice = basePrice * 0.85 * 12;
+        }
+        
+        updateItemPrice(item.id, newPrice);
+      }
+    });
+    
+    // Recalcular totais após atualização dos preços
+    setTimeout(() => calculateTotals(), 0);
+  };
+  
+  const handleUpdateBillingCycle = (itemId: string, years: number) => {
+    const item = items.find(item => item.id === itemId);
+    if (!item) return;
+    
+    let newPrice = item.basePrice;
+    
+    // Aplicar desconto com base no número de anos
+    if (years === 2) {
+      newPrice = newPrice * 0.95 * years; // 5% de desconto para 2 anos
+    } else if (years === 3) {
+      newPrice = newPrice * 0.90 * years; // 10% de desconto para 3 anos
     } else {
-      // Calculate prices for annual billing with potential discount
+      newPrice = newPrice * years;
     }
+    
+    // Atualizar o item com o novo preço e período
+    const updatedItem = {
+      ...item,
+      price: newPrice,
+      years: years
+    };
+    
+    // Remover o item antigo e adicionar o atualizado (simulando uma atualização)
+    updateItemPrice(itemId, newPrice);
+    
+    // Recalcular totais após atualização
+    setTimeout(() => calculateTotals(), 0);
+    
+    toast.success(`Período de contratação alterado para ${years} ${years === 1 ? 'ano' : 'anos'}`);
+  };
+  
+  const handleRemoveItem = (itemId: string) => {
+    removeFromCart(itemId);
+    toast.success('Item removido do pedido');
+    
+    // Recalcular totais após remoção
+    setTimeout(() => calculateTotals(), 0);
   };
   
   const handleDomainSelection = (domain: string) => {
@@ -195,6 +253,8 @@ export const EnhancedCheckout = () => {
     }
     
     try {
+      setIsSavingCart(true);
+      
       const orderData = {
         paymentMethodId: paymentMethod,
         contactProfileId: contactProfile,
@@ -211,6 +271,8 @@ export const EnhancedCheckout = () => {
       }
     } catch (error: any) {
       toast.error('Erro ao processar o pedido: ' + error.message);
+    } finally {
+      setIsSavingCart(false);
     }
   };
   
@@ -286,6 +348,8 @@ export const EnhancedCheckout = () => {
                       items={items}
                       prevStep={prevStep}
                       nextStep={nextStep}
+                      onRemoveItem={handleRemoveItem}
+                      onUpdateBillingCycle={handleUpdateBillingCycle}
                     />
                   </CardContent>
                 </Card>
@@ -299,7 +363,7 @@ export const EnhancedCheckout = () => {
                       paymentMethods={paymentMethods}
                       handlePaymentMethodChange={handlePaymentMethodChange}
                       prevStep={prevStep}
-                      isSaving={isSaving}
+                      isSaving={isSaving || isSavingCart}
                     />
                   </CardContent>
                 </Card>
