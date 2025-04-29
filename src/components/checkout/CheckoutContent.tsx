@@ -1,54 +1,36 @@
 
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import ClientStep from './steps/ClientStep';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+
+// Import step components
+import DomainStep from './steps/DomainStep';
 import ServiceStep from './steps/ServiceStep';
 import PaymentStep from './steps/PaymentStep';
-import { motion } from 'framer-motion';
 
 interface CheckoutContentProps {
-  activeStep: string;
+  activeStep: number;
   completedSteps: Record<string, boolean>;
-  profiles: any[];
-  isLoadingProfiles: boolean;
-  contactProfile: string | null;
-  handleProfileChange: (profileId: string) => void;
-  formData: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
-  setFormData: React.Dispatch<React.SetStateAction<{
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-  }>>;
-  createNewProfile: () => void;
+  formData: any;
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
   nextStep: () => void;
   prevStep: () => void;
   items: any[];
   handleRemoveItem: (id: string) => void;
-  handleUpdateBillingCycle: (itemId: string, years: number) => void;
+  handleUpdateBillingCycle: (id: string, years: number) => void;
   paymentMethod: string | null;
   paymentMethods: any[];
-  handlePaymentMethodChange: (methodId: string) => void;
+  handlePaymentMethodChange: (id: string) => void;
   isSaving: boolean;
-  setActiveStep: (step: string) => void;
+  setActiveStep: (step: number) => void;
 }
 
-const CheckoutContent: React.FC<CheckoutContentProps> = ({
+const CheckoutContent = ({
   activeStep,
   completedSteps,
-  profiles,
-  isLoadingProfiles,
-  contactProfile,
-  handleProfileChange,
   formData,
   setFormData,
-  createNewProfile,
   nextStep,
   prevStep,
   items,
@@ -59,85 +41,48 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
   handlePaymentMethodChange,
   isSaving,
   setActiveStep,
-}) => {
-  const tabVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5 } }
+}: CheckoutContentProps) => {
+  
+  // Function to render the active step content
+  const renderStepContent = () => {
+    switch (activeStep) {
+      case 0: // Cart Review
+        return (
+          <ServiceStep 
+            items={items} 
+            handleRemoveItem={handleRemoveItem} 
+            handleUpdateBillingCycle={handleUpdateBillingCycle}
+            nextStep={nextStep}
+            completedSteps={completedSteps}
+          />
+        );
+      case 1: // Payment Method
+        return (
+          <PaymentStep 
+            paymentMethod={paymentMethod} 
+            paymentMethods={paymentMethods} 
+            handlePaymentMethodChange={handlePaymentMethodChange} 
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            isSaving={isSaving}
+            completedSteps={completedSteps}
+          />
+        );
+      default:
+        return <div>Passo não encontrado</div>;
+    }
   };
-
+  
   return (
-    <motion.div 
-      className="md:col-span-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Tabs value={activeStep} onValueChange={setActiveStep} className="w-full">
-        <TabsContent value="client">
-          <motion.div
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <Card>
-              <CardContent className="pt-6">
-                <ClientStep
-                  profiles={profiles}
-                  isLoadingProfiles={isLoadingProfiles}
-                  contactProfile={contactProfile}
-                  handleProfileChange={handleProfileChange}
-                  formData={formData}
-                  setFormData={setFormData}
-                  createNewProfile={createNewProfile}
-                  nextStep={nextStep}
-                  completedSteps={completedSteps}
-                />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-        
-        <TabsContent value="service">
-          <motion.div
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <Card>
-              <CardContent className="pt-6">
-                <ServiceStep
-                  items={items}
-                  prevStep={prevStep}
-                  nextStep={nextStep}
-                  onRemoveItem={handleRemoveItem}
-                  onUpdateBillingCycle={handleUpdateBillingCycle}
-                />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-        
-        <TabsContent value="payment">
-          <motion.div
-            variants={tabVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <Card>
-              <CardContent className="pt-6">
-                <PaymentStep
-                  paymentMethod={paymentMethod}
-                  paymentMethods={paymentMethods}
-                  handlePaymentMethodChange={handlePaymentMethodChange}
-                  prevStep={prevStep}
-                  isSaving={isSaving}
-                />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-      </Tabs>
-    </motion.div>
+    <div className="space-y-6">
+      <Card className="shadow-sm">
+        <CardContent className="pt-6">
+          {renderStepContent()}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

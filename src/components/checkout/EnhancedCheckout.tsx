@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useCheckout } from '@/hooks/useCheckout';
 import { useOrderSubmission } from '@/hooks/useOrderSubmission';
-import { useContactProfiles } from '@/hooks/useContactProfiles';
 
 // Import refactored components
 import CheckoutSteps from './CheckoutSteps';
@@ -14,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export const EnhancedCheckout = () => {
-  const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
   const { user } = useSupabaseAuth();
   const navigate = useNavigate();
   
@@ -22,7 +20,6 @@ export const EnhancedCheckout = () => {
     activeStep,
     setActiveStep,
     completedSteps,
-    contactProfile,
     paymentMethod,
     paymentMethods,
     formData,
@@ -33,20 +30,18 @@ export const EnhancedCheckout = () => {
     billingCycle,
     isLoading,
     items,
-    handleProfileChange,
     handlePaymentMethodChange,
     handleBillingCycleChange,
     handleUpdateBillingCycle,
     handleRemoveItem,
     nextStep,
     prevStep,
-    createNewProfile,
   } = useCheckout();
 
   const {
     handleSubmit,
     isSaving,
-  } = useOrderSubmission(contactProfile, profiles, paymentMethod, formData);
+  } = useOrderSubmission(paymentMethod, formData);
 
   // Modified to handle the new checkout flow
   const handlePayButtonClick = () => {
@@ -101,13 +96,8 @@ export const EnhancedCheckout = () => {
           <CheckoutContent
             activeStep={activeStep}
             completedSteps={completedSteps}
-            profiles={profiles}
-            isLoadingProfiles={isLoadingProfiles}
-            contactProfile={contactProfile}
-            handleProfileChange={handleProfileChange}
             formData={formData}
             setFormData={setFormData}
-            createNewProfile={createNewProfile}
             nextStep={handlePayButtonClick} // Use our new handler for authentication check
             prevStep={prevStep}
             items={items}
