@@ -74,6 +74,7 @@ const AdminSettings = () => {
         const { data, error } = await supabase
           .from('admin_settings')
           .select('*')
+          .eq('id', 'main-settings')
           .single();
           
         if (error) throw error;
@@ -81,7 +82,7 @@ const AdminSettings = () => {
         if (data) {
           setSettings(data.settings || settings);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading settings:', error);
       }
     };
@@ -92,12 +93,12 @@ const AdminSettings = () => {
   const handleSaveSettings = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('admin_settings')
         .upsert({
           id: 'main-settings',
           settings: settings,
-          updated_at: new Date()
+          updated_at: new Date().toISOString()
         });
         
       if (error) throw error;
@@ -124,13 +125,15 @@ const AdminSettings = () => {
       
       if (error) throw error;
       
+      setSmtpTestResult({
+        success: data?.success || false,
+        message: data?.message || "Resposta inválida do servidor"
+      });
+      
       if (data?.success) {
-        setSmtpTestResult({ success: true, message: "Conexão SMTP estabelecida com sucesso!" });
+        toast.success("Conexão SMTP estabelecida com sucesso!");
       } else {
-        setSmtpTestResult({ 
-          success: false, 
-          message: data?.message || "Falha ao conectar ao servidor SMTP. Verifique as configurações." 
-        });
+        toast.error(data?.message || "Falha na conexão SMTP");
       }
     } catch (error: any) {
       console.error('SMTP test error:', error);
@@ -138,6 +141,7 @@ const AdminSettings = () => {
         success: false, 
         message: `Erro ao testar SMTP: ${error.message}` 
       });
+      toast.error(`Erro ao testar SMTP: ${error.message}`);
     } finally {
       setTestingSmtp(false);
     }

@@ -36,6 +36,24 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_settings: {
+        Row: {
+          id: string
+          settings: Json
+          updated_at: string | null
+        }
+        Insert: {
+          id: string
+          settings: Json
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          settings?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cart_abandonment_settings: {
         Row: {
           allow_save_carts: boolean | null
