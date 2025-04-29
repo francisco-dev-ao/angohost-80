@@ -10,7 +10,7 @@ import DomainSearchSection from "@/components/home/DomainSearchSection";
 import Layout from "@/components/Layout";
 import TrustpilotSection from "@/components/home/TrustpilotSection";
 import AdminSetupDialog from "@/components/admin/AdminSetupDialog";
-import DatabaseConfigDialog from "@/components/admin/DatabaseConfigDialog";
+import DatabaseConfigDialog from "@/components/admin/database/DatabaseConfigDialog";
 import { Button } from "@/components/ui/button";
 import { Settings, Database } from "lucide-react";
 import { executeQuery } from "@/integrations/mysql/client";
