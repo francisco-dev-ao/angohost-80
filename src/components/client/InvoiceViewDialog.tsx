@@ -30,7 +30,36 @@ const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogP
   };
 
   const handlePrint = () => {
+    // Create a print-specific stylesheet
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @page {
+        size: 210mm 297mm; /* A4 size */
+        margin: 15mm;
+      }
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .invoice-print-section, .invoice-print-section * {
+          visibility: visible;
+        }
+        .invoice-print-section {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 180mm; /* A4 content area */
+          padding: 15mm;
+        }
+        .no-print {
+          display: none;
+        }
+      }
+    `;
+    document.head.appendChild(style);
     window.print();
+    // Clean up
+    document.head.removeChild(style);
   };
 
   return (
@@ -43,7 +72,7 @@ const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogP
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 invoice-print-section">
           <div className="flex justify-between items-start">
             <div>
               <p className="font-medium">Detalhes da Fatura</p>
@@ -83,7 +112,7 @@ const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogP
             )}
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 no-print">
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="h-4 w-4 mr-2" />
               Imprimir
