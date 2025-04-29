@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,7 +74,7 @@ const DomainSearch = () => {
   };
 
   const handleContinueToCheckout = () => {
-    navigate('/checkout');
+    navigate('/enhanced-checkout');
   };
 
   const handleAddAllToCart = () => {
@@ -173,7 +174,7 @@ const DomainSearch = () => {
           </div>
           
           <div className="flex justify-end mt-6">
-            <Button onClick={() => navigate('/cart')} className="flex items-center gap-2">
+            <Button onClick={() => navigate('/enhanced-checkout')} className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
               Finalizar Compra
             </Button>

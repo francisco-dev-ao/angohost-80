@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { SidebarProvider } from './components/ui/sidebar';
 import { CartProvider } from './contexts/CartContext';
 
@@ -52,7 +52,10 @@ function App() {
           <Route path="/hosting" element={<CpanelHosting />} /> {/* Agora aponta para CpanelHosting */}
           <Route path="/email" element={<ProfessionalEmail />} /> {/* Agora aponta para ProfessionalEmail */}
           <Route path="/vps" element={<VpsHosting />} /> {/* Agora aponta para VpsHosting */}
-          <Route path="/cart" element={<EnhancedCheckout />} /> {/* Agora aponta para EnhancedCheckout */}
+          
+          {/* Redirect cart to enhanced-checkout */}
+          <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
+          
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Register />} /> {/* Using Register as it has login tab */}
