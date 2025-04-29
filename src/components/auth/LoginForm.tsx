@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -37,12 +36,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
       </div>
       
       <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label htmlFor="login-password">Senha</Label>
-          <Link to="/forgot-password" className="text-sm text-[#345990] hover:underline">
-            Esqueceu a senha?
-          </Link>
-        </div>
+        <Label htmlFor="login-password">Senha</Label>
         <div className="relative">
           <Input 
             id="login-password" 
@@ -72,7 +66,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
       </Button>
       
       <p className="text-center text-sm text-gray-500">
-        Após o login, você será redirecionado para finalizar sua compra.
+        Após o login, você será redirecionado para o seu painel.
       </p>
     </form>
   );

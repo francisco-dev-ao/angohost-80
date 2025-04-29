@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SidebarProvider } from './components/ui/sidebar';
@@ -9,6 +10,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import Register from './pages/Register';
+import Auth from './pages/Auth';
 import Index from './pages/Index';
 import Domains from './pages/Domains';
 import Checkout from './pages/Checkout';
@@ -58,16 +60,17 @@ function App() {
             <Route path="/dedicated-servers" element={<DedicatedServers />} />
             <Route path="/professional-email" element={<ProfessionalEmail />} />
             <Route path="/exchange-online" element={<ExchangeOnline />} />
-            <Route path="/hosting" element={<CpanelHosting />} /> {/* Agora aponta para CpanelHosting */}
-            <Route path="/email" element={<ProfessionalEmail />} /> {/* Agora aponta para ProfessionalEmail */}
-            <Route path="/vps" element={<VpsHosting />} /> {/* Agora aponta para VpsHosting */}
+            <Route path="/hosting" element={<CpanelHosting />} />
+            <Route path="/email" element={<ProfessionalEmail />} />
+            <Route path="/vps" element={<VpsHosting />} />
             
             {/* Redirect cart to enhanced-checkout */}
             <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
             
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Register />} /> {/* Using Register as it has login tab */}
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Navigate to="/auth" replace />} /> {/* Redirecting to new Auth page */}
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/enhanced-checkout" element={<EnhancedCheckout />} />

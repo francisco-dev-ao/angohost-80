@@ -91,6 +91,23 @@ export const useSupabaseAuth = () => {
     }
   };
 
+  const handleResetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password',
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      return true;
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao solicitar redefinição de senha');
+      throw error;
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -111,6 +128,7 @@ export const useSupabaseAuth = () => {
     loading,
     signIn: handleSignIn,
     signUp: handleSignUp,
+    resetPassword: handleResetPassword,
     signOut: handleSignOut,
   };
 };
