@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowRight, PlusCircle, Trash, Package, Clock } from "lucide-react";
+import { ArrowRight, PlusCircle, Trash, Package, Clock, Check } from "lucide-react";
 import { formatPrice } from '@/utils/formatters';
 import { CartItem } from '@/contexts/CartContext';
 import { toast } from "sonner";
