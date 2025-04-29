@@ -35,7 +35,13 @@ import ClientLayout from './pages/client/ClientLayout';
 import ClientDomains from './pages/client/ClientDomains';
 import ClientProfile from './pages/client/ClientProfile';
 import ClientServices from './pages/client/ClientServices';
-import ClientArea from './pages/ClientArea';
+import OrdersPage from './pages/client/OrdersPage';
+import SupportPage from './pages/client/SupportPage';
+import WalletPage from './pages/client/WalletPage';
+import PaymentMethodsPage from './pages/client/PaymentMethodsPage';
+import NotificationsPage from './pages/client/NotificationsPage';
+import PromotionsPage from './pages/client/PromotionsPage';
+import ContactProfilesPage from './pages/client/ContactProfilesPage';
 import ClientInvoices from './pages/client/ClientInvoices';
 import CpanelHosting from './pages/CpanelHosting';
 import ProfessionalEmail from './pages/ProfessionalEmail';
@@ -70,7 +76,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth" element={<Auth type="login" />} />
-            <Route path="/login" element={<Navigate to="/auth" replace />} /> {/* Redirecting to new Auth page */}
+            <Route path="/login" element={<Navigate to="/auth" replace />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/enhanced-checkout" element={<EnhancedCheckout />} />
@@ -90,19 +96,25 @@ function App() {
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
 
-            {/* Client Routes - Support both /client/* and direct access to /client-area */}
+            {/* Client Routes - Including Orders correctly */}
             <Route path="/client" element={<ClientLayout />}>
               <Route index element={<ClientDomains />} />
               <Route path="domains" element={<ClientDomains />} />
               <Route path="profile" element={<ClientProfile />} />
               <Route path="services" element={<ClientServices />} />
-              <Route path="orders" element={<ClientArea />} />
+              <Route path="orders" element={<OrdersPage />} />
               <Route path="invoices" element={<ClientInvoices />} />
+              <Route path="support" element={<SupportPage />} />
+              <Route path="wallet" element={<WalletPage />} />
+              <Route path="payment-methods" element={<PaymentMethodsPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="promotions" element={<PromotionsPage />} />
+              <Route path="contact-profiles" element={<ContactProfilesPage />} />
             </Route>
 
-            {/* Direct routes */}
-            <Route path="/client-area" element={<ClientArea />} />
-            <Route path="/client-area/*" element={<ClientArea />} />
+            {/* Redirect legacy routes */}
+            <Route path="/client-area" element={<Navigate to="/client" replace />} />
+            <Route path="/client-area/*" element={<Navigate to="/client" replace />} />
             <Route path="/services" element={<Navigate to="/client/services" replace />} />
             <Route path="/orders" element={<Navigate to="/client/orders" replace />} />
             <Route path="/invoices" element={<Navigate to="/client/invoices" replace />} />
