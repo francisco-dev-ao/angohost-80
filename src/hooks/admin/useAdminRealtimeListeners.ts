@@ -48,7 +48,27 @@ export const useAdminRealtimeListeners = () => {
       )
       .subscribe();
       
-    return { ordersChannel, invoicesChannel, paymentMethodsChannel };
+    const usersChannel = supabase
+      .channel('admin-dashboard-users')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          onDataChange();
+        }
+      )
+      .subscribe();
+      
+    return { 
+      ordersChannel, 
+      invoicesChannel, 
+      paymentMethodsChannel,
+      usersChannel 
+    };
   };
 
   return { setupRealtimeListeners };
