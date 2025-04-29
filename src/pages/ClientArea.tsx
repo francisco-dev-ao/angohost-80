@@ -3,14 +3,22 @@ import React from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import ClientSidebar from "@/components/client/ClientSidebar";
-import { useClientRoutes } from "@/hooks/useClientRoutes";
+import ClientDashboard from "@/components/client/ClientDashboard";
+import ProfilePage from "@/components/client/ProfilePage";
+import DomainsPage from "@/components/client/DomainsPage";
+import ServicesPage from "@/components/client/ServicesPage";
+import InvoicesPage from "@/components/client/InvoicesPage";
+import PaymentMethodsPage from "@/components/client/PaymentMethodsPage";
+import SupportPage from "@/components/client/SupportPage";
+import NotificationsPage from "@/components/client/NotificationsPage";
+import PromotionsPage from "@/components/client/PromotionsPage";
+import OrdersPage from "@/components/client/OrdersPage";
+import ContactProfilesPage from "@/components/client/ContactProfilesPage";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
   const navigate = useNavigate();
-  const { currentComponent } = useClientRoutes();
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -40,7 +48,19 @@ const ClientArea = () => {
       
       <div className="flex-1">
         <div className="container py-8">
-          {currentComponent}
+          <Routes>
+            <Route path="/" element={<ClientDashboard />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/domains" element={<DomainsPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/invoices" element={<InvoicesPage />} />
+            <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/promotions" element={<PromotionsPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/contact-profiles" element={<ContactProfilesPage />} />
+          </Routes>
         </div>
       </div>
     </div>
