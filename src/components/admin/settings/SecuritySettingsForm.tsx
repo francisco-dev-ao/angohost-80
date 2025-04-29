@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
+import { InputWithSuffix } from "@/components/ui/input-with-suffix";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -68,7 +69,7 @@ export const SecuritySettingsForm = ({ settings, onSettingsChange, onSave }: Sec
           </div>
           <div className="space-y-2">
             <Label htmlFor="passwordExpiryDays">Expiração de senha</Label>
-            <Input 
+            <InputWithSuffix 
               id="passwordExpiryDays" 
               type="number"
               min={0}
@@ -83,7 +84,7 @@ export const SecuritySettingsForm = ({ settings, onSettingsChange, onSave }: Sec
           </div>
           <div className="space-y-2">
             <Label htmlFor="sessionTimeout">Tempo limite da sessão</Label>
-            <Input 
+            <InputWithSuffix 
               id="sessionTimeout" 
               type="number"
               min={1}

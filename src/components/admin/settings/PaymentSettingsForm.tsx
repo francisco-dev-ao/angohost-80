@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
+import { InputWithSuffix } from "@/components/ui/input-with-suffix";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -94,7 +95,7 @@ export const PaymentSettingsForm = ({ settings, onSettingsChange, onSave }: Paym
           </div>
           <div className="space-y-2">
             <Label htmlFor="paymentGracePeriod">Período de carência para pagamento</Label>
-            <Input 
+            <InputWithSuffix 
               id="paymentGracePeriod" 
               type="number"
               min={0}
@@ -109,7 +110,7 @@ export const PaymentSettingsForm = ({ settings, onSettingsChange, onSave }: Paym
           </div>
           <div className="space-y-2">
             <Label htmlFor="taxRate">Taxa de imposto</Label>
-            <Input 
+            <InputWithSuffix 
               id="taxRate" 
               type="number"
               min={0}
