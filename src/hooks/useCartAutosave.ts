@@ -45,11 +45,14 @@ export const useCartAutosave = () => {
     try {
       setIsSaving(true);
       
+      // Fix: Convert CartItem[] to a plain object for JSON storage
+      const cartItemsJson = JSON.parse(JSON.stringify(items));
+      
       // Save to profiles table
       const { error } = await supabase
         .from('profiles')
         .update({
-          cart_items: items,
+          cart_items: cartItemsJson, // This should now be properly stringified
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id);
@@ -58,12 +61,15 @@ export const useCartAutosave = () => {
       
       // Also save to cart_abandonments for recovery
       if (items.length > 0) {
+        // Fix: Convert CartItem[] to a plain object for JSON storage again
+        const cartItemsForAbandonment = JSON.parse(JSON.stringify(items));
+        
         const { error: cartError } = await supabase
           .from('cart_abandonments')
           .upsert({
             user_id: user.id,
             email: user.email,
-            cart_items: items,
+            cart_items: cartItemsForAbandonment, // This should now be properly stringified
             updated_at: new Date().toISOString(),
             is_guest: false
           }, { onConflict: 'user_id' });

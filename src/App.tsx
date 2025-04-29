@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   BrowserRouter as Router,
@@ -19,13 +20,7 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import { Toaster } from "sonner";
-import ClientDomains from './pages/client/ClientDomains';
-import ClientInvoices from './pages/client/ClientInvoices';
-import ClientOrders from './pages/client/ClientOrders';
-import ClientContactProfiles from './pages/client/ClientContactProfiles';
-import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
 import EnhancedCheckoutPage from './pages/EnhancedCheckout';
 
 function App() {
@@ -47,39 +42,6 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
-
-        <Route
-          path="/client/domains"
-          element={
-            <ProtectedRoute>
-              <ClientDomains />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/client/invoices"
-          element={
-            <ProtectedRoute>
-              <ClientInvoices />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/client/orders"
-          element={
-            <ProtectedRoute>
-              <ClientOrders />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/client/contact-profiles"
-          element={
-            <ProtectedRoute>
-              <ClientContactProfiles />
-            </ProtectedRoute>
-          }
-        />
       </Routes>
       <Toaster position="top-center" />
     </>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -25,7 +24,6 @@ export const EnhancedCheckout = () => {
   const { saveCartAsOrder, isSaving } = useSaveOrder();
   const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
   
-  // Checkout steps
   const [activeStep, setActiveStep] = useState('client');
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({
     client: false,
@@ -34,7 +32,6 @@ export const EnhancedCheckout = () => {
     payment: false
   });
   
-  // Form state
   const [contactProfile, setContactProfile] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
@@ -45,23 +42,19 @@ export const EnhancedCheckout = () => {
     address: '',
   });
   
-  // Cart summary calculations
   const [subtotal, setSubtotal] = useState(0);
   const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [total, setTotal] = useState(0);
   const [billingCycle, setBillingCycle] = useState('annual');
   
-  // Loading states
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingCart, setIsSavingCart] = useState(false);
   
-  // Domain search state
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [addingDomain, setAddingDomain] = useState(false);
   
   useEffect(() => {
-    // Calculate totals
     const cartSubtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const cartTax = cartSubtotal * 0.14; // 14% IVA
     const cartTotal = cartSubtotal + cartTax - discount;
@@ -70,12 +63,10 @@ export const EnhancedCheckout = () => {
     setTax(cartTax);
     setTotal(cartTotal);
     
-    // Check if we can mark the first step as complete
     if (user) {
       setCompletedSteps(prev => ({ ...prev, client: true }));
     }
     
-    // Load user profile and payment methods
     if (user) {
       loadUserProfile();
       loadPaymentMethods();
@@ -84,7 +75,6 @@ export const EnhancedCheckout = () => {
     setIsLoading(false);
   }, [user, items, discount, billingCycle]);
   
-  // Set default contact profile when profiles load
   useEffect(() => {
     if (profiles && profiles.length > 0) {
       setContactProfile(profiles[0].id);
@@ -147,7 +137,6 @@ export const EnhancedCheckout = () => {
       console.error('Error fetching payment methods:', error);
       toast.error('Erro ao carregar métodos de pagamento');
       
-      // Default fallback
       const bankTransfer = { 
         id: 'bank_transfer', 
         name: 'Transferência Bancária', 
@@ -173,9 +162,6 @@ export const EnhancedCheckout = () => {
   const handleBillingCycleChange = (cycle: string) => {
     setBillingCycle(cycle);
     
-    // Recalculate prices based on billing cycle
-    // This is a simplified implementation - you would need to adjust how
-    // prices are calculated based on your actual pricing model
     if (cycle === 'monthly') {
       // Calculate prices for monthly billing
     } else {
@@ -207,8 +193,6 @@ export const EnhancedCheckout = () => {
     }
     
     try {
-      setIsSaving(true);
-      
       const orderData = {
         paymentMethodId: paymentMethod,
         contactProfileId: contactProfile,
@@ -225,8 +209,6 @@ export const EnhancedCheckout = () => {
       }
     } catch (error: any) {
       toast.error('Erro ao processar o pedido: ' + error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
   
@@ -255,7 +237,6 @@ export const EnhancedCheckout = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Finalizar Compra</h1>
         
-        {/* Checkout Steps Progress */}
         <div className="flex items-center justify-between mt-6 mb-8">
           {[
             { id: 'client', label: 'Dados do Cliente' },
@@ -291,7 +272,6 @@ export const EnhancedCheckout = () => {
         <div className="md:col-span-2">
           <form onSubmit={handleSubmit}>
             <Tabs value={activeStep} onValueChange={setActiveStep} className="w-full">
-              {/* Client Data Step */}
               <TabsContent value="client">
                 <Card>
                   <CardContent className="pt-6">
@@ -413,7 +393,6 @@ export const EnhancedCheckout = () => {
                 </Card>
               </TabsContent>
               
-              {/* Domain Step */}
               <TabsContent value="domain">
                 <Card>
                   <CardContent className="pt-6">
@@ -422,7 +401,6 @@ export const EnhancedCheckout = () => {
                       Pesquise e adicione domínios ao seu pedido
                     </CardDescription>
                     
-                    {/* Domain Search component */}
                     <div className="mb-6">
                       <DomainSearch />
                     </div>
@@ -447,7 +425,6 @@ export const EnhancedCheckout = () => {
                 </Card>
               </TabsContent>
               
-              {/* Services Step */}
               <TabsContent value="service">
                 <Card>
                   <CardContent className="pt-6">
@@ -456,7 +433,6 @@ export const EnhancedCheckout = () => {
                       Adicione serviços complementares ao seu pedido
                     </CardDescription>
                     
-                    {/* Services list - this would show current items and recommended ones */}
                     <div className="space-y-4">
                       {items.filter(item => item.type !== 'domain').map(item => (
                         <div key={item.id} className="flex items-center justify-between p-4 border rounded-md">
@@ -473,11 +449,9 @@ export const EnhancedCheckout = () => {
                         </div>
                       ))}
                       
-                      {/* This is where you'd show recommended products */}
                       <div className="mt-8">
                         <h3 className="font-medium mb-4">Serviços Recomendados</h3>
                         
-                        {/* Example recommended service card */}
                         <div className="border rounded-md p-4 flex justify-between items-center">
                           <div>
                             <h4 className="font-medium">Proteção SSL</h4>
@@ -511,7 +485,6 @@ export const EnhancedCheckout = () => {
                 </Card>
               </TabsContent>
               
-              {/* Payment Step */}
               <TabsContent value="payment">
                 <Card>
                   <CardContent className="pt-6">
@@ -572,14 +545,12 @@ export const EnhancedCheckout = () => {
           </form>
         </div>
 
-        {/* Order Summary Card - Always Visible */}
         <div>
           <Card className="sticky top-8">
             <CardContent className="pt-6">
               <CardTitle className="mb-4">Resumo do Pedido</CardTitle>
               
               <div>
-                {/* Items list */}
                 <div className="space-y-3 mb-4">
                   {items.map((item) => (
                     <div key={item.id} className="flex justify-between">
@@ -594,7 +565,6 @@ export const EnhancedCheckout = () => {
                   ))}
                 </div>
                 
-                {/* Billing cycle selector */}
                 <div className="my-4 pb-4 border-b">
                   <Label className="block mb-2">Ciclo de cobrança</Label>
                   <div className="flex border rounded-md overflow-hidden">
@@ -620,7 +590,6 @@ export const EnhancedCheckout = () => {
                   </div>
                 </div>
                 
-                {/* Totals */}
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -642,7 +611,6 @@ export const EnhancedCheckout = () => {
                   </div>
                 </div>
                 
-                {/* Social proof */}
                 <div className="mt-6 text-center">
                   <div className="flex items-center justify-center space-x-2 text-sm">
                     <CheckCircle className="h-4 w-4 text-green-600" />

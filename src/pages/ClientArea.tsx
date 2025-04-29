@@ -1,26 +1,20 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import Layout from "@/components/Layout";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useNavigate } from "react-router-dom";
-import ClientSidebar from "@/components/client/ClientSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import { useClientRoutes } from "@/hooks/useClientRoutes";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { currentComponent } = useClientRoutes();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!loading && !user) {
       toast.error('Faça login para acessar a área do cliente');
-      navigate('/register', { state: { returnUrl: location.pathname } });
+      navigate('/register');
     }
-  }, [user, loading, navigate, location.pathname]);
+  }, [user, loading, navigate]);
 
   if (loading) {
     return (
@@ -41,14 +35,17 @@ const ClientArea = () => {
 
   return (
     <Layout>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full">
-          <ClientSidebar />
-          <div className="flex-1 p-6">
-            {currentComponent}
-          </div>
+      <div className="container py-8">
+        <h1 className="text-3xl font-bold mb-8">Área do Cliente</h1>
+        <p className="text-center text-muted-foreground">
+          Esta área está em desenvolvimento. Em breve, você poderá gerenciar seus serviços aqui.
+        </p>
+        <div className="flex justify-center mt-8">
+          <Button onClick={() => navigate('/')}>
+            Voltar para a Página Inicial
+          </Button>
         </div>
-      </SidebarProvider>
+      </div>
     </Layout>
   );
 };
