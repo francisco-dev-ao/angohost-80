@@ -64,9 +64,14 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				angohost: {
-					primary: '#1a365d',
-					secondary: '#3182ce',
-					accent: '#f6ad55',
+					primary: '#1a365d', // Deep blue
+					secondary: '#3182ce', // Blue
+					accent: '#f6ad55', // Orange accent
+					light: '#ebf8ff', // Light blue background
+					dark: '#2d3748', // Dark text
+					success: '#48bb78', // Green for success messages
+					warning: '#ed8936', // Orange for warnings
+					error: '#e53e3e', // Red for errors
 				},
 			},
 			borderRadius: {

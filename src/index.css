@@ -114,3 +114,42 @@
 .pricing-feature-missing {
   @apply text-gray-300;
 }
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Hover effects */
+.hover-scale {
+  @apply transition-transform duration-200;
+}
+
+.hover-scale:hover {
+  transform: scale(1.03);
+}
+
+/* Card styles */
+.feature-card {
+  @apply bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300;
+}
+
+/* Button hover effects */
+.btn-primary-hover {
+  @apply transition-colors duration-300;
+}
+
+.btn-primary-hover:hover {
+  @apply bg-angohost-primary/90;
+}

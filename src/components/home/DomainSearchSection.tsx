@@ -12,11 +12,19 @@ const DomainSearchSection = () => {
   const displayExtensions = [...popularExtensions, ...otherExtensions];
   
   return (
-    <section className="py-16 bg-gray-50 relative">
-      <div className="container">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-angohost-primary">Encontre o Domínio Perfeito</h2>
-          <p className="text-gray-600 mt-2">Registe seu domínio .AO e coloque o seu negócio no mapa</p>
+    <section className="py-16 bg-gray-50 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 right-1/4 w-64 h-64 bg-angohost-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 left-1/3 w-72 h-72 bg-angohost-secondary/20 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="container relative z-10">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-angohost-primary">Encontre o Seu Domínio Perfeito</h2>
+          <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+            Registe seu domínio .AO e estabeleça a sua presença online profissional em Angola
+          </p>
         </div>
         
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-8 border border-gray-100">

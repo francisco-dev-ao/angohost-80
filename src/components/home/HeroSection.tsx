@@ -2,27 +2,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   return (
     <section className="bg-angohost-primary text-white relative overflow-hidden">
-      <div className="container py-16 md:py-24 relative z-10">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-white/10"></div>
+        <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-white/10"></div>
+        <div className="absolute top-40 left-1/4 w-40 h-40 rounded-full bg-white/10"></div>
+      </div>
+      
+      <div className="container py-16 md:py-20 relative z-10">
         <div className="flex flex-col lg:flex-row items-center max-w-6xl mx-auto">
           <div className="lg:w-1/2 mb-12 lg:mb-0">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              O seu site sempre <br/> no ar, protegido.
+              Domínios e Hospedagem <br/> em Angola
             </h1>
             <p className="text-lg mb-8 text-white/90 max-w-lg">
-              Hospedagem confiável, domínios .AO e soluções completas para o mercado angolano.
+              Soluções completas de hospedagem web, domínios .AO e email profissional para o seu negócio crescer online.
             </p>
             <div className="flex flex-wrap gap-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-orange-400 hover:bg-orange-500 text-white border-0"
+                className="bg-white text-angohost-primary hover:bg-white/90 border-0"
               >
-                <Link to="/products/cpanel">Saber mais</Link>
+                <Link to="/domains">Registrar Domínio <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
               <Button
                 asChild
@@ -30,7 +37,7 @@ const HeroSection = () => {
                 variant="outline"
                 className="border-white text-white hover:bg-white/10"
               >
-                <Link to="/contact">Fale connosco</Link>
+                <Link to="/cpanel-hosting">Ver Planos</Link>
               </Button>
             </div>
             
@@ -56,11 +63,15 @@ const HeroSection = () => {
             </div>
           </div>
           <div className="lg:w-1/2 lg:pl-8 relative">
-            <img 
-              src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png" 
-              alt="Especialista AngoHost" 
-              className="relative z-10 rounded-lg shadow-2xl mx-auto"
-            />
+            <div className="bg-white/5 p-3 rounded-lg shadow-lg">
+              <img 
+                src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png" 
+                alt="Especialista AngoHost" 
+                className="relative z-10 rounded-lg shadow-xl mx-auto"
+              />
+            </div>
+            {/* Decorative elements */}
+            <div className="absolute -bottom-4 -right-4 w-40 h-40 rounded-full bg-angohost-secondary/30 filter blur-xl"></div>
           </div>
         </div>
       </div>
