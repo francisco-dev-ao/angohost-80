@@ -8,6 +8,7 @@ import { useContactProfiles } from '@/hooks/useContactProfiles';
 import CheckoutSteps from './CheckoutSteps';
 import OrderSummary from './OrderSummary';
 import CheckoutContent from './CheckoutContent';
+import { motion } from 'framer-motion';
 
 export const EnhancedCheckout = () => {
   const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
@@ -22,7 +23,6 @@ export const EnhancedCheckout = () => {
     formData,
     setFormData,
     subtotal,
-    tax,
     discount,
     total,
     billingCycle,
@@ -44,12 +44,30 @@ export const EnhancedCheckout = () => {
   } = useOrderSubmission(contactProfile, profiles, paymentMethod, formData);
 
   if (isLoading) {
-    return <div className="py-8 text-center">Carregando...</div>;
+    return (
+      <motion.div 
+        className="py-8 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        Carregando...
+      </motion.div>
+    );
   }
 
   return (
-    <div>
-      <div className="mb-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div 
+        className="mb-8"
+        initial={{ y: -20 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <h1 className="text-3xl font-bold">Finalizar Compra</h1>
         
         <CheckoutSteps 
@@ -57,7 +75,7 @@ export const EnhancedCheckout = () => {
           completedSteps={completedSteps} 
           onStepChange={setActiveStep}
         />
-      </div>
+      </motion.div>
       
       <div className="grid md:grid-cols-3 gap-8">
         <form onSubmit={handleSubmit}>
@@ -88,7 +106,6 @@ export const EnhancedCheckout = () => {
           <OrderSummary
             items={items}
             subtotal={subtotal}
-            tax={tax}
             discount={discount}
             total={total}
             billingCycle={billingCycle}
@@ -96,7 +113,7 @@ export const EnhancedCheckout = () => {
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

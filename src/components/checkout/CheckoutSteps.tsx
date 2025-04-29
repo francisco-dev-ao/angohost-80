@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CheckoutStepsProps {
   activeStep: string;
@@ -11,7 +12,6 @@ interface CheckoutStepsProps {
 const CheckoutSteps = ({ activeStep, completedSteps, onStepChange }: CheckoutStepsProps) => {
   const steps = [
     { id: 'client', label: 'Dados do Cliente' },
-    { id: 'domain', label: 'Domínios' },
     { id: 'service', label: 'Serviços' },
     { id: 'payment', label: 'Pagamento' }
   ];
@@ -20,9 +20,11 @@ const CheckoutSteps = ({ activeStep, completedSteps, onStepChange }: CheckoutSte
     <div className="flex items-center justify-between mb-8">
       {steps.map((step, index, array) => (
         <React.Fragment key={step.id}>
-          <button 
+          <motion.button 
             onClick={() => onStepChange(step.id)}
             className={`flex flex-col items-center ${activeStep === step.id ? 'text-primary' : completedSteps[step.id] ? 'text-green-600' : 'text-gray-400'}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
               activeStep === step.id ? 'bg-primary text-white' : 
@@ -31,12 +33,17 @@ const CheckoutSteps = ({ activeStep, completedSteps, onStepChange }: CheckoutSte
               {completedSteps[step.id] ? <Check className="h-4 w-4" /> : index + 1}
             </div>
             <span className="text-xs sm:text-sm">{step.label}</span>
-          </button>
+          </motion.button>
           
           {index < array.length - 1 && (
-            <div className={`flex-1 h-1 mx-2 ${
-              completedSteps[step.id] ? 'bg-green-300' : 'bg-gray-200'
-            }`}></div>
+            <motion.div 
+              className={`flex-1 h-1 mx-2 ${
+                completedSteps[step.id] ? 'bg-green-300' : 'bg-gray-200'
+              }`}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            ></motion.div>
           )}
         </React.Fragment>
       ))}

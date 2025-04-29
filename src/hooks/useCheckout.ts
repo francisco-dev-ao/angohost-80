@@ -14,7 +14,6 @@ export const useCheckout = () => {
   const [activeStep, setActiveStep] = useState('client');
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({
     client: false,
-    domain: false,
     service: false,
     payment: false
   });
@@ -30,15 +29,11 @@ export const useCheckout = () => {
   });
   
   const [subtotal, setSubtotal] = useState(0);
-  const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [total, setTotal] = useState(0);
   const [billingCycle, setBillingCycle] = useState('annual');
   
   const [isLoading, setIsLoading] = useState(true);
-  
-  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
-  const [addingDomain, setAddingDomain] = useState(false);
   
   useEffect(() => {
     calculateTotals();
@@ -57,11 +52,10 @@ export const useCheckout = () => {
   
   const calculateTotals = () => {
     const cartSubtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const cartTax = cartSubtotal * 0.14; // 14% IVA
-    const cartTotal = cartSubtotal + cartTax - discount;
+    // Removed the tax calculation
+    const cartTotal = cartSubtotal - discount;
     
     setSubtotal(cartSubtotal);
-    setTax(cartTax);
     setTotal(cartTotal);
   };
   
@@ -206,26 +200,14 @@ export const useCheckout = () => {
     setTimeout(() => calculateTotals(), 0);
   };
   
-  const handleDomainSelection = (domain: string) => {
-    if (selectedDomains.includes(domain)) {
-      setSelectedDomains(selectedDomains.filter(d => d !== domain));
-    } else {
-      setSelectedDomains([...selectedDomains, domain]);
-    }
-    
-    setCompletedSteps(prev => ({ ...prev, domain: true }));
-  };
-  
   const nextStep = () => {
-    if (activeStep === 'client') setActiveStep('domain');
-    else if (activeStep === 'domain') setActiveStep('service');
+    if (activeStep === 'client') setActiveStep('service');
     else if (activeStep === 'service') setActiveStep('payment');
   };
   
   const prevStep = () => {
     if (activeStep === 'payment') setActiveStep('service');
-    else if (activeStep === 'service') setActiveStep('domain');
-    else if (activeStep === 'domain') setActiveStep('client');
+    else if (activeStep === 'service') setActiveStep('client');
   };
   
   const createNewProfile = () => {
@@ -242,19 +224,16 @@ export const useCheckout = () => {
     formData,
     setFormData,
     subtotal,
-    tax,
     discount,
     total,
     billingCycle,
     isLoading,
-    selectedDomains,
     items,
     handleProfileChange,
     handlePaymentMethodChange,
     handleBillingCycleChange,
     handleUpdateBillingCycle,
     handleRemoveItem,
-    handleDomainSelection,
     nextStep,
     prevStep,
     createNewProfile,

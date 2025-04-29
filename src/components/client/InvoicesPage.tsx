@@ -19,9 +19,10 @@ import { Button } from "@/components/ui/button";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, Eye } from 'lucide-react';
 import InvoiceViewDialog from './InvoiceViewDialog';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 const InvoicesPage = () => {
   const { invoices, isLoading, downloadInvoice } = useInvoices();
@@ -95,7 +96,13 @@ const InvoicesPage = () => {
               </TableHeader>
               <TableBody>
                 {invoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
+                  <motion.tr
+                    key={invoice.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="border-b"
+                  >
                     <TableCell className="font-medium">
                       <div className="flex items-center space-x-2" onClick={() => openInvoiceDialog(invoice)} style={{ cursor: 'pointer' }}>
                         <FileText className="h-4 w-4 text-primary" />
@@ -115,17 +122,30 @@ const InvoicesPage = () => {
                       {formatPrice(invoice.amount)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => downloadInvoice(invoice.id)}
-                        className="flex items-center space-x-1"
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        <span>PDF</span>
-                      </Button>
+                      <div className="flex justify-end space-x-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => openInvoiceDialog(invoice)}
+                          className="flex items-center"
+                          title="Visualizar online"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          <span>Ver</span>
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => downloadInvoice(invoice.id)}
+                          className="flex items-center"
+                          title="Baixar PDF"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          <span>PDF</span>
+                        </Button>
+                      </div>
                     </TableCell>
-                  </TableRow>
+                  </motion.tr>
                 ))}
               </TableBody>
             </Table>

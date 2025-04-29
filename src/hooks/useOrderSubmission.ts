@@ -16,13 +16,15 @@ export const useOrderSubmission = (contactProfile: string | null, profiles: any[
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      toast.error('Você precisa estar logado para finalizar a compra');
+    if (!paymentMethod) {
+      toast.error('Selecione um método de pagamento');
       return;
     }
     
-    if (!paymentMethod) {
-      toast.error('Selecione um método de pagamento');
+    // If user is not logged in, redirect to login page with return URL
+    if (!user) {
+      toast.info('Faça login para finalizar sua compra');
+      navigate('/register', { state: { returnUrl: '/enhanced-checkout' } });
       return;
     }
     
