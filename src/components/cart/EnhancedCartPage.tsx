@@ -24,6 +24,7 @@ const EnhancedCartPage = () => {
   const { user } = useSupabaseAuth();
   const { items, removeFromCart } = useCart();
   const [isOwnershipDialogOpen, setIsOwnershipDialogOpen] = useState(false);
+  const { addProfile } = useOwnership();
   
   const {
     step,
@@ -59,6 +60,24 @@ const EnhancedCartPage = () => {
   const discount = calculateDiscount(parseInt(selectedDuration));
   const discountAmount = subtotal * discount;
   const total = subtotal - discountAmount;
+
+  // Handler for domain ownership submission
+  const handleOwnershipSubmit = (_: string, data: any) => {
+    // Make sure all required fields are present
+    if (data.name && data.email && data.document && data.phone && data.address) {
+      addProfile({
+        name: data.name,
+        email: data.email,
+        document: data.document,
+        phone: data.phone,
+        address: data.address
+      });
+      setIsOwnershipDialogOpen(false);
+      toast.success("Perfil de titularidade criado com sucesso");
+    } else {
+      toast.error("Todos os campos são obrigatórios");
+    }
+  };
 
   return (
     <div className="container py-12">
@@ -232,13 +251,7 @@ const EnhancedCartPage = () => {
           domain=""
           isOpen={isOwnershipDialogOpen}
           onClose={() => setIsOwnershipDialogOpen(false)}
-          onSubmit={(_, data) => {
-            // Add profile to context
-            const { addProfile } = useOwnership();
-            addProfile(data);
-            setIsOwnershipDialogOpen(false);
-            toast.success("Perfil de titularidade criado com sucesso");
-          }}
+          onSubmit={handleOwnershipSubmit}
         />
       )}
     </div>
