@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '@/components/auth/AuthLayout';
@@ -36,13 +37,21 @@ const Auth = ({ type }: { type: 'login' | 'register' | 'forgot-password' }) => {
   const renderForm = () => {
     switch (type) {
       case 'login':
-        return <LoginForm onSubmit={() => {}} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <LoginForm onSubmit={async (email, password) => {
+          return Promise.resolve();
+        }} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
       case 'register':
-        return <RegisterForm onSubmit={() => {}} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <RegisterForm onSubmit={async (email, password, fullName) => {
+          return Promise.resolve();
+        }} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
       case 'forgot-password':
-        return <ForgotPasswordForm onSubmit={() => {}} isLoading={false} />;
+        return <ForgotPasswordForm onSubmit={async (email) => {
+          return Promise.resolve();
+        }} isLoading={false} />;
       default:
-        return <LoginForm onSubmit={() => {}} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <LoginForm onSubmit={async (email, password) => {
+          return Promise.resolve();
+        }} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
     }
   };
   
