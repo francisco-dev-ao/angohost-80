@@ -18,7 +18,9 @@ import {
   Ticket, 
   User,
   Users,
-  Globe 
+  Globe,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -27,7 +29,7 @@ import { Separator } from "@/components/ui/separator";
 const ClientSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isOpen } = useSidebar();
+  const { isOpen, setIsOpen } = useSidebar();
   const { user, signOut } = useSupabaseAuth();
 
   const menuItems = [
@@ -114,6 +116,14 @@ const ClientSidebar = () => {
               <div className="text-xs text-muted-foreground truncate max-w-[160px]">{user?.email}</div>
             </div>
           </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute -right-3 top-5 bg-background border shadow-sm"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </Button>
         </div>
         <Separator />
         <ScrollArea className="flex-1 px-3 py-4">

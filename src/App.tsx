@@ -22,6 +22,8 @@ import Checkout from './pages/Checkout';
 import { Toaster } from "sonner";
 import { CartProvider } from './contexts/CartContext';
 import EnhancedCheckoutPage from './pages/EnhancedCheckout';
+import ClientArea from './pages/ClientArea';
+import { SidebarProvider } from './components/ui/sidebar';
 
 function App() {
   return (
@@ -42,6 +44,13 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
+        
+        {/* Client area routes with sidebar provider */}
+        <Route path="/client/*" element={
+          <SidebarProvider>
+            <ClientArea />
+          </SidebarProvider>
+        } />
       </Routes>
       <Toaster position="top-center" />
     </>

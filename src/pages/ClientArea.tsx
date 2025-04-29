@@ -2,9 +2,10 @@
 import React from "react";
 import Layout from "@/components/Layout";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import ClientSidebar from "@/components/client/ClientSidebar";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
@@ -35,21 +36,31 @@ const ClientArea = () => {
   }
 
   return (
-    <Layout>
-      <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-8">Área do Cliente</h1>
-        <p className="text-center text-muted-foreground">
-          Esta área está em desenvolvimento. Em breve, você poderá gerenciar seus serviços aqui.
-        </p>
-        <div className="flex justify-center mt-8">
-          <Button onClick={() => navigate('/')}>
-            Voltar para a Página Inicial
-          </Button>
+    <div className="flex">
+      <ClientSidebar />
+      
+      <div className="flex-1">
+        <div className="container py-8">
+          <Routes>
+            <Route path="/" element={
+              <>
+                <h1 className="text-3xl font-bold mb-8">Área do Cliente</h1>
+                <p className="text-center text-muted-foreground">
+                  Esta área está em desenvolvimento. Em breve, você poderá gerenciar seus serviços aqui.
+                </p>
+                <div className="flex justify-center mt-8">
+                  <Button onClick={() => navigate('/')}>
+                    Voltar para a Página Inicial
+                  </Button>
+                </div>
+              </>
+            } />
+            {/* Add other routes here as needed */}
+          </Routes>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 
 export default ClientArea;
-
