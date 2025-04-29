@@ -5,32 +5,36 @@ import mysql from 'mysql2/promise';
 let pool: mysql.Pool | null = null;
 
 export const getConnection = async () => {
-  // Check if we have credentials stored in localStorage
+  // Valores padrão para credenciais
   let user = 'placeholder_username';
-  let password = 'Bayathu60@@'; // Default password
+  let password = 'Bayathu60@@'; // Senha padrão
 
   try {
-    // Only try to access localStorage in browser environment
+    // Só tentar acessar localStorage em ambiente de navegador
     if (typeof window !== 'undefined' && window.localStorage) {
-      const storedCredentials = localStorage.getItem('db_credentials');
-      
-      // If we have stored credentials, use them
-      if (storedCredentials) {
-        const credentials = JSON.parse(storedCredentials);
-        if (credentials.username) user = credentials.username;
-        if (credentials.password) password = credentials.password;
+      try {
+        const storedCredentials = localStorage.getItem('db_credentials');
+        
+        // Se temos credenciais armazenadas, usá-las
+        if (storedCredentials) {
+          const credentials = JSON.parse(storedCredentials);
+          if (credentials.username) user = credentials.username;
+          if (credentials.password) password = credentials.password;
+        }
+      } catch (storageError) {
+        console.error('Erro ao acessar localStorage:', storageError);
       }
     }
   } catch (error) {
-    console.error('Error accessing localStorage:', error);
+    console.error('Erro ao verificar ambiente:', error);
   }
   
-  // Create the connection pool if it doesn't exist
-  if (!pool) {
-    console.log('Tentando criar pool de conexão com o banco de dados...');
-    console.log('Host: 194.163.146.215, Port: 3306, Database: angodb11, User:', user);
-    
-    try {
+  try {
+    // Criar o pool de conexão se ele não existir
+    if (!pool) {
+      console.log('Tentando criar pool de conexão com o banco de dados...');
+      console.log('Host: 194.163.146.215, Port: 3306, Database: angodb11, User:', user);
+      
       pool = mysql.createPool({
         host: '194.163.146.215',
         port: 3306,
@@ -39,49 +43,49 @@ export const getConnection = async () => {
         password,
         waitForConnections: true,
         connectionLimit: 10,
-        queueLimit: 0
+        queueLimit: 0,
+        connectTimeout: 10000 // Timeout de 10 segundos para conexão
       });
       
       console.log('Pool de conexão com o banco de dados criado com sucesso!');
-    } catch (err) {
-      console.error('Erro ao criar pool de conexão:', err);
-      throw err;
     }
-  }
-  
-  return pool;
-};
-
-export const initializeDatabase = async () => {
-  try {
-    const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT 1');
-    console.log('Database connection successful');
-    return true;
-  } catch (error) {
-    console.error('Failed to connect to database:', error);
-    return false;
+    
+    return pool;
+  } catch (err) {
+    console.error('Erro crítico ao criar pool de conexão:', err);
+    throw err;
   }
 };
 
-// Helper to execute query with error handling
+// Helper para executar consulta com tratamento de erro
 export const executeQuery = async (query: string, params: any[] = []) => {
   try {
     const connection = await getConnection();
     const [rows] = await connection.execute(query, params);
     return { data: rows, error: null };
   } catch (error: any) {
-    console.error('Database query error:', error.message);
+    console.error('Erro na consulta ao banco de dados:', error.message);
     return { data: null, error: error.message };
   }
 };
 
-// Test connection function that returns detailed status
+// Função para testar conexão que retorna status detalhado
 export const testConnection = async () => {
   try {
     console.log('Testando conexão com o banco de dados...');
     const connection = await getConnection();
-    const [rows] = await connection.execute('SELECT NOW() as timestamp, VERSION() as version');
+    
+    // Adicionando timeout para a consulta
+    const queryPromise = connection.execute('SELECT NOW() as timestamp, VERSION() as version');
+    
+    // Definindo um timeout de 5 segundos para a consulta
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout ao conectar ao banco de dados')), 5000);
+    });
+    
+    // Executando a consulta com timeout
+    const [rows] = await Promise.race([queryPromise, timeoutPromise]) as any;
+    
     console.log('Conexão bem sucedida! Versão do MySQL:', rows[0]?.version);
     
     return { 
@@ -100,5 +104,25 @@ export const testConnection = async () => {
       message: `Falha na conexão: ${error.message}`,
       error: error.message
     };
+  }
+};
+
+// Função para inicializar o banco de dados com tratamento de timeout
+export const initializeDatabase = async () => {
+  try {
+    const connection = await getConnection();
+    const queryPromise = connection.execute('SELECT 1');
+    
+    // Definindo um timeout de 5 segundos para a consulta
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout ao inicializar banco de dados')), 5000);
+    });
+    
+    await Promise.race([queryPromise, timeoutPromise]);
+    console.log('Banco de dados inicializado com sucesso');
+    return true;
+  } catch (error) {
+    console.error('Falha ao conectar ao banco de dados:', error);
+    return false;
   }
 };

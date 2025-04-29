@@ -18,7 +18,7 @@ export interface ConnectionStatus {
 export const useDatabase = (onConnectionSuccess?: () => void) => {
   const [credentials, setCredentials] = useState<DatabaseCredentials>({
     username: '',
-    password: 'Bayathu60@@', // Default password
+    password: 'Bayathu60@@', // Senha padrão
   });
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
@@ -27,7 +27,7 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
     password?: string;
   }>({});
 
-  // Load stored credentials when hook initializes
+  // Carregar credenciais armazenadas quando o hook inicializa
   useEffect(() => {
     try {
       const storedCredentials = localStorage.getItem('db_credentials');
@@ -39,17 +39,17 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
             password: parsed.password || 'Bayathu60@@',
           });
         } catch (error) {
-          console.error('Error parsing stored credentials:', error);
+          console.error('Erro ao analisar credenciais armazenadas:', error);
         }
       }
     } catch (error) {
-      console.error('Error accessing localStorage:', error);
+      console.error('Erro ao acessar localStorage:', error);
     }
   }, []);
 
   const updateCredential = (field: keyof DatabaseCredentials, value: string) => {
     setCredentials(prev => ({ ...prev, [field]: value }));
-    // Clear validation errors when user types
+    // Limpar erros de validação quando o usuário digita
     if (validationErrors[field]) {
       setValidationErrors(prev => ({ ...prev, [field]: undefined }));
     }
@@ -80,7 +80,7 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
 
     setIsConnecting(true);
     try {
-      // Save the credentials temporarily for testing
+      // Salvar as credenciais temporariamente para teste
       try {
         localStorage.setItem('db_credentials', JSON.stringify({
           username: credentials.username,
@@ -88,11 +88,16 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
           timestamp: new Date().toISOString()
         }));
       } catch (error) {
-        console.error('Error saving to localStorage:', error);
+        console.error('Erro ao salvar no localStorage:', error);
       }
       
-      // Test the connection
-      const result = await testConnection();
+      // Testar a conexão com timeout
+      const testPromise = testConnection();
+      const timeoutPromise = new Promise<any>((_, reject) => {
+        setTimeout(() => reject(new Error('Tempo esgotado ao testar conexão')), 10000);
+      });
+      
+      const result = await Promise.race([testPromise, timeoutPromise]);
       setConnectionStatus(result);
       
       if (result.success) {
@@ -103,7 +108,7 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
         return false;
       }
     } catch (error: any) {
-      console.error('Error testing database connection:', error);
+      console.error('Erro ao testar conexão com banco de dados:', error);
       setConnectionStatus({
         success: false,
         message: `Erro: ${error.message}`
@@ -129,19 +134,25 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
           timestamp: new Date().toISOString()
         }));
       } catch (error) {
-        console.error('Error saving to localStorage:', error);
+        console.error('Erro ao salvar no localStorage:', error);
         toast.error('Erro ao salvar configurações no navegador');
         return false;
       }
       
-      const result = await testConnection();
+      // Testar a conexão com timeout
+      const testPromise = testConnection();
+      const timeoutPromise = new Promise<any>((_, reject) => {
+        setTimeout(() => reject(new Error('Tempo esgotado ao testar conexão')), 10000);
+      });
+      
+      const result = await Promise.race([testPromise, timeoutPromise]);
       
       if (result.success) {
         toast.success('Configurações de banco de dados salvas com sucesso!');
         if (onConnectionSuccess) {
           onConnectionSuccess();
         }
-        // In a real implementation, we would need to reload the app or update the connection pool
+        // Em uma implementação real, seria necessário recarregar o app ou atualizar o pool de conexão
         setTimeout(() => window.location.reload(), 1500);
         return true;
       } else {
@@ -149,7 +160,7 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
         return false;
       }
     } catch (error: any) {
-      console.error('Error saving database config:', error);
+      console.error('Erro ao salvar configuração de banco de dados:', error);
       toast.error('Erro ao salvar configurações');
       return false;
     } finally {

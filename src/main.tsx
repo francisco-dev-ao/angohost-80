@@ -6,33 +6,36 @@ import { testConnection } from './integrations/mysql/client';
 import { initializeSchema } from './utils/initSchema';
 import { Toaster, toast } from 'sonner';
 
-// Initialize database connection and schema
-const initApp = async () => {
-  // Render the app first to avoid blank screen during connection attempts
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-      <Toaster />
-      <App />
-    </React.StrictMode>,
-  );
-  
+// Renderizar a aplicação primeiro para evitar tela em branco
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <Toaster />
+    <App />
+  </React.StrictMode>,
+);
+
+// Inicializar conexão com o banco de dados em segundo plano
+const initDbConnection = async () => {
   try {
-    // Test database connection with the password
+    console.log('Testando conexão com o banco de dados...');
     const connectionTest = await testConnection();
     if (connectionTest.success) {
-      console.log('Database connection successful!', connectionTest);
+      console.log('Conexão com o banco de dados bem sucedida!', connectionTest);
       toast.success(`Conexão com o banco de dados estabelecida! Versão MySQL: ${connectionTest.version}`);
       
-      // Initialize schema if needed
+      // Inicializar schema se necessário
       await initializeSchema();
     } else {
-      console.error('Database connection failed:', connectionTest.message);
+      console.error('Falha na conexão com o banco de dados:', connectionTest.message);
       toast.error(`Falha na conexão com o banco de dados: ${connectionTest.message}`);
     }
   } catch (error: any) {
-    console.error('Error initializing application:', error);
-    toast.error(`Erro ao inicializar aplicação: ${error.message}`);
+    console.error('Erro ao inicializar aplicação:', error);
+    toast.error(`Erro ao conectar ao banco de dados: ${error.message}`);
   }
 };
 
-initApp();
+// Iniciar tentativa de conexão com o banco de dados após um pequeno delay
+setTimeout(() => {
+  initDbConnection();
+}, 1000);
