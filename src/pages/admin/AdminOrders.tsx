@@ -8,6 +8,7 @@ import OrderTable from '@/components/admin/orders/OrderTable';
 import OrderLoader from '@/components/admin/orders/OrderLoader';
 import OrderDetails from '@/components/admin/orders/OrderDetails';
 import OrderForm from '@/components/admin/orders/OrderForm';
+import { motion } from 'framer-motion';
 
 const AdminOrders = () => {
   const { orders, isLoading, createOrder } = useAdminOrders();
@@ -39,7 +40,12 @@ const AdminOrders = () => {
 
   return (
     <AdminLayout>
-      <div className="p-8">
+      <motion.div 
+        className="p-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <OrderHeader 
           searchQuery={searchQuery} 
           setSearchQuery={setSearchQuery} 
@@ -53,7 +59,7 @@ const AdminOrders = () => {
           handleSort={handleSort}
           handleViewOrder={handleViewOrder}
         />
-      </div>
+      </motion.div>
       
       <OrderDetails
         order={selectedOrder}

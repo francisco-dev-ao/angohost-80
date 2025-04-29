@@ -61,6 +61,7 @@ export const EnhancedCheckout = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      className="bg-gradient-to-b from-gray-50 to-white"
     >
       <motion.div 
         className="mb-8"
@@ -68,7 +69,8 @@ export const EnhancedCheckout = () => {
         animate={{ y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <h1 className="text-3xl font-bold">Finalizar Compra</h1>
+        <h1 className="text-3xl font-bold mb-4 text-primary">Finalizar Compra</h1>
+        <p className="text-muted-foreground mb-6">Complete os passos abaixo para finalizar sua compra</p>
         
         <CheckoutSteps 
           activeStep={activeStep} 
@@ -78,7 +80,7 @@ export const EnhancedCheckout = () => {
       </motion.div>
       
       <div className="grid md:grid-cols-3 gap-8">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="md:col-span-2">
           <CheckoutContent
             activeStep={activeStep}
             completedSteps={completedSteps}

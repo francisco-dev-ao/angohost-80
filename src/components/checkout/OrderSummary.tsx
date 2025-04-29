@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from '@/utils/formatters';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Check, Package } from 'lucide-react';
+import { ShoppingCart, Check, Package, Shield, Clock } from 'lucide-react';
 
 interface OrderSummaryProps {
   items: any[];
@@ -69,7 +69,13 @@ const OrderSummary = ({
             <div className="space-y-4">
               <div className="space-y-3">
                 {items.map((item) => (
-                  <div key={item.id} className="rounded-md p-3 border bg-background hover:bg-muted/20 transition-colors">
+                  <motion.div 
+                    key={item.id} 
+                    className="rounded-md p-3 border bg-background hover:bg-muted/20 transition-colors"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <div className="flex justify-between">
                       <div className="text-sm">
                         <p className="font-medium">{item.title}</p>
@@ -92,7 +98,7 @@ const OrderSummary = ({
                       </div>
                       <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
               
@@ -122,6 +128,17 @@ const OrderSummary = ({
                 <p className="text-muted-foreground">
                   Seu pedido será processado após a confirmação do pagamento
                 </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span>Pagamento 100% seguro</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span>Ativação imediata após pagamento</span>
+                </div>
               </div>
             </div>
           ) : (

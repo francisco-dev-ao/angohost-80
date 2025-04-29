@@ -21,12 +21,14 @@ import AdminDomainExtensions from './pages/admin/AdminDomainExtensions';
 import AdminServicePlans from './pages/admin/AdminServicePlans';
 import AdminPageContents from './pages/admin/AdminPageContents';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import AdminOrders from './pages/admin/AdminOrders';
 
 // Import client pages
 import ClientLayout from './pages/client/ClientLayout';
 import ClientDomains from './pages/client/ClientDomains';
 import ClientProfile from './pages/client/ClientProfile';
 import ClientServices from './pages/client/ClientServices';
+import ClientArea from './pages/ClientArea';
 import CpanelHosting from './pages/CpanelHosting';
 import ProfessionalEmail from './pages/ProfessionalEmail';
 import ExchangeOnline from './pages/ExchangeOnline';
@@ -71,17 +73,22 @@ function App() {
           <Route path="/admin/domain-extensions" element={<AdminProtectedRoute><AdminDomainExtensions /></AdminProtectedRoute>} />
           <Route path="/admin/service-plans" element={<AdminProtectedRoute><AdminServicePlans /></AdminProtectedRoute>} />
           <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
+          <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
 
-          {/* Client Routes */}
+          {/* Client Routes - Support both /client/* and direct access to /client-area */}
           <Route path="/client" element={<ClientLayout />}>
             <Route index element={<ClientDomains />} />
             <Route path="domains" element={<ClientDomains />} />
             <Route path="profile" element={<ClientProfile />} />
             <Route path="services" element={<ClientServices />} />
+            <Route path="orders" element={<ClientArea />} />
           </Route>
 
-          {/* Redirecionamento da rota /services para /client/services */}
-          <Route path="/services" element={<ClientServices />} />
+          {/* Direct routes */}
+          <Route path="/client-area" element={<ClientArea />} />
+          <Route path="/client-area/*" element={<ClientArea />} />
+          <Route path="/services" element={<Navigate to="/client/services" replace />} />
+          <Route path="/orders" element={<Navigate to="/client/orders" replace />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
