@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Check, Mail, Shield, Globe, Laptop, Phone } from "lucide-react";
+import { Check, Mail, Shield, Globe, Laptop, Phone, ArrowRight } from "lucide-react";
 
 const EmailPlansSection = () => {
   const emailPlans = [
