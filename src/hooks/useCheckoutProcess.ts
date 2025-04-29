@@ -14,10 +14,12 @@ export const useCheckoutProcess = () => {
   const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
   const { profiles: ownershipProfiles, isLoading: isLoadingOwnershipProfiles } = useOwnership();
   
-  const [step, setStep] = useState<'cart' | 'auth' | 'contact' | 'payment' | 'complete'>('cart');
+  // Changed the order: cart -> payment -> auth -> contact
+  const [step, setStep] = useState<'cart' | 'payment' | 'auth' | 'contact' | 'complete'>('cart');
   const [selectedContactProfile, setSelectedContactProfile] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<string>('1');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   
   // Logic for domains and email plans
   const domainItems = items.filter(item => item.type === 'domain');
@@ -54,34 +56,49 @@ export const useCheckoutProcess = () => {
     updatePrices(years);
   };
   
-  // Proceed to next step
+  // Proceed to next step - Modified order to follow: cart -> payment -> auth -> contact
   const nextStep = async () => {
     if (step === 'cart') {
+      // From cart, go directly to payment selection
+      setStep('payment');
+      return;
+    }
+    
+    if (step === 'payment') {
+      if (!selectedPaymentMethod) {
+        toast.error('Por favor, selecione um método de pagamento');
+        return;
+      }
+      
+      // After payment selection, check if user is logged in
       if (!user) {
         setStep('auth');
         return;
       }
       
-      if (domainItems.length > 0 && !selectedContactProfile) {
+      // User is logged in, for domains we need contact info
+      if (domainItems.length > 0) {
         setStep('contact');
         return;
       }
       
-      setStep('payment');
+      // For non-domain purchases by logged in users, go to complete
+      setStep('complete');
       return;
     }
     
     if (step === 'auth') {
       if (!user) {
         setIsRedirecting(true);
-        navigate('/login', { state: { returnUrl: '/cart' } });
+        navigate('/login', { state: { returnUrl: '/enhanced-checkout' } });
         return;
       }
       
+      // After authentication, for domains we need contact info
       if (domainItems.length > 0) {
         setStep('contact');
       } else {
-        setStep('payment');
+        setStep('complete');
       }
       return;
     }
@@ -92,36 +109,27 @@ export const useCheckoutProcess = () => {
         return;
       }
       
-      setStep('payment');
-      return;
-    }
-    
-    if (step === 'payment') {
-      // Final processing would happen here
+      // After contact info, finalize order
       toast.success('Pedido finalizado com sucesso!');
       setStep('complete');
+      return;
     }
   };
   
-  // Go back to previous step
+  // Go back to previous step - Modified for new flow
   const prevStep = () => {
-    if (step === 'payment') {
-      if (domainItems.length > 0) {
-        setStep('contact');
-      } else if (!user) {
-        setStep('auth');
-      } else {
-        setStep('cart');
-      }
-    } else if (step === 'contact') {
-      if (!user) {
-        setStep('auth');
-      } else {
-        setStep('cart');
-      }
+    if (step === 'contact') {
+      setStep('payment');
     } else if (step === 'auth') {
+      setStep('payment');
+    } else if (step === 'payment') {
       setStep('cart');
     }
+  };
+  
+  // Handle payment method selection
+  const handlePaymentMethodChange = (methodId: string) => {
+    setSelectedPaymentMethod(methodId);
   };
   
   // Check if we can show email suggestions for domain customers
@@ -144,6 +152,8 @@ export const useCheckoutProcess = () => {
     isLoadingOwnershipProfiles,
     contactProfiles: profiles,
     ownershipProfiles,
-    calculateDiscount
+    calculateDiscount,
+    selectedPaymentMethod,
+    handlePaymentMethodChange
   };
 };

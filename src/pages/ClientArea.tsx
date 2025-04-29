@@ -15,6 +15,7 @@ import NotificationsPage from "@/components/client/NotificationsPage";
 import PromotionsPage from "@/components/client/PromotionsPage";
 import OrdersPage from "@/components/client/OrdersPage";
 import ContactProfilesPage from "@/components/client/ContactProfilesPage";
+import WalletPage from "@/components/client/WalletPage";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, Search, ShoppingCart, User } from "lucide-react";
 import { motion } from "framer-motion";
@@ -104,6 +105,7 @@ const ClientArea = () => {
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/invoices" element={<InvoicesPage />} />
               <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
               <Route path="/support" element={<SupportPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/promotions" element={<PromotionsPage />} />

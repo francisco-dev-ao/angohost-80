@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useCheckout } from '@/hooks/useCheckout';
 import { useOrderSubmission } from '@/hooks/useOrderSubmission';
 import { useContactProfiles } from '@/hooks/useContactProfiles';
@@ -9,9 +9,14 @@ import CheckoutSteps from './CheckoutSteps';
 import OrderSummary from './OrderSummary';
 import CheckoutContent from './CheckoutContent';
 import { motion } from 'framer-motion';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export const EnhancedCheckout = () => {
   const { profiles, isLoading: isLoadingProfiles } = useContactProfiles();
+  const { user } = useSupabaseAuth();
+  const navigate = useNavigate();
   
   const {
     activeStep,
@@ -42,6 +47,18 @@ export const EnhancedCheckout = () => {
     handleSubmit,
     isSaving,
   } = useOrderSubmission(contactProfile, profiles, paymentMethod, formData);
+
+  // Modified to handle the new checkout flow
+  const handlePayButtonClick = () => {
+    // If user is not logged in, redirect to login with return URL
+    if (!user) {
+      toast.info('Entre com sua conta para continuar');
+      navigate('/login', { state: { returnUrl: '/enhanced-checkout' } });
+      return;
+    }
+    
+    nextStep();
+  };
 
   if (isLoading) {
     return (
@@ -91,7 +108,7 @@ export const EnhancedCheckout = () => {
             formData={formData}
             setFormData={setFormData}
             createNewProfile={createNewProfile}
-            nextStep={nextStep}
+            nextStep={handlePayButtonClick} // Use our new handler for authentication check
             prevStep={prevStep}
             items={items}
             handleRemoveItem={handleRemoveItem}

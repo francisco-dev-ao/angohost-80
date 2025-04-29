@@ -63,7 +63,7 @@ const EnhancedCartPage = () => {
 
   // Handler for domain ownership submission
   const handleOwnershipSubmit = (_: string, data: any) => {
-    // Make sure all required fields are present
+    // Make sure all required fields are present and satisfy the required type
     if (data.name && data.email && data.document && data.phone && data.address) {
       addProfile({
         name: data.name,
@@ -77,6 +77,11 @@ const EnhancedCartPage = () => {
     } else {
       toast.error("Todos os campos são obrigatórios");
     }
+  };
+
+  // Function to proceed to checkout - modified to match new flow
+  const handleProceedToCheckout = () => {
+    navigate('/enhanced-checkout');
   };
 
   return (
@@ -165,28 +170,6 @@ const EnhancedCartPage = () => {
               <CartEmailSuggestions />
             </motion.div>
           )}
-
-          {/* Contact Profile Selection (for domains) */}
-          {step === 'contact' && domainItems.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Selecione o perfil de titularidade</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <OwnershipProfileSelector 
-                    selectedProfileId={selectedContactProfile}
-                    onSelectProfile={setSelectedContactProfile}
-                    onAddNew={() => setIsOwnershipDialogOpen(true)}
-                  />
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
         </div>
 
         {/* Order Summary */}
@@ -219,10 +202,10 @@ const EnhancedCartPage = () => {
               <div className="space-y-3 pt-4">
                 <Button 
                   className="w-full" 
-                  onClick={nextStep}
+                  onClick={handleProceedToCheckout}
                   disabled={items.length === 0}
                 >
-                  {user ? 'Finalizar Compra' : 'Continuar'}
+                  Finalizar Compra
                 </Button>
                 
                 <Button variant="outline" className="w-full" onClick={() => navigate('/')}>

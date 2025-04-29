@@ -1,151 +1,173 @@
-import { useState } from "react";
+
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { OwnershipProfile } from "@/contexts/OwnershipContext";
-
-const ownershipFormSchema = z.object({
-  name: z.string().min(3, "Nome completo é obrigatório"),
-  email: z.string().email("Email inválido"),
-  document: z.string().min(5, "Documento é obrigatório"),
-  phone: z.string().min(9, "Telefone é obrigatório"),
-  address: z.string().min(5, "Endereço é obrigatório"),
-});
-
-type OwnershipFormValues = z.infer<typeof ownershipFormSchema>;
+import { useNifValidation } from '@/hooks/useNifValidation';
+import { Loader2 } from 'lucide-react';
 
 interface DomainOwnershipProps {
   domain: string;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (domain: string, data: OwnershipFormValues) => void;
-  existingProfiles?: OwnershipProfile[];
+  onSubmit: (domain: string, data: any) => void;
 }
 
-const DomainOwnership = ({
-  domain,
-  isOpen,
-  onClose,
-  onSubmit,
-  existingProfiles = [],
-}: DomainOwnershipProps) => {
-  const form = useForm<OwnershipFormValues>({
-    resolver: zodResolver(ownershipFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      document: "",
-      phone: "",
-      address: "",
-    },
+const DomainOwnership = ({ domain, isOpen, onClose, onSubmit }: DomainOwnershipProps) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    document: '',
+    phone: '',
+    address: '',
+    nif: ''
   });
+  const { validateNif, validating } = useNifValidation();
 
-  const handleSubmit = (data: OwnershipFormValues) => {
-    onSubmit(domain, data);
-    form.reset();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleNifValidation = async () => {
+    if (!formData.nif) {
+      toast.error('Por favor, insira o NIF para validação');
+      return;
+    }
+
+    const result = await validateNif(formData.nif);
+    
+    if (result.name) {
+      setFormData(prev => ({
+        ...prev,
+        name: result.name,
+        address: result.address || prev.address,
+        document: prev.nif // Set the document field to the NIF value
+      }));
+      toast.success('NIF validado com sucesso!');
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.document || !formData.phone || !formData.address) {
+      toast.error('Por favor, preencha todos os campos obrigatórios');
+      return;
+    }
+    
+    onSubmit(domain, formData);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Informações de Titularidade</DialogTitle>
+          <DialogTitle>Dados de Titularidade do Domínio</DialogTitle>
           <DialogDescription>
-            Por favor, forneça as informações do proprietário para o domínio{" "}
-            <strong>{domain}</strong>
+            Preencha os dados do responsável pelo domínio {domain ? domain : ""}.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
+        
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <div className="flex gap-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="nif">NIF</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="nif"
+                  name="nif"
+                  value={formData.nif}
+                  onChange={handleChange}
+                  placeholder="Insira o NIF"
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleNifValidation}
+                  disabled={validating || !formData.nif}
+                >
+                  {validating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Validar'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome Completo</Label>
+            <Input
+              id="name"
               name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome completo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome completo" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Nome completo"
+              readOnly={!!formData.name && !!formData.nif}
+              className={formData.name && formData.nif ? "bg-muted" : ""}
             />
-            <FormField
-              control={form.control}
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="email@exemplo.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="nome@exemplo.com"
             />
-            <FormField
-              control={form.control}
-              name="document"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número do Documento</FormLabel>
-                  <FormControl>
-                    <Input placeholder="BI ou NIF" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+244 999 999 999" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="document">Documento</Label>
+              <Input
+                id="document"
+                name="document"
+                value={formData.document}
+                onChange={handleChange}
+                placeholder="Documento (BI, Passaporte)"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+244 XXX XXX XXX"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="address">Endereço</Label>
+            <Input
+              id="address"
               name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Endereço</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Seu endereço completo" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Endereço completo"
+              readOnly={!!formData.address && !!formData.nif}
+              className={formData.address && formData.nif ? "bg-muted" : ""}
             />
-            <DialogFooter>
-              <Button type="submit">Salvar</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          </div>
+          
+          <DialogFooter className="pt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit">Salvar</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
