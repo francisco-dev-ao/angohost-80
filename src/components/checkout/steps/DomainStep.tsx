@@ -1,9 +1,11 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import DomainSearch from '@/components/DomainSearch';
+import { useCart } from '@/contexts/CartContext';
+import { useOwnership } from '@/contexts/OwnershipContext';
 
 interface DomainStepProps {
   prevStep: () => void;
@@ -11,6 +13,45 @@ interface DomainStepProps {
 }
 
 const DomainStep = ({ prevStep, nextStep }: DomainStepProps) => {
+  const { items } = useCart();
+  const { profiles } = useOwnership();
+  const [allDomainsHaveOwnership, setAllDomainsHaveOwnership] = useState(false);
+  
+  // Verificar se todos os domínios já têm titularidade definida
+  useEffect(() => {
+    // Filtra os itens que são domínios
+    const domainItems = items.filter(item => item.type === 'domain');
+    
+    if (domainItems.length === 0) {
+      // Se não há domínios, consideramos que não precisa de titularidade
+      setAllDomainsHaveOwnership(true);
+      return;
+    }
+    
+    // Verifica se todos os domínios têm ownership_id definido
+    const allHaveOwnership = domainItems.every(item => item.ownership_id);
+    setAllDomainsHaveOwnership(allHaveOwnership);
+  }, [items]);
+  
+  // Pular este passo automaticamente se todos os domínios já têm titularidade
+  useEffect(() => {
+    if (allDomainsHaveOwnership) {
+      // Podemos usar um pequeno delay para garantir que o usuário veja brevemente a tela
+      const timer = setTimeout(() => {
+        nextStep();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [allDomainsHaveOwnership, nextStep]);
+  
+  if (allDomainsHaveOwnership) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <p>Redirecionando para o próximo passo...</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <CardTitle className="mb-4">Domínios</CardTitle>

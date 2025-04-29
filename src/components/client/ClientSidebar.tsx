@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLocation, useNavigate } from "react-router-dom";
-// Update this import to use the correct path for useSidebar
 import { useSidebar } from "../ui/sidebar";
 import { 
   CreditCard, 
@@ -26,12 +25,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 const ClientSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isOpen, setIsOpen } = useSidebar();
   const { user, signOut } = useSupabaseAuth();
+  
+  // Verificar se o usuário é administrador
+  const isAdmin = user?.user_metadata?.role === 'admin' || user?.email?.endsWith('@admin.com');
 
   const menuItems = [
     {
@@ -91,9 +94,23 @@ const ClientSidebar = () => {
     },
   ];
 
+  // Adiciona link para área de admin se o usuário for administrador
+  if (isAdmin) {
+    menuItems.push({
+      title: "Área Administrativa",
+      href: "/admin",
+      icon: <Settings className="h-5 w-5" />,
+    });
+  }
+
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    try {
+      await signOut();
+      navigate("/");
+      toast.success("Sessão encerrada com sucesso");
+    } catch (error: any) {
+      toast.error(`Erro ao encerrar sessão: ${error.message}`);
+    }
   };
 
   return (

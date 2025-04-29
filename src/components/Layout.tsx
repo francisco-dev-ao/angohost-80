@@ -11,9 +11,21 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useSupabaseAuth();
+
+  // Função para determinar para onde o cliente deve ser direcionado
+  const getClientAreaLink = () => {
+    if (!user) return "/register";
+    
+    // Verificar se o usuário é admin (você pode ajustar a lógica conforme necessário)
+    const isAdmin = user.user_metadata?.role === 'admin' || user.email?.endsWith('@admin.com');
+    
+    return isAdmin ? '/admin' : '/client';
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,7 +64,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/products/cpanel"
+                            to="/cpanel-hosting"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#345990]/10 focus:bg-accent focus:text-accent-foreground"
                           >
                             <div className="text-sm font-medium leading-none text-[#345990]">Hospedagem cPanel</div>
@@ -65,7 +77,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/products/wordpress"
+                            to="/wordpress-hosting"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#345990]/10 focus:bg-accent focus:text-accent-foreground"
                           >
                             <div className="text-sm font-medium leading-none text-[#345990]">WordPress Hosting</div>
@@ -78,7 +90,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/products/vps"
+                            to="/vps-hosting"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#345990]/10 focus:bg-accent focus:text-accent-foreground"
                           >
                             <div className="text-sm font-medium leading-none text-[#345990]">VPS</div>
@@ -91,7 +103,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/products/dedicated"
+                            to="/dedicated-servers"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#345990]/10 focus:bg-accent focus:text-accent-foreground"
                           >
                             <div className="text-sm font-medium leading-none text-[#345990]">Servidores Dedicados</div>
@@ -146,7 +158,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/products/email"
+                            to="/professional-email"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#345990]/10 focus:bg-accent focus:text-accent-foreground"
                           >
                             <div className="text-sm font-medium leading-none text-[#345990]">Email Profissional</div>
@@ -159,7 +171,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/products/exchange"
+                            to="/exchange-online"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-[#345990]/10 focus:bg-accent focus:text-accent-foreground"
                           >
                             <div className="text-sm font-medium leading-none text-[#345990]">Microsoft 365</div>
@@ -182,12 +194,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </NavigationMenu>
 
             <div className="flex items-center space-x-4 ml-4">
-              <Link to="/cart">
+              <Link to="/enhanced-checkout">
                 <Button variant="outline" size="icon" className="text-[#345990] border-[#345990] hover:bg-[#345990]/10">
                   <ShoppingCart className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link to="/register">
+              <Link to={getClientAreaLink()}>
                 <Button variant="default" className="bg-[#345990] hover:bg-[#345990]/90">Área do Cliente</Button>
               </Link>
             </div>
@@ -201,10 +213,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <div className="py-2 border-b">
                 <div className="font-medium mb-1 text-[#345990]">Hospedagem</div>
                 <ul className="pl-3 space-y-1">
-                  <li><Link to="/products/cpanel" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Hospedagem cPanel</Link></li>
-                  <li><Link to="/products/wordpress" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>WordPress Hosting</Link></li>
-                  <li><Link to="/products/vps" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>VPS</Link></li>
-                  <li><Link to="/products/dedicated" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Servidores Dedicados</Link></li>
+                  <li><Link to="/cpanel-hosting" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Hospedagem cPanel</Link></li>
+                  <li><Link to="/wordpress-hosting" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>WordPress Hosting</Link></li>
+                  <li><Link to="/vps-hosting" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>VPS</Link></li>
+                  <li><Link to="/dedicated-servers" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Servidores Dedicados</Link></li>
                 </ul>
               </div>
               
@@ -219,8 +231,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <div className="py-2 border-b">
                 <div className="font-medium mb-1 text-[#345990]">Email</div>
                 <ul className="pl-3 space-y-1">
-                  <li><Link to="/products/email" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Email Profissional</Link></li>
-                  <li><Link to="/products/exchange" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Microsoft 365</Link></li>
+                  <li><Link to="/professional-email" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Email Profissional</Link></li>
+                  <li><Link to="/exchange-online" className="block py-1 text-sm text-gray-600" onClick={() => setMobileMenuOpen(false)}>Microsoft 365</Link></li>
                 </ul>
               </div>
               
@@ -229,10 +241,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
 
               <div className="pt-4 flex flex-col space-y-2">
-                <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                <Link to={getClientAreaLink()} onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="default" className="w-full bg-[#345990] hover:bg-[#345990]/90">Área do Cliente</Button>
                 </Link>
-                <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/enhanced-checkout" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full border-[#345990] text-[#345990]">
                     <ShoppingCart className="h-4 w-4 mr-2" /> Carrinho
                   </Button>
@@ -288,10 +300,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <div>
               <h5 className="font-medium text-lg mb-4 text-[#345990]">Hospedagem</h5>
               <ul className="space-y-2">
-                <li><Link to="/products/cpanel" className="text-sm text-gray-600 hover:text-[#345990]">Hospedagem cPanel</Link></li>
-                <li><Link to="/products/wordpress" className="text-sm text-gray-600 hover:text-[#345990]">WordPress Hosting</Link></li>
-                <li><Link to="/products/vps" className="text-sm text-gray-600 hover:text-[#345990]">Servidores VPS</Link></li>
-                <li><Link to="/products/dedicated" className="text-sm text-gray-600 hover:text-[#345990]">Servidores Dedicados</Link></li>
+                <li><Link to="/cpanel-hosting" className="text-sm text-gray-600 hover:text-[#345990]">Hospedagem cPanel</Link></li>
+                <li><Link to="/wordpress-hosting" className="text-sm text-gray-600 hover:text-[#345990]">WordPress Hosting</Link></li>
+                <li><Link to="/vps-hosting" className="text-sm text-gray-600 hover:text-[#345990]">Servidores VPS</Link></li>
+                <li><Link to="/dedicated-servers" className="text-sm text-gray-600 hover:text-[#345990]">Servidores Dedicados</Link></li>
               </ul>
             </div>
             
@@ -300,8 +312,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <ul className="space-y-2">
                 <li><Link to="/domains" className="text-sm text-gray-600 hover:text-[#345990]">Registro de Domínios</Link></li>
                 <li><Link to="/domain-transfer" className="text-sm text-gray-600 hover:text-[#345990]">Transferência de Domínios</Link></li>
-                <li><Link to="/products/email" className="text-sm text-gray-600 hover:text-[#345990]">Email Profissional</Link></li>
-                <li><Link to="/products/exchange" className="text-sm text-gray-600 hover:text-[#345990]">Microsoft 365</Link></li>
+                <li><Link to="/professional-email" className="text-sm text-gray-600 hover:text-[#345990]">Email Profissional</Link></li>
+                <li><Link to="/exchange-online" className="text-sm text-gray-600 hover:text-[#345990]">Microsoft 365</Link></li>
               </ul>
             </div>
             
@@ -310,7 +322,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <ul className="space-y-2">
                 <li><Link to="/about" className="text-sm text-gray-600 hover:text-[#345990]">Sobre nós</Link></li>
                 <li><Link to="/contact" className="text-sm text-gray-600 hover:text-[#345990]">Contacto</Link></li>
-                <li><Link to="/client" className="text-sm text-gray-600 hover:text-[#345990]">Área do Cliente</Link></li>
+                <li><Link to={getClientAreaLink()} className="text-sm text-gray-600 hover:text-[#345990]">Área do Cliente</Link></li>
                 <li><Link to="/blog" className="text-sm text-gray-600 hover:text-[#345990]">Blog</Link></li>
               </ul>
             </div>

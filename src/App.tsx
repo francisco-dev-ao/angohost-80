@@ -23,6 +23,8 @@ import { CartProvider } from './contexts/CartContext';
 import EnhancedCheckoutPage from './pages/EnhancedCheckout';
 import ClientArea from './pages/ClientArea';
 import { SidebarProvider } from './components/ui/sidebar';
+import AdminIndex from './pages/AdminIndex';
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 
 function App() {
   return (
@@ -55,6 +57,13 @@ function App() {
             <SidebarProvider>
               <ClientArea />
             </SidebarProvider>
+          } />
+
+          {/* Admin area routes with protected routes */}
+          <Route path="/admin/*" element={
+            <AdminProtectedRoute>
+              <AdminIndex />
+            </AdminProtectedRoute>
           } />
         </Routes>
         <Toaster position="top-center" />
