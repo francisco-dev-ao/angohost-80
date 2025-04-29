@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { InvoicesPage } from '@/components/client/InvoicesPage';
+import InvoicesPage from '@/components/client/InvoicesPage';
 import { motion } from 'framer-motion';
 
 const ClientInvoices = () => {
