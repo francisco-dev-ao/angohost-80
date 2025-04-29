@@ -26,6 +26,7 @@ import AdminInvoices from './pages/admin/AdminInvoices';
 import AdminAbandonedCarts from './pages/admin/AdminAbandonedCarts';
 import AdminEmailTemplates from './pages/admin/AdminEmailTemplates';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminPaymentMethods from './pages/admin/AdminPaymentMethods';
 
 // Import client pages
 import ClientLayout from './pages/client/ClientLayout';
@@ -81,6 +82,7 @@ function App() {
             <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
             <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
             <Route path="/admin/invoices" element={<AdminProtectedRoute><AdminInvoices /></AdminProtectedRoute>} />
+            <Route path="/admin/payment-methods" element={<AdminProtectedRoute><AdminPaymentMethods /></AdminProtectedRoute>} />
             <Route path="/admin/abandoned-carts" element={<AdminProtectedRoute><AdminAbandonedCarts /></AdminProtectedRoute>} />
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
