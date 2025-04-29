@@ -16,7 +16,7 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useSupabaseAuth();
-
+  
   // Função para determinar para onde o cliente deve ser direcionado
   const getClientAreaLink = () => {
     if (!user) return "/register";
@@ -194,7 +194,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </NavigationMenu>
 
             <div className="flex items-center space-x-4 ml-4">
-              <Link to="/enhanced-checkout">
+              <Link to="/cart">
                 <Button variant="outline" size="icon" className="text-[#345990] border-[#345990] hover:bg-[#345990]/10">
                   <ShoppingCart className="h-4 w-4" />
                 </Button>
@@ -244,7 +244,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <Link to={getClientAreaLink()} onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="default" className="w-full bg-[#345990] hover:bg-[#345990]/90">Área do Cliente</Button>
                 </Link>
-                <Link to="/enhanced-checkout" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full border-[#345990] text-[#345990]">
                     <ShoppingCart className="h-4 w-4 mr-2" /> Carrinho
                   </Button>

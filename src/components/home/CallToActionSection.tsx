@@ -11,7 +11,7 @@ const CallToActionSection = () => {
           title="Pronto para iniciar seu projeto online?"
           description="Escolha um dos nossos planos de hospedagem ou registre seu domínio com preços imbatíveis. Nossa equipe está pronta para ajudar você a construir sua presença digital em Angola."
           primaryActionText="Ver planos de hospedagem"
-          primaryActionHref="/products/cpanel"
+          primaryActionHref="/cpanel-hosting"
           primaryActionIcon={<ArrowRight className="ml-1 h-4 w-4" />}
           secondaryActionText="Registrar domínio"
           secondaryActionHref="/domains"

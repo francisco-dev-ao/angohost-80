@@ -22,11 +22,18 @@ import AdminServicePlans from './pages/admin/AdminServicePlans';
 import AdminPageContents from './pages/admin/AdminPageContents';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 
-// Import or create client pages
+// Import client pages
 import ClientLayout from './pages/client/ClientLayout';
 import ClientDomains from './pages/client/ClientDomains';
 import ClientProfile from './pages/client/ClientProfile';
 import ClientServices from './pages/client/ClientServices';
+import CpanelHosting from './pages/CpanelHosting';
+import ProfessionalEmail from './pages/ProfessionalEmail';
+import ExchangeOnline from './pages/ExchangeOnline';
+import VpsHosting from './pages/VpsHosting';
+import WordPressHosting from './pages/WordPressHosting';
+import DedicatedServers from './pages/DedicatedServers';
+import DomainTransfer from './pages/DomainTransfer';
 
 function App() {
   return (
@@ -35,10 +42,17 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/domains" element={<Domains />} />
-          <Route path="/hosting" element={<About />} /> {/* Placeholder until we create HostingPlans */}
-          <Route path="/email" element={<About />} /> {/* Placeholder until we create EmailPlans */}
-          <Route path="/vps" element={<About />} /> {/* Placeholder until we create VpsPlans */}
-          <Route path="/cart" element={<Contact />} /> {/* Placeholder until we create Cart */}
+          <Route path="/domain-transfer" element={<DomainTransfer />} />
+          <Route path="/cpanel-hosting" element={<CpanelHosting />} />
+          <Route path="/wordpress-hosting" element={<WordPressHosting />} />
+          <Route path="/vps-hosting" element={<VpsHosting />} />
+          <Route path="/dedicated-servers" element={<DedicatedServers />} />
+          <Route path="/professional-email" element={<ProfessionalEmail />} />
+          <Route path="/exchange-online" element={<ExchangeOnline />} />
+          <Route path="/hosting" element={<CpanelHosting />} /> {/* Agora aponta para CpanelHosting */}
+          <Route path="/email" element={<ProfessionalEmail />} /> {/* Agora aponta para ProfessionalEmail */}
+          <Route path="/vps" element={<VpsHosting />} /> {/* Agora aponta para VpsHosting */}
+          <Route path="/cart" element={<EnhancedCheckout />} /> {/* Agora aponta para EnhancedCheckout */}
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Register />} /> {/* Using Register as it has login tab */}
@@ -63,7 +77,7 @@ function App() {
             <Route path="services" element={<ClientServices />} />
           </Route>
 
-          {/* Redirect da rota /services para /client/services */}
+          {/* Redirecionamento da rota /services para /client/services */}
           <Route path="/services" element={<ClientServices />} />
 
           <Route path="*" element={<NotFound />} />
