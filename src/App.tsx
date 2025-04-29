@@ -25,48 +25,51 @@ import ClientArea from './pages/ClientArea';
 import { SidebarProvider } from './components/ui/sidebar';
 import AdminIndex from './pages/AdminIndex';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import { OwnershipProvider } from './contexts/OwnershipContext';
 
 function App() {
   return (
     <Router>
       <CartProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/domains" element={<Domains />} />
-          <Route path="/domain-transfer" element={<DomainTransfer />} />
-          <Route path="/wordpress-hosting" element={<WordPressHosting />} />
-          <Route path="/vps-hosting" element={<VpsHosting />} />
-          <Route path="/cpanel-hosting" element={<CpanelHosting />} />
-          <Route path="/dedicated-servers" element={<DedicatedServers />} />
-          <Route path="/professional-email" element={<ProfessionalEmail />} />
-          <Route path="/exchange-online" element={<ExchangeOnline />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Redirect cart page to enhanced-checkout */}
-          <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
-          
-          {/* Redirect checkout page to enhanced-checkout */}
-          <Route path="/checkout" element={<Navigate to="/enhanced-checkout" replace />} />
-          
-          <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
-          
-          {/* Client area routes with sidebar provider */}
-          <Route path="/client/*" element={
-            <SidebarProvider>
-              <ClientArea />
-            </SidebarProvider>
-          } />
+        <OwnershipProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/domains" element={<Domains />} />
+            <Route path="/domain-transfer" element={<DomainTransfer />} />
+            <Route path="/wordpress-hosting" element={<WordPressHosting />} />
+            <Route path="/vps-hosting" element={<VpsHosting />} />
+            <Route path="/cpanel-hosting" element={<CpanelHosting />} />
+            <Route path="/dedicated-servers" element={<DedicatedServers />} />
+            <Route path="/professional-email" element={<ProfessionalEmail />} />
+            <Route path="/exchange-online" element={<ExchangeOnline />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Redirect cart page to enhanced-checkout */}
+            <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
+            
+            {/* Redirect checkout page to enhanced-checkout */}
+            <Route path="/checkout" element={<Navigate to="/enhanced-checkout" replace />} />
+            
+            <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
+            
+            {/* Client area routes with sidebar provider */}
+            <Route path="/client/*" element={
+              <SidebarProvider>
+                <ClientArea />
+              </SidebarProvider>
+            } />
 
-          {/* Admin area routes with protected routes */}
-          <Route path="/admin/*" element={
-            <AdminProtectedRoute>
-              <AdminIndex />
-            </AdminProtectedRoute>
-          } />
-        </Routes>
-        <Toaster position="top-center" />
+            {/* Admin area routes with protected routes */}
+            <Route path="/admin/*" element={
+              <AdminProtectedRoute>
+                <AdminIndex />
+              </AdminProtectedRoute>
+            } />
+          </Routes>
+          <Toaster position="top-center" />
+        </OwnershipProvider>
       </CartProvider>
     </Router>
   );
