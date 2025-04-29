@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Phone, Mail, MessageCircle, Clock, CheckCircle } from "lucide-react";
@@ -101,7 +100,7 @@ const SupportSection = () => {
                 variant="outline" 
                 className="border-angohost-primary text-angohost-primary hover:bg-angohost-primary/10"
               >
-                <a href="tel:+244999999999">Ligar Agora</a>
+               
               </Button>
             </div>
           </motion.div>
@@ -113,19 +112,25 @@ const SupportSection = () => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {supportFeatures.map((feature, index) => (
+            <div className="grid grid-cols-2 gap-6">
+              {[
+                "/suporte.png",
+                "/equipe.png",
+                "/atendente.png",
+                "/sup.png"
+              ].map((src, idx) => (
                 <motion.div
-                  key={index}
+                  key={idx}
                   variants={itemAnimation}
                   whileHover="hover"
-                  className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 h-full flex flex-col"
+                  className="bg-white rounded-xl p-0 shadow-lg border border-gray-100 h-full flex items-center justify-center overflow-hidden"
+                  style={{ minHeight: 180 }}
                 >
-                  <div className={`${feature.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-6`}>
-                    <feature.icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <img
+                    src={src}
+                    alt={`Foto ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </motion.div>
               ))}
             </div>

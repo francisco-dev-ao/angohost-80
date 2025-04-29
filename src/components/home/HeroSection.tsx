@@ -37,7 +37,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                Domínios e Hospedagem<br/> em Angola
+                O seu site sempre no ar, protegido.
               </motion.h1>
               <motion.p 
                 className="text-xl text-white/90 mb-8"
@@ -45,8 +45,8 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.5 }}
               >
-                Soluções completas de hospedagem web, domínios .AO e email profissional 
-                com infraestrutura de última geração para o seu negócio crescer online.
+                Hospedagem confiável, domínios .AO <br /> e soluções 
+                completas para o mercado angolano!
               </motion.p>
               <motion.div 
                 className="flex flex-wrap gap-4"
@@ -70,7 +70,7 @@ const HeroSection = () => {
                     variant="outline"
                     className="border-2 border-white text-white hover:bg-white/10"
                   >
-                    <Link to="/cpanel-hosting">Ver Planos</Link>
+         
                   </Button>
                 </motion.div>
               </motion.div>
@@ -111,7 +111,7 @@ const HeroSection = () => {
                 transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
               >
                 <img 
-                  src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png" 
+                  src="/lovable-uploads/1.png" 
                   alt="AngoHost Solutions" 
                   className="w-full h-auto"
                 />

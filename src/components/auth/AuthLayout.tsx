@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ReactNode } from 'react';
 
@@ -15,7 +14,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       <div className="hidden lg:block lg:w-1/2 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-transparent z-10" />
         <img
-          src="/lovable-uploads/f86d31c2-f867-4f8f-ad54-c5019ec784cc.png"
+          src="/login.png"
           alt="Login Background"
           className="w-full h-full object-cover"
         />
@@ -37,9 +36,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <CardHeader className="space-y-6">
             <div className="flex justify-center">
               <img
-                src="/lovable-uploads/e1925a90-87a8-4d79-be99-15c0a6db92a1.png"
+                src="/ANGOHOST-01.png"
                 alt="AngoHost Logo"
-                className="h-12"
+                className="h-16" // Alterado de h-12 para h-16
               />
             </div>
             <div className="text-center space-y-3">

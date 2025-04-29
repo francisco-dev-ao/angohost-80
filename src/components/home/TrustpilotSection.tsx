@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Star, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,29 +6,31 @@ import { motion } from "framer-motion";
 const TrustpilotSection = () => {
   // Sample client logos - you would replace these with actual client logos
   const clientLogos = [
-    { name: "Unitel", logo: "/placeholder.svg" },
-    { name: "BFA", logo: "/placeholder.svg" },
-    { name: "TAAG", logo: "/placeholder.svg" },
-    { name: "Endiama", logo: "/placeholder.svg" },
-    { name: "Sonangol", logo: "/placeholder.svg" },
+    { name: "Aldeia Nova", logo: "/aldeianova.jpg" },
+    { name: "Aeroporto Internacional Dr. António Agostinho Neto", logo: "/areportointernacional.png" },
+    { name: "Clínica Girassol", logo: "/clinicagiralsol.png" },
+    { name: "Clínica General Katondo", logo: "/clinicacatondo.png" },
+    { name: "Farmácias Coimbra", logo: "/farmaciasdecoimbra.png" },
+    { name: "ispetsoyo", logo: "/ispetsoyo.png" },
+    { name: "Grupo Zahara", logo: "/grupozahara.png" },
+    { name: "ISPTEC", logo: "/isptec.png" },
+    { name: "Kero", logo: "/kero.png" },
+    { name: "MS Telecom", logo: "/mstelecom.png" },
+    { name: "Nespecred", logo: "/nespecred.jpeg" },
+    { name: "Sona", logo: "/images.png" }, // ajuste se necessário
+    { name: "NewCare Saúde", logo: "/newcare.jpeg" }, // ajuste se necessário
+    { name: "Rede Girassol", logo: "/redegirassol.jpeg" }, // ajuste se necessário
+    { name: "Somiluana", logo: "/somil.png" }, // ajuste se necessário
+    { name: "SonAir", logo: "/sonair.png" }, // ajuste se necessário
+    { name: "Sonangol Distribuidora", logo: "/Sonangol_Distribuidora.png" }, // ajuste se necessário
+    { name: "Sonangol ", logo: "/Sonangol_Logo_Horizontal_Preto4_Footer-2.png" }, // ajuste se necessário
+    { name: "Paz Flor", logo: "/pazflor.png" },
+    { name: "Tech Look", logo: "/techkllook.png" }, // ajuste se necessário
   ];
   
   // Sample testimonials - you would replace these with actual testimonials
   const testimonials = [
-    {
-      name: "Carlos Fernandes",
-      company: "Tech Solutions Angola",
-      text: "A melhor hospedagem que já utilizei. Suporte rápido e eficiente, sempre disponíveis para ajudar.",
-      rating: 5,
-      avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg"
-    },
-    {
-      name: "Maria Santos",
-      company: "Digital Marketing Pro",
-      text: "Muito satisfeita com os serviços da AngoHost. Nunca tive problemas com o uptime do meu site.",
-      rating: 5,
-      avatarUrl: "https://randomuser.me/api/portraits/women/44.jpg"
-    }
+    
   ];
 
   return (
@@ -72,14 +73,10 @@ const TrustpilotSection = () => {
               <Star key={star} className="h-6 w-6 fill-yellow-400 text-yellow-400" />
             ))}
           </div>
-          <p className="text-xl text-gray-600 mt-4">4.8/5 em mais de 700 avaliações no Trustpilot</p>
+          <p className="text-xl text-gray-600 mt-4">4.8/5 em mais de 1000 avaliações no Trustpilot</p>
           
           <div className="flex items-center justify-center mt-4">
-            <img 
-              src="/lovable-uploads/27955777-4d6a-47cc-84eb-dd4d5c84ba54.png" 
-              alt="Trustpilot" 
-              className="h-8"
-            />
+          <Star className="h-8 w-8 text-yellow-400" aria-label="Trustpilot" />
             <Button 
               variant="link" 
               asChild

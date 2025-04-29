@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Pagamento EMIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        .button:hover {
+            background-color: #0052a3;
+        }
+        .info {
+            background-color: #e8f4ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .logo {
+            max-width: 200px;
+            margin: 0 auto 15px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Multicaixa Express</h2>
+            <p>Simulador de Pagamento</p>
+        </div>
+        
+        <div class="info">
+            Este é um simulador para testes de integração com Multicaixa Express. Não é um gateway de pagamento real.
+        </div>
+        
+        <div class="form-group">
+            <label for="phoneNumber">Número de Telefone</label>
+            <input type="tel" id="phoneNumber" placeholder="9xx xxx xxx" pattern="[0-9]{9}">
+        </div>
+        
+        <div class="form-group">
+            <label for="amount">Valor a Pagar</label>
+            <input type="text" id="amount" value="10,000.00 Kz" readonly>
+        </div>
+        
+        <div class="form-group">
+            <label for="reference">Referência</label>
+            <input type="text" id="reference" value="SIMULAÇÃO" readonly>
+        </div>
+        
+        <button class="button" id="confirmPayment">Confirmar Pagamento</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obter o token da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token') || 'sim-token';
+            
+            // Atualizar a referência
+            document.getElementById('reference').value = token;
+            
+            // Manipulador de evento do botão de confirmação
+            document.getElementById('confirmPayment').addEventListener('click', function() {
+                const phone = document.getElementById('phoneNumber').value;
+                
+                if (phone.length < 9) {
+                    alert('Por favor, insira um número de telefone válido.');
+                    return;
+                }
+                
+                // Enviar mensagem de confirmação para o pai
+                window.parent.postMessage({
+                    status: 'SUCCESS',
+                    transactionId: token,
+                    message: 'Pagamento simulado com sucesso!'
+                }, '*');
+                
+                // Feedback visual
+                alert('Pagamento simulado com sucesso!');
+                
+                // Redirecionar para a URL de callback (exemplos comuns)
+                const originUrl = new URL(document.referrer).origin;
+                setTimeout(() => {
+                    window.parent.location.href = `${originUrl}/payment/callback?status=SUCCESS&transactionId=${token}`;
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

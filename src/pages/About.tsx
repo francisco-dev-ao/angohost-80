@@ -11,7 +11,7 @@ const About = () => {
       <div className="bg-muted/50 py-12">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-4">Sobre a Hostify</h1>
+            <h1 className="text-4xl font-bold mb-4">Sobre a Angohost</h1>
             <p className="text-lg text-muted-foreground">
               Conheça nossa história e a equipe por trás da nossa empresa.
             </p>

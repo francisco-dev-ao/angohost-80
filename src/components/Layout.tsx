@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -34,9 +33,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div className="flex items-center">
             <Link to="/" className="font-bold text-2xl text-[#345990]">
               <img 
-                src="/lovable-uploads/e1925a90-87a8-4d79-be99-15c0a6db92a1.png" 
+                src="/ANGOHOST-01.png" 
                 alt="AngoHost Logo" 
-                className="h-10"
+                className="h-16" // Alterado de h-10 para h-16
               />
             </Link>
           </div>
@@ -260,87 +259,88 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </main>
       
       <footer className="bg-gray-100 border-t">
-        <div className="container py-12">
-          {/* Cliente logos */}
-          <div className="mb-12">
-            <h4 className="text-xl font-semibold text-center mb-8 text-[#345990]">Clientes que confiam em nós</h4>
-            <div className="flex flex-wrap justify-center items-center gap-8">
-              {/* Logos dos clientes (placeholders) */}
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div key={item} className="h-12 w-28 bg-white rounded-md shadow-sm flex items-center justify-center">
-                  <div className="text-gray-400 text-xs">Logo Cliente {item}</div>
-                </div>
-              ))}
-            </div>
+  <div className="container py-12">
+    {/* Cliente logos */}
+    {/* REMOVIDO: Bloco de clientes que confiam em nós */}
+    {/* 
+    <div className="mb-12">
+      <h4 className="text-xl font-semibold text-center mb-8 text-[#345990]">Clientes que confiam em nós</h4>
+      <div className="flex flex-wrap justify-center items-center gap-8">
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <div key={item} className="h-12 w-28 bg-white rounded-md shadow-sm flex items-center justify-center">
+            <div className="text-gray-400 text-xs">Logo Cliente {item}</div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <img 
-                src="/lovable-uploads/e1925a90-87a8-4d79-be99-15c0a6db92a1.png" 
-                alt="AngoHost Logo" 
-                className="h-10 mb-4"
-              />
-              <p className="text-sm text-gray-600 mb-4">
-                Soluções em hospedagem web confiáveis e de alta performance para o seu negócio online.
-              </p>
-              <div className="flex space-x-4">
-                <a href="#" className="text-[#345990]" aria-label="Facebook">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                </a>
-                <a href="#" className="text-[#345990]" aria-label="Instagram">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-                </a>
-                <a href="#" className="text-[#345990]" aria-label="LinkedIn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
-                </a>
-              </div>
-            </div>
-            
-            <div>
-              <h5 className="font-medium text-lg mb-4 text-[#345990]">Hospedagem</h5>
-              <ul className="space-y-2">
-                <li><Link to="/cpanel-hosting" className="text-sm text-gray-600 hover:text-[#345990]">Hospedagem cPanel</Link></li>
-                <li><Link to="/wordpress-hosting" className="text-sm text-gray-600 hover:text-[#345990]">WordPress Hosting</Link></li>
-                <li><Link to="/vps-hosting" className="text-sm text-gray-600 hover:text-[#345990]">Servidores VPS</Link></li>
-                <li><Link to="/dedicated-servers" className="text-sm text-gray-600 hover:text-[#345990]">Servidores Dedicados</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h5 className="font-medium text-lg mb-4 text-[#345990]">Domínios e Email</h5>
-              <ul className="space-y-2">
-                <li><Link to="/domains" className="text-sm text-gray-600 hover:text-[#345990]">Registro de Domínios</Link></li>
-                <li><Link to="/domain-transfer" className="text-sm text-gray-600 hover:text-[#345990]">Transferência de Domínios</Link></li>
-                <li><Link to="/professional-email" className="text-sm text-gray-600 hover:text-[#345990]">Email Profissional</Link></li>
-                <li><Link to="/exchange-online" className="text-sm text-gray-600 hover:text-[#345990]">Microsoft 365</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h5 className="font-medium text-lg mb-4 text-[#345990]">Empresa</h5>
-              <ul className="space-y-2">
-                <li><Link to="/about" className="text-sm text-gray-600 hover:text-[#345990]">Sobre nós</Link></li>
-                <li><Link to="/contact" className="text-sm text-gray-600 hover:text-[#345990]">Contacto</Link></li>
-                <li><Link to={getClientAreaLink()} className="text-sm text-gray-600 hover:text-[#345990]">Área do Cliente</Link></li>
-                <li><Link to="/blog" className="text-sm text-gray-600 hover:text-[#345990]">Blog</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-sm text-gray-500">
-                © {new Date().getFullYear()} AngoHost. Todos os direitos reservados.
-              </p>
-              <div className="flex space-x-4 mt-4 md:mt-0">
-                <Link to="/terms" className="text-sm text-gray-500 hover:text-[#345990]">Termos e Condições</Link>
-                <Link to="/privacy" className="text-sm text-gray-500 hover:text-[#345990]">Política de Privacidade</Link>
-              </div>
-            </div>
-          </div>
+        ))}
+      </div>
+    </div>
+    */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <img 
+          src="/ANGOHOST-01.png" 
+          alt="AngoHost Logo" 
+          className="h-10 mb-4"
+        />
+        <p className="text-sm text-gray-600 mb-4">
+          Soluções em hospedagem web confiáveis e de alta performance para o seu negócio online.
+        </p>
+        <div className="flex space-x-4">
+          <a href="#" className="text-[#345990]" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" className="text-[#345990]" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </a>
+          <a href="#" className="text-[#345990]" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
         </div>
-      </footer>
+      </div>
+      
+      <div>
+        <h5 className="font-medium text-lg mb-4 text-[#345990]">Hospedagem</h5>
+        <ul className="space-y-2">
+          <li><Link to="/cpanel-hosting" className="text-sm text-gray-600 hover:text-[#345990]">Hospedagem cPanel</Link></li>
+          <li><Link to="/wordpress-hosting" className="text-sm text-gray-600 hover:text-[#345990]">WordPress Hosting</Link></li>
+          <li><Link to="/vps-hosting" className="text-sm text-gray-600 hover:text-[#345990]">Servidores VPS</Link></li>
+          <li><Link to="/dedicated-servers" className="text-sm text-gray-600 hover:text-[#345990]">Servidores Dedicados</Link></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 className="font-medium text-lg mb-4 text-[#345990]">Domínios e Email</h5>
+        <ul className="space-y-2">
+          <li><Link to="/domains" className="text-sm text-gray-600 hover:text-[#345990]">Registro de Domínios</Link></li>
+          <li><Link to="/domain-transfer" className="text-sm text-gray-600 hover:text-[#345990]">Transferência de Domínios</Link></li>
+          <li><Link to="/professional-email" className="text-sm text-gray-600 hover:text-[#345990]">Email Profissional</Link></li>
+          <li><Link to="/exchange-online" className="text-sm text-gray-600 hover:text-[#345990]">Microsoft 365</Link></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 className="font-medium text-lg mb-4 text-[#345990]">Empresa</h5>
+        <ul className="space-y-2">
+          <li><Link to="/about" className="text-sm text-gray-600 hover:text-[#345990]">Sobre nós</Link></li>
+          <li><Link to="/contact" className="text-sm text-gray-600 hover:text-[#345990]">Contacto</Link></li>
+          <li><Link to={getClientAreaLink()} className="text-sm text-gray-600 hover:text-[#345990]">Área do Cliente</Link></li>
+          <li><Link to="/blog" className="text-sm text-gray-600 hover:text-[#345990]">Blog</Link></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div className="border-t pt-8">
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <p className="text-sm text-gray-500">
+          © {new Date().getFullYear()} AngoHost. Todos os direitos reservados.
+        </p>
+        <div className="flex space-x-4 mt-4 md:mt-0">
+          <Link to="/terms" className="text-sm text-gray-500 hover:text-[#345990]">Termos e Condições</Link>
+          <Link to="/privacy" className="text-sm text-gray-500 hover:text-[#345990]">Política de Privacidade</Link>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
     </div>
   );
 };
