@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"; 
 import { ShieldCheck } from "lucide-react";
@@ -218,9 +219,9 @@ const Dashboard = () => {
                       {stats.recentInvoices.map((invoice) => (
                         <div key={invoice.id} className="flex items-center justify-between border-b pb-2">
                           <div>
-                            <p className="font-medium">{invoice.invoiceNumber}</p>
+                            <p className="font-medium">{invoice.invoice_number}</p>
                             <p className="text-sm text-muted-foreground">
-                              {format(new Date(invoice.dueDate), "dd/MM/yyyy", { locale: ptBR })}
+                              {format(new Date(invoice.due_date), "dd/MM/yyyy", { locale: ptBR })}
                             </p>
                           </div>
                           <div className="text-right">

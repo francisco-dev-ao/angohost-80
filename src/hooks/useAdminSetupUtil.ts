@@ -6,78 +6,99 @@ import { toast } from 'sonner';
 export const useAdminSetupUtil = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const ensureAdminExists = async (email: string, defaultPassword: string) => {
+  const ensureAdminExists = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Check if user already exists
-      const { data: existingUser } = await supabase
+      // Primeiro verificamos se o super admin já existe
+      const { data: existingUser, error: checkError } = await supabase
         .from('profiles')
-        .select('id, email, role')
+        .select('id, email')
         .eq('email', email)
-        .single();
-        
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
       if (existingUser) {
-        // If user exists but is not admin, update role
-        if (existingUser.role !== 'admin') {
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ 
-              role: 'admin'
-            })
-            .eq('id', existingUser.id);
-            
-          if (updateError) throw updateError;
-          
-          if (email === 'support@angohost.ao') {
-            toast.success(`Usuário ${email} configurado como super administrador com permissões totais`);
-          } else {
-            toast.success(`Usuário ${email} atualizado para administrador`);
-          }
-        } else if (email === 'support@angohost.ao') {
-          toast.info(`Usuário ${email} já é super administrador com permissões totais`);
-        } else {
-          toast.info(`Usuário ${email} já é administrador`);
-        }
+        // Se o usuário já existe, apenas atualizamos as permissões
+        await updateAdminPermissions(existingUser.id);
+        toast.success('Usuário já existe. Permissões de super administrador atualizadas.');
+        setIsLoading(false);
         return;
       }
-      
-      // If user doesn't exist, create new admin user
-      const { data, error } = await supabase.auth.signUp({
+
+      // Caso o usuário não exista, criamos um novo
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
-        password: defaultPassword,
+        password,
         options: {
           data: {
-            full_name: email === 'support@angohost.ao' ? 'Suporte AngoHost' : 'Administrador',
-            role: 'admin'
-          },
-        },
+            full_name: 'Suporte AngoHost',
+            role: 'admin',
+          }
+        }
       });
 
-      if (error) throw error;
+      if (signUpError) throw signUpError;
       
-      // If user was created, update the profile
-      if (data.user) {
-        const { error: profileError } = await supabase
+      if (authData.user) {
+        // Criar o perfil do usuário
+        await supabase
           .from('profiles')
-          .update({ 
+          .upsert({
+            id: authData.user.id,
+            email: email,
+            full_name: 'Suporte AngoHost',
             role: 'admin',
-            full_name: email === 'support@angohost.ao' ? 'Suporte AngoHost' : 'Administrador'
-          })
-          .eq('id', data.user.id);
+            is_active: true
+          });
 
-        if (profileError) throw profileError;
+        // Configurar permissões de admin
+        await updateAdminPermissions(authData.user.id);
         
-        if (email === 'support@angohost.ao') {
-          toast.success(`Super administrador ${email} criado com sucesso e permissões totais concedidas`);
-        } else {
-          toast.success(`Administrador ${email} criado com sucesso`);
-        }
+        toast.success('Super administrador criado com sucesso! Email: support@angohost.ao');
       }
     } catch (error: any) {
-      toast.error('Erro ao configurar administrador: ' + error.message);
-      console.error('Admin setup error:', error);
+      console.error('Erro ao criar super admin:', error);
+      toast.error(`Erro ao criar super admin: ${error.message}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateAdminPermissions = async (userId: string) => {
+    try {
+      // Atualizar permissões de administrador
+      await supabase
+        .from('admin_permissions')
+        .upsert({
+          user_id: userId,
+          full_access: true,
+          permissions: {
+            manage_users: true,
+            manage_domains: true,
+            manage_services: true,
+            manage_billing: true,
+            manage_content: true,
+            manage_settings: true,
+            view_statistics: true,
+            manage_orders: true,
+            manage_tickets: true
+          },
+          last_updated: new Date().toISOString()
+        });
+
+      // Também atualizamos o perfil para garantir que tenha role admin
+      await supabase
+        .from('profiles')
+        .update({ 
+          role: 'admin',
+          is_active: true
+        })
+        .eq('id', userId);
+        
+    } catch (error) {
+      console.error('Erro ao atualizar permissões:', error);
+      throw error;
     }
   };
 

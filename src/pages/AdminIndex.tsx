@@ -13,6 +13,7 @@ const AdminIndex = () => {
   
   // Verificar se o usuário atual tem permissão para criar o super admin
   // Apenas administradores podem ver este botão
+  // O support@angohost.ao NÃO deve ver este botão, pois ele já é o super admin
   const canSetupSuperAdmin = user?.email !== 'support@angohost.ao';
 
   return (
