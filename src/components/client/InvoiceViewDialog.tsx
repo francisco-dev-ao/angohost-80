@@ -4,164 +4,96 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Download, Printer } from "lucide-react";
-import { Invoice } from '@/hooks/useInvoices';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
+import { Button } from '../ui/button';
+import { Download, Printer } from 'lucide-react';
 import { useInvoices } from '@/hooks/useInvoices';
-import { Dispatch, SetStateAction } from 'react';
 
 interface InvoiceViewDialogProps {
-  invoice: Invoice;
+  invoice: any;
   isOpen: boolean;
-  onOpenChange: Dispatch<SetStateAction<boolean>>;
+  onOpenChange: (open: boolean) => void;
 }
 
 const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogProps) => {
   const { downloadInvoice } = useInvoices();
-  const companyDetails = {
-    name: "AngoHost",
-    address: "Rua Principal, Luanda, Angola",
-    phone: "+244 923 456 789",
-    email: "support@angohost.ao",
-    vat: "123456789"
+
+  if (!invoice) return null;
+
+  const handleDownload = () => {
+    downloadInvoice(invoice.id);
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleDownload = () => {
-    downloadInvoice(invoice.id);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Fatura #{invoice.invoice_number}</DialogTitle>
           <DialogDescription>
-            Emitida em {format(new Date(invoice.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+            Detalhes da fatura emitida em {format(new Date(invoice.created_at), 'dd/MM/yyyy', { locale: ptBR })}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="invoice-container p-4 border rounded-md">
-          {/* Company and Client Information */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="space-y-6">
+          <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-bold mb-2">De:</h3>
-              <p>{companyDetails.name}</p>
-              <p>{companyDetails.address}</p>
-              <p>{companyDetails.phone}</p>
-              <p>{companyDetails.email}</p>
-              <p>VAT: {companyDetails.vat}</p>
+              <p className="font-medium">Detalhes da Fatura</p>
+              <p className="text-sm text-muted-foreground">Número: {invoice.invoice_number}</p>
+              <p className="text-sm text-muted-foreground">Emitida em: {format(new Date(invoice.created_at), 'dd/MM/yyyy', { locale: ptBR })}</p>
+              <p className="text-sm text-muted-foreground">Vencimento: {format(new Date(invoice.due_date), 'dd/MM/yyyy', { locale: ptBR })}</p>
             </div>
-            <div>
-              <h3 className="font-bold mb-2">Para:</h3>
-              <p>{invoice.client_details?.name || "Cliente"}</p>
-              <p>{invoice.client_details?.address || ""}</p>
-              <p>{invoice.client_details?.phone || ""}</p>
-              <p>{invoice.client_details?.email || ""}</p>
-              <p>{invoice.client_details?.document ? `Doc: ${invoice.client_details.document}` : ""}</p>
-            </div>
-          </div>
-
-          {/* Invoice Details */}
-          <div className="mb-8">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p><span className="font-semibold">Fatura Nº:</span> {invoice.invoice_number}</p>
-                <p>
-                  <span className="font-semibold">Data de Emissão:</span> {" "}
-                  {format(new Date(invoice.created_at), 'dd/MM/yyyy', { locale: ptBR })}
-                </p>
-              </div>
-              <div>
-                <p>
-                  <span className="font-semibold">Vencimento:</span> {" "}
-                  {format(new Date(invoice.due_date), 'dd/MM/yyyy', { locale: ptBR })}
-                </p>
-                <p>
-                  <span className="font-semibold">Status:</span> {" "}
-                  <span className={`
-                    ${invoice.status === 'paid' ? 'text-green-600' : 
-                      invoice.status === 'pending' ? 'text-yellow-600' : 
-                      invoice.status === 'cancelled' ? 'text-red-600' : 'text-gray-600'}
-                    font-medium
-                  `}>
-                    {invoice.status === 'paid' ? 'Pago' : 
-                     invoice.status === 'pending' ? 'Pendente' : 
-                     invoice.status === 'cancelled' ? 'Cancelado' : 
-                     invoice.status === 'refunded' ? 'Reembolsado' : invoice.status}
-                  </span>
-                </p>
-              </div>
+            <div className="text-right">
+              <p className="text-xl font-bold">{formatPrice(invoice.amount)}</p>
+              <span className={`inline-flex items-center rounded-full px-2 py-1 mt-1 text-xs font-medium
+                ${invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                  invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                  invoice.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}
+              `}>
+                {invoice.status === 'paid' ? 'Pago' :
+                 invoice.status === 'pending' ? 'Pendente' :
+                 invoice.status === 'overdue' ? 'Vencido' : 
+                 invoice.status === 'cancelled' || invoice.status === 'canceled' ? 'Cancelado' : 
+                 invoice.status}
+              </span>
             </div>
           </div>
 
-          {/* Invoice Items */}
-          <div className="mb-8">
-            <h3 className="font-bold mb-4">Itens</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="border p-2 text-left">Descrição</th>
-                    <th className="border p-2 text-right">Quantidade</th>
-                    <th className="border p-2 text-right">Preço</th>
-                    <th className="border p-2 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoice.items && Array.isArray(invoice.items) ? (
-                    invoice.items.map((item: any, index: number) => (
-                      <tr key={index}>
-                        <td className="border p-2">{item.name}</td>
-                        <td className="border p-2 text-right">{item.quantity}</td>
-                        <td className="border p-2 text-right">{formatPrice(item.price)}</td>
-                        <td className="border p-2 text-right">{formatPrice(item.price * item.quantity)}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="border p-2 text-center">Nenhum item disponível</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="border rounded-md p-4 space-y-3">
+            <p className="font-medium">Itens</p>
+            {invoice.items && Array.isArray(invoice.items) ? (
+              <div className="space-y-2">
+                {invoice.items.map((item: any, index: number) => (
+                  <div key={index} className="flex justify-between">
+                    <span>{item.name || 'Item'}</span>
+                    <span>{formatPrice(item.price || 0)}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhum item detalhado disponível</p>
+            )}
           </div>
 
-          {/* Invoice Summary */}
-          <div className="flex justify-end mb-8">
-            <div className="w-64">
-              <div className="flex justify-between py-2">
-                <span className="font-semibold">Total:</span>
-                <span>{formatPrice(invoice.amount)}</span>
-              </div>
-            </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir
+            </Button>
+            <Button onClick={handleDownload}>
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
+            </Button>
           </div>
         </div>
-
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
-          </Button>
-          <Button variant="outline" onClick={handlePrint}>
-            <Printer className="mr-2 h-4 w-4" />
-            Imprimir
-          </Button>
-          <Button onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

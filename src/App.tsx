@@ -23,6 +23,7 @@ import AdminPageContents from './pages/admin/AdminPageContents';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminInvoices from './pages/admin/AdminInvoices';
+import AdminAbandonedCarts from './pages/admin/AdminAbandonedCarts';
 import AdminEmailTemplates from './pages/admin/AdminEmailTemplates';
 import AdminSettings from './pages/admin/AdminSettings';
 
@@ -79,6 +80,7 @@ function App() {
           <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
           <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
           <Route path="/admin/invoices" element={<AdminProtectedRoute><AdminInvoices /></AdminProtectedRoute>} />
+          <Route path="/admin/abandoned-carts" element={<AdminProtectedRoute><AdminAbandonedCarts /></AdminProtectedRoute>} />
           <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
           <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
 
@@ -97,6 +99,7 @@ function App() {
           <Route path="/client-area/*" element={<ClientArea />} />
           <Route path="/services" element={<Navigate to="/client/services" replace />} />
           <Route path="/orders" element={<Navigate to="/client/orders" replace />} />
+          <Route path="/invoices" element={<Navigate to="/client/invoices" replace />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
