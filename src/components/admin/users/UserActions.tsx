@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   DropdownMenu,
@@ -21,9 +20,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Ban, Check, Edit, Lock, MoreHorizontal, Shield, Trash, Unlock, UserCog } from 'lucide-react';
+import { Ban, Check, Edit, Lock, MoreHorizontal, Shield, Trash, Unlock, UserCog, Eye } from 'lucide-react';
 import UserForm from './UserForm';
 import { AdminUser } from '@/types/admin';
+import UserSessions from './UserSessions';
 
 interface UserActionsProps {
   user: AdminUser;
@@ -35,11 +35,38 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
   const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [sessionsDialogOpen, setSessionsDialogOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const isActive = user.isActive !== false; // Default to true if undefined
 
   const handleDeleteUser = async () => {
     try {
+      setIsProcessing(true);
+      // Primeiro remover dados do usuário nas tabelas relacionadas
+      const tables = [
+        'user_sessions',
+        'wallet_transactions',
+        'wallets',
+        'client_tickets',
+        'client_domains',
+        'client_services',
+        'profiles'
+      ];
+      
+      // Deletar os registros em cada tabela que tenha user_id igual ao id do usuário
+      for (const table of tables) {
+        const { error } = await supabase
+          .from(table)
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (error && error.code !== '42P01') { // Ignorar erro de tabela não existente
+          console.warn(`Erro ao limpar dados em ${table}:`, error);
+        }
+      }
+      
+      // Finalmente deletar o usuário na autenticação
       const { error } = await supabase.auth.admin.deleteUser(user.id);
 
       if (error) throw error;
@@ -49,12 +76,14 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
     } catch (error: any) {
       toast.error(`Erro ao excluir usuário: ${error.message}`);
     } finally {
+      setIsProcessing(false);
       setDeleteDialogOpen(false);
     }
   };
 
   const handleToggleUserStatus = async () => {
     try {
+      setIsProcessing(true);
       const { error } = await supabase
         .from('profiles')
         .update({ is_active: !isActive })
@@ -67,12 +96,14 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
     } catch (error: any) {
       toast.error(`Erro ao ${isActive ? 'bloquear' : 'desbloquear'} usuário: ${error.message}`);
     } finally {
+      setIsProcessing(false);
       setBanDialogOpen(false);
     }
   };
   
   const handleChangeRole = async (newRole: 'admin' | 'customer') => {
     try {
+      setIsProcessing(true);
       const { error } = await supabase
         .from('profiles')
         .update({ role: newRole })
@@ -84,11 +115,14 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
       onActionComplete?.();
     } catch (error: any) {
       toast.error(`Erro ao alterar função do usuário: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
   
   const handleResetPassword = async () => {
     try {
+      setIsProcessing(true);
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -99,6 +133,7 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
     } catch (error: any) {
       toast.error(`Erro ao enviar email de redefinição de senha: ${error.message}`);
     } finally {
+      setIsProcessing(false);
       setResetPasswordDialogOpen(false);
     }
   };
@@ -119,6 +154,11 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
           <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
             <span>Editar usuário</span>
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem onClick={() => setSessionsDialogOpen(true)}>
+            <Eye className="mr-2 h-4 w-4" />
+            <span>Ver sessões</span>
           </DropdownMenuItem>
           
           <DropdownMenuItem onClick={() => setResetPasswordDialogOpen(true)}>
@@ -165,17 +205,41 @@ const UserActions = ({ user, onActionComplete }: UserActionsProps) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O usuário {user.email} será excluído permanentemente.
+              Esta ação não pode ser desfeita. O usuário {user.email} e todos os seus dados serão excluídos permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isProcessing}>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteUser}
               className="bg-red-600 hover:bg-red-700"
+              disabled={isProcessing}
             >
-              Excluir
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Diálogo de visualização de sessões */}
+      <AlertDialog open={sessionsDialogOpen} onOpenChange={setSessionsDialogOpen}>
+        <AlertDialogContent className="max-w-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sessões de {user.email}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Histórico de login e sessões ativas do usuário
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <UserSessions userId={user.id} />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Fechar</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
