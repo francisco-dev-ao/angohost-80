@@ -32,16 +32,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+import { formatPrice } from "@/utils/formatters";
 
 const AdminProducts = () => {
   const { products, isLoading, updateProductStatus } = useAdminProducts();
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleAddProduct = () => {
+    navigate("/admin/products/add");
+  };
 
   return (
     <AdminLayout>
@@ -53,7 +60,7 @@ const AdminProducts = () => {
               Gerenciar produtos e serviços
             </p>
           </div>
-          <Button>
+          <Button onClick={handleAddProduct}>
             <Plus className="mr-2 h-4 w-4" /> Adicionar Produto
           </Button>
         </div>
@@ -120,16 +127,10 @@ const AdminProducts = () => {
                           </TableCell>
                           <TableCell>{product.category}</TableCell>
                           <TableCell>
-                            {product.priceMonthly.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "AOA",
-                            })}
+                            {formatPrice(product.priceMonthly)}
                           </TableCell>
                           <TableCell>
-                            {product.priceYearly.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "AOA",
-                            })}
+                            {formatPrice(product.priceYearly)}
                           </TableCell>
                           <TableCell>
                             {product.isActive ? (
@@ -161,7 +162,7 @@ const AdminProducts = () => {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Ações</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {}}>
+                                <DropdownMenuItem onClick={() => navigate(`/admin/products/edit/${product.id}`)}>
                                   Editar
                                 </DropdownMenuItem>
                                 <DropdownMenuItem

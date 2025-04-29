@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { useInvoices } from '@/hooks/useInvoices';
 import {
   Card,
   CardContent,
@@ -15,155 +14,154 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { useInvoices } from '@/hooks/useInvoices';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { formatPrice } from '@/utils/formatters';
-import { FileText, Download, Eye } from 'lucide-react';
-import InvoiceViewDialog from './InvoiceViewDialog';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { FileText, RefreshCcw, Filter, Download, Eye, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { formatPrice } from '@/utils/formatters';
 
 const InvoicesPage = () => {
-  const { invoices, isLoading, downloadInvoice } = useInvoices();
-  const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { invoices, loading } = useInvoices();
 
-  const openInvoiceDialog = (invoice: any) => {
-    setSelectedInvoice(invoice);
-    setIsDialogOpen(true);
-  };
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-10 w-40" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-40" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-64 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'paid':
-        return (
-          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-            Pago
-          </span>
-        );
-      case 'pending':
-        return (
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-            Pendente
-          </span>
-        );
-      case 'overdue':
-        return (
-          <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-            Vencida
-          </span>
-        );
-      case 'cancelled':
-        return (
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-            Cancelada
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-            {status || 'Desconhecido'}
-          </span>
-        );
+    switch (status) {
+      case 'paid': return 'bg-green-100 text-green-700';
+      case 'pending': return 'bg-yellow-100 text-yellow-700';
+      case 'overdue': return 'bg-red-100 text-red-700';
+      case 'cancelled': 
+      case 'canceled': return 'bg-gray-100 text-gray-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
-
-  if (isLoading) {
-    return <div className="py-8 text-center">Carregando faturas...</div>;
-  }
+  
+  const handleRefresh = () => {
+    window.location.reload();
+  };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Minhas Faturas</h1>
+      <motion.div 
+        className="flex justify-between items-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <FileText className="h-7 w-7" />
+          Minhas Faturas
+        </h1>
+        <Button size="sm" variant="outline" className="flex items-center gap-1" onClick={handleRefresh}>
+          <RefreshCcw className="h-4 w-4" />
+          Atualizar
+        </Button>
+      </motion.div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Faturas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {invoices.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Número da Fatura</TableHead>
-                  <TableHead>Data de Emissão</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((invoice) => (
-                  <motion.tr
-                    key={invoice.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="border-b"
-                  >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center space-x-2" onClick={() => openInvoiceDialog(invoice)} style={{ cursor: 'pointer' }}>
-                        <FileText className="h-4 w-4 text-primary" />
-                        <span>{invoice.invoice_number}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(invoice.created_at), 'dd/MM/yyyy', { locale: ptBR })}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(invoice.due_date), 'dd/MM/yyyy', { locale: ptBR })}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(invoice.status)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatPrice(invoice.amount)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => openInvoiceDialog(invoice)}
-                          className="flex items-center"
-                          title="Visualizar online"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          <span>Ver</span>
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => downloadInvoice(invoice.id)}
-                          className="flex items-center"
-                          title="Baixar PDF"
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          <span>PDF</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </motion.tr>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Você não possui faturas.
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {selectedInvoice && (
-        <InvoiceViewDialog
-          invoice={selectedInvoice}
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-        />
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xl">Histórico de Faturas</CardTitle>
+            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs">
+              <Filter className="h-3 w-3" /> Filtrar
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {invoices.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Número da Fatura</TableHead>
+                      <TableHead>Data de Emissão</TableHead>
+                      <TableHead>Data de Vencimento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                      <TableHead className="w-[100px]">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {invoices.map((invoice) => (
+                      <motion.tr 
+                        key={invoice.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="group"
+                      >
+                        <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            {format(new Date(invoice.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                          </div>
+                        </TableCell>
+                        <TableCell>{format(new Date(invoice.due_date), 'dd/MM/yyyy', { locale: ptBR })}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(invoice.status)}`}>
+                            {invoice.status === 'paid' ? 'Pago' :
+                             invoice.status === 'pending' ? 'Pendente' :
+                             invoice.status === 'overdue' ? 'Vencido' :
+                             invoice.status === 'cancelled' || invoice.status === 'canceled' ? 'Cancelado' :
+                             invoice.status}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatPrice(invoice.amount)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-2">
+                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </motion.tr>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-12 space-y-4">
+                <div className="mx-auto w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center">
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-lg font-medium">Nenhuma fatura encontrada</p>
+                  <p className="text-muted-foreground">Suas faturas aparecerão aqui quando você fizer compras em nossa loja.</p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };

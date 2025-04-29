@@ -50,6 +50,7 @@ const OrderTable = ({
       case 'completed':
         return <Badge className="bg-green-100 text-green-800">Concluído</Badge>;
       case 'cancelled':
+      case 'canceled':
         return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
@@ -62,9 +63,12 @@ const OrderTable = ({
         return <Badge className="bg-green-100 text-green-800">Pago</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
+      case 'pending_invoice':
+        return <Badge className="bg-blue-100 text-blue-800">Fatura Gerada</Badge>;
       case 'refunded':
         return <Badge className="bg-blue-100 text-blue-800">Reembolsado</Badge>;
       case 'cancelled':
+      case 'canceled':
         return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
@@ -120,13 +124,13 @@ const OrderTable = ({
             orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium">
-                  {order.order_number}
+                  {order.orderNumber || order.order_number}
                 </TableCell>
                 <TableCell>
-                  {format(new Date(order.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                  {format(new Date(order.createdAt || order.created_at), 'dd/MM/yyyy', { locale: ptBR })}
                 </TableCell>
                 <TableCell>
-                  {order.client_details?.name || 'Cliente'}
+                  {order.client_details?.name || order.contactProfile?.name || 'Cliente'}
                 </TableCell>
                 <TableCell>
                   {getStatusBadge(order.status)}
@@ -135,7 +139,7 @@ const OrderTable = ({
                   {getPaymentStatusBadge(order.payment_status)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatPrice(order.total_amount)}
+                  {formatPrice(order.totalAmount || order.total_amount)}
                 </TableCell>
                 <TableCell className="text-right">
                   {actionMenu ? (

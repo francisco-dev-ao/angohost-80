@@ -21,6 +21,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, RefreshCcw, Filter, Download, Eye, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatPrice } from '@/utils/formatters';
 
 const OrdersPage = () => {
   const { orders, loading } = useOrders();
@@ -61,6 +62,10 @@ const OrdersPage = () => {
       default: return 'bg-gray-100 text-gray-700';
     }
   };
+  
+  const handleRefresh = () => {
+    window.location.reload();
+  };
 
   return (
     <div className="space-y-6">
@@ -74,7 +79,7 @@ const OrdersPage = () => {
           <ShoppingBag className="h-7 w-7" />
           Meus Pedidos
         </h1>
-        <Button size="sm" variant="outline" className="flex items-center gap-1">
+        <Button size="sm" variant="outline" className="flex items-center gap-1" onClick={handleRefresh}>
           <RefreshCcw className="h-4 w-4" />
           Atualizar
         </Button>
@@ -127,13 +132,13 @@ const OrdersPage = () => {
                             order.status === 'completed' ? 'bg-green-100 text-green-700' :
                             order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                             order.status === 'processing' ? 'bg-blue-100 text-blue-700' :
-                            order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                            order.status === 'cancelled' || order.status === 'canceled' ? 'bg-red-100 text-red-700' :
                             'bg-gray-100 text-gray-700'
                           }`}>
                             {order.status === 'completed' ? 'Concluído' :
                              order.status === 'pending' ? 'Pendente' :
                              order.status === 'processing' ? 'Processando' :
-                             order.status === 'cancelled' ? 'Cancelado' :
+                             order.status === 'cancelled' || order.status === 'canceled' ? 'Cancelado' :
                              order.status}
                           </span>
                         </TableCell>
@@ -145,10 +150,7 @@ const OrdersPage = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          {new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL'
-                          }).format(order.total_amount)}
+                          {formatPrice(order.total_amount)}
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-end gap-2">
