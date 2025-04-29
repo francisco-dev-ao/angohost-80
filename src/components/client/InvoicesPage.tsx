@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -22,11 +22,14 @@ import { FileText, RefreshCcw, Filter, Download, Eye, Clock } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/utils/formatters';
+import InvoiceViewDialog from './InvoiceViewDialog';
 
 const InvoicesPage = () => {
-  const { invoices, loading } = useInvoices();
+  const { invoices, isLoading, downloadInvoice } = useInvoices();
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -58,6 +61,15 @@ const InvoicesPage = () => {
   
   const handleRefresh = () => {
     window.location.reload();
+  };
+
+  const handleViewInvoice = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setViewDialogOpen(true);
+  };
+
+  const handleDownloadInvoice = (invoiceId: string) => {
+    downloadInvoice(invoiceId);
   };
 
   return (
@@ -135,10 +147,16 @@ const InvoicesPage = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-end gap-2">
-                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" 
+                                   onClick={() => handleViewInvoice(invoice)}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleDownloadInvoice(invoice.id)}
+                            >
                               <Download className="h-4 w-4" />
                             </Button>
                           </div>
@@ -162,6 +180,14 @@ const InvoicesPage = () => {
           </CardContent>
         </Card>
       </motion.div>
+
+      {selectedInvoice && (
+        <InvoiceViewDialog 
+          invoice={selectedInvoice} 
+          isOpen={viewDialogOpen} 
+          onOpenChange={setViewDialogOpen} 
+        />
+      )}
     </div>
   );
 };
