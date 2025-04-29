@@ -6,6 +6,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 import { useDomainExtensions } from '@/hooks/useDomainExtensions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/utils/formatters';
+import { CartProvider } from '@/contexts/CartContext';
 
 const Domains = () => {
   const { content, loading: contentLoading } = usePageContent('domains');

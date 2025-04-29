@@ -20,9 +20,17 @@ const DomainSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<DomainResult[]>([]);
   const [selectedDomains, setSelectedDomains] = useState<{[key: string]: boolean}>({});
-  const { addToCart } = useCart();
   const navigate = useNavigate();
   const { extensions, loading } = useDomainExtensions();
+  
+  // Use Try/Catch para o useCart para evitar erros quando não estiver dentro do CartProvider
+  let cartFunctions = { addToCart: null };
+  try {
+    cartFunctions = useCart();
+  } catch (error) {
+    console.log("Cart context not available, using fallback behavior");
+  }
+  const { addToCart } = cartFunctions as any;
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +64,13 @@ const DomainSearch = () => {
       [domain]: !prev[domain]
     }));
     
+    // Se o carrinho não estiver disponível, redirecionar para a página de registro
+    if (!addToCart) {
+      toast.info("Você precisa estar logado para adicionar domínios ao carrinho");
+      navigate('/register');
+      return;
+    }
+    
     if (!selectedDomains[domain]) {
       addToCart({
         id: `domain-${domain}`,
@@ -74,10 +89,24 @@ const DomainSearch = () => {
   };
 
   const handleContinueToCheckout = () => {
+    // Se o carrinho não estiver disponível, redirecionar para a página de registro
+    if (!addToCart) {
+      toast.info("Você precisa estar logado para continuar");
+      navigate('/register');
+      return;
+    }
+    
     navigate('/enhanced-checkout');
   };
 
   const handleAddAllToCart = () => {
+    // Se o carrinho não estiver disponível, redirecionar para a página de registro
+    if (!addToCart) {
+      toast.info("Você precisa estar logado para adicionar domínios ao carrinho");
+      navigate('/register');
+      return;
+    }
+    
     const availableDomains = results.filter(result => result.available);
     
     availableDomains.forEach(domain => {
@@ -174,7 +203,7 @@ const DomainSearch = () => {
           </div>
           
           <div className="flex justify-end mt-6">
-            <Button onClick={() => navigate('/enhanced-checkout')} className="flex items-center gap-2">
+            <Button onClick={handleContinueToCheckout} className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
               Finalizar Compra
             </Button>
