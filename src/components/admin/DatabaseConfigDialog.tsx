@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -122,6 +121,18 @@ const DatabaseConfigDialog = ({ isOpen, onOpenChange }: DatabaseConfigDialogProp
             <Input
               id="host"
               value="194.163.146.215"
+              disabled
+              className="col-span-3"
+            />
+          </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="port" className="text-right">
+              Porta
+            </Label>
+            <Input
+              id="port"
+              value="3306"
               disabled
               className="col-span-3"
             />

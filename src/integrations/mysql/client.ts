@@ -24,10 +24,11 @@ export const getConnection = async () => {
   // Create the connection pool if it doesn't exist
   if (!pool) {
     console.log('Tentando criar pool de conexão com o banco de dados...');
-    console.log('Host: 194.163.146.215, Database: angodb11, User:', user);
+    console.log('Host: 194.163.146.215, Port: 3306, Database: angodb11, User:', user);
     
     pool = mysql.createPool({
       host: '194.163.146.215',
+      port: 3306,
       database: 'angodb11',
       user,
       password,
@@ -80,6 +81,7 @@ export const testConnection = async () => {
       timestamp: rows[0]?.timestamp || new Date().toISOString(),
       version: rows[0]?.version || 'Desconhecida',
       host: '194.163.146.215',
+      port: 3306,
       database: 'angodb11'
     };
   } catch (error: any) {
