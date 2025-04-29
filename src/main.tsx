@@ -8,6 +8,14 @@ import { Toaster, toast } from 'sonner';
 
 // Initialize database connection and schema
 const initApp = async () => {
+  // Render the app first to avoid blank screen during connection attempts
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <React.StrictMode>
+      <Toaster />
+      <App />
+    </React.StrictMode>,
+  );
+  
   try {
     // Test database connection with the password
     const connectionTest = await testConnection();
@@ -25,14 +33,6 @@ const initApp = async () => {
     console.error('Error initializing application:', error);
     toast.error(`Erro ao inicializar aplicação: ${error.message}`);
   }
-  
-  // Render the app regardless of initialization success
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-      <Toaster />
-      <App />
-    </React.StrictMode>,
-  );
 };
 
 initApp();

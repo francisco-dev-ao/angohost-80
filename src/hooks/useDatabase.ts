@@ -29,17 +29,21 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
 
   // Load stored credentials when hook initializes
   useEffect(() => {
-    const storedCredentials = localStorage.getItem('db_credentials');
-    if (storedCredentials) {
-      try {
-        const parsed = JSON.parse(storedCredentials);
-        setCredentials({
-          username: parsed.username || '',
-          password: parsed.password || 'Bayathu60@@',
-        });
-      } catch (error) {
-        console.error('Error parsing stored credentials:', error);
+    try {
+      const storedCredentials = localStorage.getItem('db_credentials');
+      if (storedCredentials) {
+        try {
+          const parsed = JSON.parse(storedCredentials);
+          setCredentials({
+            username: parsed.username || '',
+            password: parsed.password || 'Bayathu60@@',
+          });
+        } catch (error) {
+          console.error('Error parsing stored credentials:', error);
+        }
       }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
     }
   }, []);
 
@@ -77,11 +81,15 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
     setIsConnecting(true);
     try {
       // Save the credentials temporarily for testing
-      localStorage.setItem('db_credentials', JSON.stringify({
-        username: credentials.username,
-        password: credentials.password,
-        timestamp: new Date().toISOString()
-      }));
+      try {
+        localStorage.setItem('db_credentials', JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
       
       // Test the connection
       const result = await testConnection();
@@ -114,11 +122,17 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
 
     setIsConnecting(true);
     try {
-      localStorage.setItem('db_credentials', JSON.stringify({
-        username: credentials.username,
-        password: credentials.password,
-        timestamp: new Date().toISOString()
-      }));
+      try {
+        localStorage.setItem('db_credentials', JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+          timestamp: new Date().toISOString()
+        }));
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+        toast.error('Erro ao salvar configurações no navegador');
+        return false;
+      }
       
       const result = await testConnection();
       

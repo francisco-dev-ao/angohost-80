@@ -6,19 +6,23 @@ let pool: mysql.Pool | null = null;
 
 export const getConnection = async () => {
   // Check if we have credentials stored in localStorage
-  const storedCredentials = localStorage.getItem('db_credentials');
   let user = 'placeholder_username';
-  let password = 'Bayathu60@@'; // Senha confirmada
+  let password = 'Bayathu60@@'; // Default password
 
-  // If we have stored credentials, use them
-  if (storedCredentials) {
-    try {
-      const credentials = JSON.parse(storedCredentials);
-      if (credentials.username) user = credentials.username;
-      if (credentials.password) password = credentials.password;
-    } catch (error) {
-      console.error('Error parsing stored credentials:', error);
+  try {
+    // Only try to access localStorage in browser environment
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedCredentials = localStorage.getItem('db_credentials');
+      
+      // If we have stored credentials, use them
+      if (storedCredentials) {
+        const credentials = JSON.parse(storedCredentials);
+        if (credentials.username) user = credentials.username;
+        if (credentials.password) password = credentials.password;
+      }
     }
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
   }
   
   // Create the connection pool if it doesn't exist
@@ -26,18 +30,23 @@ export const getConnection = async () => {
     console.log('Tentando criar pool de conexão com o banco de dados...');
     console.log('Host: 194.163.146.215, Port: 3306, Database: angodb11, User:', user);
     
-    pool = mysql.createPool({
-      host: '194.163.146.215',
-      port: 3306,
-      database: 'angodb11',
-      user,
-      password,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-    });
-    
-    console.log('Pool de conexão com o banco de dados criado com sucesso!');
+    try {
+      pool = mysql.createPool({
+        host: '194.163.146.215',
+        port: 3306,
+        database: 'angodb11',
+        user,
+        password,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
+      });
+      
+      console.log('Pool de conexão com o banco de dados criado com sucesso!');
+    } catch (err) {
+      console.error('Erro ao criar pool de conexão:', err);
+      throw err;
+    }
   }
   
   return pool;
