@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate, Routes, Route, Link } from "react-router-dom";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { toast } from "sonner";
@@ -19,16 +18,46 @@ import WalletPage from "@/components/client/WalletPage";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, Search, ShoppingCart, User } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 const ClientArea = () => {
   const { user, loading, signOut } = useSupabaseAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!loading && !user) {
-      toast.error('Faça login para acessar a área do cliente');
-      navigate('/register');
-    }
+  useEffect(() => {
+    const setupClientAccess = async () => {
+      if (!loading && user) {
+        try {
+          // Ensure all client features are activated
+          await supabase
+            .from('user_feature_settings')
+            .upsert({
+              user_id: user.id,
+              features_enabled: {
+                dashboard: true,
+                domains: true,
+                services: true,
+                invoices: true,
+                tickets: true,
+                wallet: true,
+                notifications: true,
+                promotions: true,
+                orders: true,
+                contact_profiles: true,
+                payment_methods: true
+              },
+              last_updated: new Date().toISOString()
+            });
+        } catch (error) {
+          console.error("Error activating client features:", error);
+        }
+      } else if (!loading && !user) {
+        toast.error('Faça login para acessar a área do cliente');
+        navigate('/register');
+      }
+    };
+    
+    setupClientAccess();
   }, [user, loading, navigate]);
 
   const handleSignOut = async () => {

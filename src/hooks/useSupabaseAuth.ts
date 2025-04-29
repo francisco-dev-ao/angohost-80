@@ -11,9 +11,12 @@ export const useSupabaseAuth = () => {
   useLoginTracker(user?.id);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session && session.user) {
         setUser(session.user);
+        
+        // Automatically activate all features when a user logs in
+        await activateAllFeaturesForUser(session.user.id);
       } else {
         setUser(null);
       }
@@ -21,9 +24,12 @@ export const useSupabaseAuth = () => {
     });
 
     // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session && session.user) {
         setUser(session.user);
+        
+        // Automatically activate all features for existing sessions
+        await activateAllFeaturesForUser(session.user.id);
       }
       setLoading(false);
     });
@@ -33,6 +39,52 @@ export const useSupabaseAuth = () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Function to activate all features for a user
+  const activateAllFeaturesForUser = async (userId: string) => {
+    try {
+      // Check if user has feature settings
+      const { data: existingSettings, error: checkError } = await supabase
+        .from('user_feature_settings')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      // If the user doesn't have settings yet or there was an error finding them
+      if (checkError || !existingSettings) {
+        // Create default settings with all features enabled
+        await supabase
+          .from('user_feature_settings')
+          .upsert({
+            user_id: userId,
+            features_enabled: {
+              dashboard: true,
+              domains: true,
+              services: true,
+              invoices: true,
+              tickets: true,
+              wallet: true,
+              notifications: true,
+              promotions: true,
+              orders: true,
+              contact_profiles: true,
+              payment_methods: true,
+              admin_access: true  // For admin users
+            },
+            last_updated: new Date().toISOString()
+          });
+      }
+      
+      // Also ensure profile is active
+      await supabase
+        .from('profiles')
+        .update({ is_active: true })
+        .eq('id', userId);
+        
+    } catch (error) {
+      console.error("Error activating features:", error);
+    }
+  };
 
   const handleSignIn = async (email: string, password: string) => {
     try {
@@ -78,12 +130,16 @@ export const useSupabaseAuth = () => {
             id: authData.user.id,
             full_name: fullName,
             email: email,
-            role: 'customer' // Default role
+            role: 'customer', // Default role
+            is_active: true   // Always set to active by default
           });
 
         if (profileError) {
           throw profileError;
         }
+        
+        // Activate all features for new user
+        await activateAllFeaturesForUser(authData.user.id);
       }
 
       toast.success('Cadastro realizado com sucesso!');
