@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -12,7 +11,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useSaveOrder } from '@/hooks/useSaveOrder';
 import { useContactProfiles } from '@/hooks/useContactProfiles';
 import { toast } from 'sonner';
-import { Check, CreditCard, PlusCircle, User, Banknote, FileInvoice } from 'lucide-react';
+import { Check, CreditCard, PlusCircle, User, Banknote, FileText } from 'lucide-react';
 import { formatPrice } from '@/utils/formatters';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from "@/components/ui/switch";
@@ -305,7 +304,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Endereço</Label>
+                <Label htmlFor="address">Endere��o</Label>
                 <Input
                   id="address"
                   name="address"
@@ -336,7 +335,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
                 onCheckedChange={setSkipPayment}
               />
               <Label htmlFor="skip-payment" className="flex items-center cursor-pointer">
-                <FileInvoice className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4 mr-2" />
                 Gerar apenas fatura (sem pagamento imediato)
               </Label>
             </div>
