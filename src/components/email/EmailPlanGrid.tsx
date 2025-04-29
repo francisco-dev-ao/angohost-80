@@ -21,14 +21,24 @@ const EmailPlanGrid = ({
   handlePurchase,
 }: EmailPlanGridProps) => {
   const calculatePrice = (basePrice: number) => {
-    const emailPrice = basePrice * userCount * parseInt(period);
-    return formatPrice(emailPrice);
+    const years = parseInt(period);
+    // Apply discount for multi-year purchases
+    const discount = years >= 3 ? 0.10 : years >= 2 ? 0.05 : 0;
+    
+    let totalPrice = basePrice * userCount * years;
+    if (discount > 0) {
+      totalPrice = totalPrice - (totalPrice * discount);
+    }
+    
+    return formatPrice(totalPrice);
   };
 
   return (
     <div className="grid md:grid-cols-3 gap-8 mb-16">
       {emailPlans.map((plan) => {
         const isCurrentPlan = plan.id === selectedTab;
+        const years = parseInt(period);
+        
         return (
           <div 
             key={plan.id} 
@@ -43,6 +53,18 @@ const EmailPlanGrid = ({
                   <span className="text-3xl font-bold">{calculatePrice(plan.basePrice)}</span>
                   <span className="text-muted-foreground">/{userCount} {userCount === 1 ? 'usuário' : 'usuários'}/{period} {parseInt(period) === 1 ? 'ano' : 'anos'}</span>
                 </div>
+                
+                {years > 1 && (
+                  <div className="mt-2 text-sm text-green-600 font-medium">
+                    Inclui desconto de {years >= 3 ? '10%' : '5%'} para {years} anos
+                  </div>
+                )}
+                
+                {years === 1 && (
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    Renovação: {formatPrice(plan.renewalPrice)} por usuário/ano
+                  </div>
+                )}
               </div>
               
               <CardContent className="flex-grow pt-6">

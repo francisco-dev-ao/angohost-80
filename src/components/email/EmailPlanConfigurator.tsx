@@ -1,10 +1,12 @@
 
 import React from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { emailPlans } from "@/config/emailPlans";
 
 interface EmailPlanConfiguratorProps {
   userCount: number;
@@ -21,69 +23,74 @@ const EmailPlanConfigurator = ({
   period,
   setPeriod,
   selectedTab,
-  setSelectedTab,
+  setSelectedTab
 }: EmailPlanConfiguratorProps) => {
   return (
-    <div className="max-w-md mx-auto mb-12 bg-muted/20 p-6 rounded-lg border shadow-sm">
-      <h2 className="text-xl font-medium mb-4">Configurar Plano</h2>
-      
-      <div className="space-y-6">
-        <div>
-          <Label htmlFor="userCount">Número de usuários</Label>
-          <div className="flex items-center space-x-4 mt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="icon"
-              onClick={() => userCount > 1 && handleUserCountChange({ target: { value: (userCount - 1).toString() } } as React.ChangeEvent<HTMLInputElement>)}
-              disabled={userCount <= 1}
-            >-</Button>
-            <Input
-              id="userCount"
-              type="number"
-              className="text-center"
-              value={userCount}
-              onChange={handleUserCountChange}
-              min={1}
-              max={1000}
-            />
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="icon"
-              onClick={() => handleUserCountChange({ target: { value: (userCount + 1).toString() } } as React.ChangeEvent<HTMLInputElement>)}
-            >+</Button>
+    <Card className="mb-8 p-6">
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="user-count">Número de usuários</Label>
+            <div className="flex items-center mt-2">
+              <Input
+                id="user-count"
+                type="number"
+                min="1"
+                max="1000"
+                value={userCount}
+                onChange={handleUserCountChange}
+                className="w-24"
+              />
+              <span className="ml-2 text-muted-foreground">
+                {userCount === 1 ? "usuário" : "usuários"}
+              </span>
+            </div>
           </div>
         </div>
         
-        <div>
-          <Label htmlFor="period">Período de contratação</Label>
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger id="period" className="mt-2">
-              <SelectValue placeholder="Selecione o período" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1 ano</SelectItem>
-              <SelectItem value="2">2 anos</SelectItem>
-              <SelectItem value="3">3 anos</SelectItem>
-              <SelectItem value="4">4 anos</SelectItem>
-              <SelectItem value="5">5 anos</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="space-y-4">
+          <Label>Período</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {["1", "2", "3"].map((value) => (
+              <Button
+                key={value}
+                variant={period === value ? "default" : "outline"}
+                size="sm"
+                className="w-full"
+                onClick={() => setPeriod(value)}
+              >
+                {value} {parseInt(value) === 1 ? "ano" : "anos"}
+                {value !== "1" && (
+                  <Badge className="ml-1 bg-primary-foreground text-primary">
+                    {value === "3" ? "-10%" : "-5%"}
+                  </Badge>
+                )}
+              </Button>
+            ))}
+          </div>
         </div>
         
-        <div>
-          <Label>Tipo de plano</Label>
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mt-2">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="basic">Básico</TabsTrigger>
-              <TabsTrigger value="business">Business</TabsTrigger>
-              <TabsTrigger value="enterprise">Enterprise</TabsTrigger>
+        <div className="space-y-4">
+          <Label>Plano</Label>
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+            <TabsList className="w-full">
+              {emailPlans.map(plan => (
+                <TabsTrigger 
+                  key={plan.id} 
+                  value={plan.id}
+                  className="flex-1"
+                >
+                  {plan.title}
+                  {plan.popular && (
+                    <Badge className="ml-2 bg-green-100 text-green-800">Popular</Badge>
+                  )}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

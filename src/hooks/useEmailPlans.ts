@@ -11,14 +11,14 @@ export const useEmailPlans = () => {
   const { addToCart } = useCart();
   const { user } = useSupabaseAuth();
 
-  const [selectedTab, setSelectedTab] = useState("business");
+  const [selectedTab, setSelectedTab] = useState("advanced"); // Default to the new popular plan
   const [userCount, setUserCount] = useState(1);
   const [period, setPeriod] = useState("1");
   const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
   const getPlanByType = (type: string) => {
-    return emailPlans.find(plan => plan.id === type) || emailPlans[0];
+    return emailPlans.find(plan => plan.id === type) || emailPlans.find(plan => plan.popular) || emailPlans[0];
   };
 
   const handleUserCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,9 +28,23 @@ export const useEmailPlans = () => {
     }
   };
 
+  const getDiscount = (years: number) => {
+    if (years >= 3) return 0.10; // 10% discount for 3 years
+    if (years >= 2) return 0.05; // 5% discount for 2 years
+    return 0;
+  };
+
   const calculatePrice = (basePrice: number) => {
-    const emailPrice = basePrice * userCount * parseInt(period);
-    return emailPrice;
+    const years = parseInt(period);
+    const discount = getDiscount(years);
+    
+    // Calculate the total price with discount
+    let totalPrice = basePrice * userCount * years;
+    if (discount > 0) {
+      totalPrice = totalPrice - (totalPrice * discount);
+    }
+    
+    return totalPrice;
   };
 
   const handlePurchase = (plan: any) => {
@@ -55,16 +69,25 @@ export const useEmailPlans = () => {
     if (!selectedPlan) return;
 
     const years = parseInt(config.period);
+    const discount = getDiscount(years);
     const items = [];
+
+    // Calculate price with discount
+    let totalPrice = selectedPlan.basePrice * config.userCount * years;
+    if (discount > 0) {
+      totalPrice = totalPrice - (totalPrice * discount);
+    }
 
     // Add email plan to cart
     items.push({
       id: `email-${selectedPlan.id}-${Date.now()}`,
       title: `${selectedPlan.title} (${config.userCount} ${config.userCount === 1 ? 'usuário' : 'usuários'} por ${years} ${years === 1 ? 'ano' : 'anos'})`,
       quantity: config.userCount,
-      price: selectedPlan.basePrice * config.userCount * years,
+      price: totalPrice,
       basePrice: selectedPlan.basePrice,
-      type: "email"
+      years: years,
+      type: "email",
+      discountApplied: discount > 0 ? `${discount * 100}%` : undefined
     });
 
     // Add domain to cart if registering new one
@@ -76,8 +99,7 @@ export const useEmailPlans = () => {
         price: 2000, // Domain registration fee
         basePrice: 2000,
         type: "domain",
-        domain: config.newDomainName,
-        contactProfileId: config.contactProfileId
+        domain: config.newDomainName
       });
     }
 
@@ -105,6 +127,7 @@ export const useEmailPlans = () => {
     calculatePrice,
     handlePurchase,
     handleConfirmPurchase,
-    emailPlans
+    emailPlans,
+    getDiscount
   };
 };

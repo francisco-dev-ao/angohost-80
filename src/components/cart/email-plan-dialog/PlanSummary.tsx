@@ -17,17 +17,33 @@ const PlanSummary = ({ selectedPlan, config }: PlanSummaryProps) => {
   const calculatePrice = () => {
     if (!selectedPlan) return formatPrice(0);
     
-    const basePrice = selectedPlan.basePrice * config.userCount * parseInt(config.period);
+    const years = parseInt(config.period);
+    // Apply discount for multi-year purchases
+    const discount = years >= 3 ? 0.10 : years >= 2 ? 0.05 : 0;
+    
+    let totalPrice = selectedPlan.basePrice * config.userCount * years;
+    if (discount > 0) {
+      totalPrice = totalPrice - (totalPrice * discount);
+    }
+    
+    // Add domain price if registering new one
     const domainPrice = config.domainOption === "new" ? 2000 : 0;
-    return formatPrice(basePrice + domainPrice);
+    return formatPrice(totalPrice + domainPrice);
   };
 
   return (
     <>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label className="text-right">Preço Total</Label>
-        <div className="col-span-3 font-medium text-lg">
-          {calculatePrice()}
+        <div className="col-span-3">
+          <div className="font-medium text-lg">
+            {calculatePrice()}
+          </div>
+          {parseInt(config.period) > 1 && (
+            <div className="text-sm text-green-600">
+              Inclui desconto de {parseInt(config.period) >= 3 ? '10%' : '5%'} para {config.period} anos
+            </div>
+          )}
         </div>
       </div>
 
@@ -41,7 +57,7 @@ const PlanSummary = ({ selectedPlan, config }: PlanSummaryProps) => {
               ) : (
                 <span className="h-4 w-4 block" />
               )}
-              {feature.text}
+              <span>{feature.text}</span>
             </li>
           ))}
         </ul>

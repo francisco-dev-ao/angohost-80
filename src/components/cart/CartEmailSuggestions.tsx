@@ -1,81 +1,61 @@
 
-import React from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { emailPlans } from "@/config/emailPlans";
-import { Check } from "lucide-react";
-import { motion } from "framer-motion";
-import { formatPrice } from "@/utils/formatters";
 import { useCart } from '@/contexts/CartContext';
+import { useNavigate } from 'react-router-dom';
+import { emailPlans } from '@/config/emailPlans';
+import { formatPrice } from '@/utils/formatters';
+import { Check } from 'lucide-react';
 
 const CartEmailSuggestions = () => {
+  const navigate = useNavigate();
   const { addToCart } = useCart();
-
-  const handleSelectPlan = (plan: any, years: number = 1) => {
-    addToCart({
-      id: `email-${plan.id}-${Date.now()}`,
-      title: `${plan.title} (${plan.userCount} ${plan.userCount === 1 ? 'usuário' : 'usuários'} por ${years} ${years === 1 ? 'ano' : 'anos'})`,
-      quantity: 1,
-      price: plan.basePrice * years,
-      basePrice: plan.basePrice,
-      type: "email",
-      years: years
-    });
+  
+  const handleSelectPlan = (plan: any) => {
+    navigate('/professional-email');
   };
-
-  const displayPlans = emailPlans.slice(0, 2); // Show only the first 2 plans as suggestions
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Adicione um plano de e-mail profissional</CardTitle>
-        <CardDescription>
-          Complemente seu domínio com um serviço de e-mail profissional
-        </CardDescription>
+        <CardTitle>Email Profissional para seu Domínio</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid md:grid-cols-2 gap-6">
-          {displayPlans.map((plan) => (
-            <motion.div
-              key={plan.id}
-              className="border rounded-lg p-6 bg-white hover:shadow-md transition-all relative overflow-hidden"
-              whileHover={{ y: -5 }}
-            >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-              
-              <h3 className="text-xl font-bold mb-2">{plan.title}</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-2xl font-bold text-primary">
-                  {formatPrice(plan.basePrice)}
-                </span>
-                <span className="text-muted-foreground text-sm">/ano por usuário</span>
-              </div>
-              
-              <ul className="space-y-2 mb-6">
-                {plan.features.slice(0, 3).map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                    <span className="text-sm">{feature.text}</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="space-y-2">
+        <div className="text-sm text-muted-foreground mb-4">
+          Complete seu domínio com um serviço de email profissional
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-4">
+          {emailPlans.map(plan => (
+            <Card key={plan.id} className={`border ${plan.popular ? 'border-primary' : ''}`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">{plan.title}</CardTitle>
+                <div className="text-sm text-muted-foreground">{plan.description}</div>
+                <div className="mt-2 font-bold text-xl">{formatPrice(plan.basePrice)}<span className="text-sm font-normal text-muted-foreground">/usuário/ano</span></div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-2 mb-4 text-sm">
+                  {plan.features.slice(0, 4).map((feature, idx) => (
+                    feature.included && (
+                      <li key={idx} className="flex items-start gap-2">
+                        <div className="rounded-full bg-primary/20 p-0.5 mt-0.5">
+                          <Check className="h-3 w-3 text-primary" />
+                        </div>
+                        <span>{feature.text}</span>
+                      </li>
+                    )
+                  ))}
+                </ul>
                 <Button 
-                  className="w-full" 
-                  onClick={() => handleSelectPlan(plan, 1)}
+                  onClick={() => handleSelectPlan(plan)} 
+                  variant={plan.popular ? "default" : "outline"}
+                  className="w-full"
                 >
-                  Adicionar (1 ano)
+                  Ver planos
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={() => handleSelectPlan(plan, 3)}
-                >
-                  Adicionar (3 anos)
-                </Button>
-              </div>
-            </motion.div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </CardContent>

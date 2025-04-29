@@ -62,7 +62,7 @@ const PlanConfiguration = ({
         >
           {["1", "2", "3"].map((year) => {
             // Calculate discount
-            const discount = year === "2" ? 0.05 : year === "3" ? 0.10 : 0;
+            const discount = year === "3" ? 0.10 : year === "2" ? 0.05 : 0;
             
             return (
               <div key={year} className="relative">
