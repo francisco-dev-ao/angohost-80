@@ -30,12 +30,12 @@ const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogP
   };
 
   const handlePrint = () => {
-    // Create a print-specific stylesheet
+    // Create a print-specific stylesheet with precise A4 dimensions
     const style = document.createElement('style');
     style.innerHTML = `
       @page {
-        size: 210mm 297mm; /* A4 size */
-        margin: 15mm;
+        size: 210mm 297mm; /* A4 size exactly - 210 × 297 mm */
+        margin: 10mm;
       }
       @media print {
         body * {
@@ -48,11 +48,17 @@ const InvoiceViewDialog = ({ invoice, isOpen, onOpenChange }: InvoiceViewDialogP
           position: absolute;
           left: 0;
           top: 0;
-          width: 180mm; /* A4 content area */
-          padding: 15mm;
+          width: 190mm; /* A4 content area accounting for margins */
+          padding: 10mm;
+          font-size: 12pt;
         }
         .no-print {
           display: none;
+        }
+        /* Ensure correct dimensions in points for PDF */
+        html, body {
+          width: 595pt;
+          height: 842pt;
         }
       }
     `;
