@@ -25,6 +25,7 @@ import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 // Import or create client pages
 import ClientLayout from './pages/client/ClientLayout';
 import ClientDomains from './pages/client/ClientDomains';
+import ClientProfile from './pages/client/ClientProfile';
 
 function App() {
   return (
@@ -55,7 +56,9 @@ function App() {
 
           {/* Client Routes */}
           <Route path="/client" element={<ClientLayout />}>
+            <Route index element={<ClientDomains />} />
             <Route path="domains" element={<ClientDomains />} />
+            <Route path="profile" element={<ClientProfile />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
