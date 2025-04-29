@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,7 @@ import { Search, Check, ShoppingCart } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { formatPrice } from "@/utils/formatters";
+import { useDomainExtensions } from '@/hooks/useDomainExtensions';
 
 interface DomainResult {
   domain: string;
@@ -21,6 +21,7 @@ const DomainSearch = () => {
   const [selectedDomains, setSelectedDomains] = useState<{[key: string]: boolean}>({});
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { extensions, loading } = useDomainExtensions();
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,16 +36,10 @@ const DomainSearch = () => {
     // Simulate API call with timeout
     setTimeout(() => {
       const baseSearch = domain.includes('.') ? domain.split('.')[0] : domain;
-      const extensions = [
-        { ext: '.co.ao', price: 199900 },
-        { ext: '.ao', price: 149900 },
-        { ext: '.it.ao', price: 179900 },
-        { ext: '.org.ao', price: 159900 },
-        { ext: '.edu.ao', price: 169900 },
-      ];
       
+      // Use the extensions from the database
       const searchResults = extensions.map(ext => ({
-        domain: `${baseSearch}${ext.ext}`,
+        domain: `${baseSearch}${ext.extension}`,
         available: Math.random() > 0.3,
         price: ext.price
       }));
@@ -67,6 +62,8 @@ const DomainSearch = () => {
         quantity: 1,
         price: price,
         basePrice: price,
+        type: 'domain',
+        years: 1
       });
       toast.success(`${domain} adicionado ao carrinho!`);
     } else {
@@ -90,6 +87,8 @@ const DomainSearch = () => {
           quantity: 1,
           price: domain.price,
           basePrice: domain.price,
+          type: 'domain',
+          years: 1
         });
         setSelectedDomains(prev => ({
           ...prev,
@@ -114,7 +113,7 @@ const DomainSearch = () => {
             className="pl-10"
           />
         </div>
-        <Button type="submit" disabled={isSearching}>
+        <Button type="submit" disabled={isSearching || loading}>
           {isSearching ? "Pesquisando..." : "Verificar"}
         </Button>
       </form>

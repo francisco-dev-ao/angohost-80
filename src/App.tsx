@@ -1,77 +1,56 @@
 
-import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate
-} from "react-router-dom";
-import Index from './pages/Index';
-import About from './pages/About';
-import Contact from './pages/Contact';
+import React, { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
 import Domains from './pages/Domains';
-import DomainTransfer from './pages/DomainTransfer';
-import WordPressHosting from './pages/WordPressHosting';
-import VpsHosting from './pages/VpsHosting';
-import CpanelHosting from './pages/CpanelHosting';
-import DedicatedServers from './pages/DedicatedServers';
-import ProfessionalEmail from './pages/ProfessionalEmail';
-import ExchangeOnline from './pages/ExchangeOnline';
+import HostingPlans from './pages/HostingPlans';
+import EmailPlans from './pages/EmailPlans';
+import VpsPlans from './pages/VpsPlans';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Register from './pages/Register';
-import { Toaster } from "sonner";
-import { CartProvider } from './contexts/CartContext';
-import EnhancedCheckoutPage from './pages/EnhancedCheckout';
-import ClientArea from './pages/ClientArea';
+import Login from './pages/Login';
 import { SidebarProvider } from './components/ui/sidebar';
 import AdminIndex from './pages/AdminIndex';
+import AdminDomains from './pages/admin/AdminDomains';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminDomainExtensions from './pages/admin/AdminDomainExtensions';
+import AdminServicePlans from './pages/admin/AdminServicePlans';
+import AdminPageContents from './pages/admin/AdminPageContents';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
-import { OwnershipProvider } from './contexts/OwnershipContext';
+import ClientDomains from './pages/client/ClientDomains';
+import ClientLayout from './pages/client/ClientLayout';
 
 function App() {
   return (
-    <Router>
-      <CartProvider>
-        <OwnershipProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/domains" element={<Domains />} />
-            <Route path="/domain-transfer" element={<DomainTransfer />} />
-            <Route path="/wordpress-hosting" element={<WordPressHosting />} />
-            <Route path="/vps-hosting" element={<VpsHosting />} />
-            <Route path="/cpanel-hosting" element={<CpanelHosting />} />
-            <Route path="/dedicated-servers" element={<DedicatedServers />} />
-            <Route path="/professional-email" element={<ProfessionalEmail />} />
-            <Route path="/exchange-online" element={<ExchangeOnline />} />
-            <Route path="/register" element={<Register />} />
-            
-            {/* Redirect cart page to enhanced-checkout */}
-            <Route path="/cart" element={<Navigate to="/enhanced-checkout" replace />} />
-            
-            {/* Redirect checkout page to enhanced-checkout */}
-            <Route path="/checkout" element={<Navigate to="/enhanced-checkout" replace />} />
-            
-            <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
-            
-            {/* Client area routes with sidebar provider */}
-            <Route path="/client/*" element={
-              <SidebarProvider>
-                <ClientArea />
-              </SidebarProvider>
-            } />
+    <SidebarProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/domains" element={<Domains />} />
+        <Route path="/hosting" element={<HostingPlans />} />
+        <Route path="/email" element={<EmailPlans />} />
+        <Route path="/vps" element={<VpsPlans />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
-            {/* Admin area routes with protected routes */}
-            <Route path="/admin/*" element={
-              <AdminProtectedRoute>
-                <AdminIndex />
-              </AdminProtectedRoute>
-            } />
-          </Routes>
-          <Toaster position="top-center" />
-        </OwnershipProvider>
-      </CartProvider>
-    </Router>
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminProtectedRoute><AdminIndex /></AdminProtectedRoute>} />
+        <Route path="/admin/domains" element={<AdminProtectedRoute><AdminDomains /></AdminProtectedRoute>} />
+        <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
+        <Route path="/admin/products" element={<AdminProtectedRoute><AdminProducts /></AdminProtectedRoute>} />
+        <Route path="/admin/domain-extensions" element={<AdminProtectedRoute><AdminDomainExtensions /></AdminProtectedRoute>} />
+        <Route path="/admin/service-plans" element={<AdminProtectedRoute><AdminServicePlans /></AdminProtectedRoute>} />
+        <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
+
+        {/* Client Routes */}
+        <Route path="/client" element={<ClientLayout />}>
+          <Route path="domains" element={<ClientDomains />} />
+        </Route>
+      </Routes>
+    </SidebarProvider>
   );
 }
 

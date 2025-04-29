@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   LayoutDashboard,
@@ -11,7 +12,8 @@ import {
   Mail,
   CreditCard,
   Settings,
-  ShoppingBasket
+  ShoppingBasket,
+  FileText
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -45,14 +47,24 @@ export default function AdminSidebar() {
             <NavItem to="/admin/products" icon={Package} label="Produtos" />
           </li>
           
+          {/* Service Plans Link */}
+          <li>
+            <NavItem to="/admin/service-plans" icon={Server} label="Planos de Serviço" />
+          </li>
+          
           {/* Domains Link */}
           <li>
             <NavItem to="/admin/domains" icon={Globe} label="Domínios" />
           </li>
           
-          {/* Hosting Link */}
+          {/* Domain Extensions Link */}
           <li>
-            <NavItem to="/admin/hosting" icon={Server} label="Hospedagem" />
+            <NavItem to="/admin/domain-extensions" icon={Globe} label="Extensões de Domínio" />
+          </li>
+          
+          {/* Page Contents Link */}
+          <li>
+            <NavItem to="/admin/page-contents" icon={FileText} label="Conteúdo de Páginas" />
           </li>
           
           {/* Orders Link */}
@@ -97,18 +109,16 @@ export default function AdminSidebar() {
 
 function NavItem({ to, icon: Icon, label }: NavItemProps) {
   return (
-    <li>
-      <NavLink
-        to={to}
-        className={({ isActive }) =>
-          `flex items-center p-2 rounded-md hover:bg-gray-100 ${
-            isActive ? "bg-gray-100 font-medium" : ""
-          }`
-        }
-      >
-        <Icon className="w-4 h-4 mr-2" />
-        {label}
-      </NavLink>
-    </li>
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center p-2 rounded-md hover:bg-gray-100 ${
+          isActive ? "bg-gray-100 font-medium" : ""
+        }`
+      }
+    >
+      <Icon className="w-4 h-4 mr-2" />
+      {label}
+    </NavLink>
   );
 }

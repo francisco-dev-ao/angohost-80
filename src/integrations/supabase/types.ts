@@ -452,6 +452,42 @@ export type Database = {
           },
         ]
       }
+      domain_extensions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          extension: string
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          price: number
+          renewal_price: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          extension: string
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          price: number
+          renewal_price?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          extension?: string
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          price?: number
+          renewal_price?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           created_at: string | null
@@ -693,6 +729,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      page_contents: {
+        Row: {
+          content: Json
+          created_at: string | null
+          id: string
+          page_slug: string
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          content: Json
+          created_at?: string | null
+          id?: string
+          page_slug: string
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          page_slug?: string
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       payment_gateways: {
         Row: {
@@ -978,6 +1044,48 @@ export type Database = {
           token?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      service_plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          service_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          service_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          service_type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

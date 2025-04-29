@@ -1,15 +1,16 @@
 
 import React from "react";
 import DomainSearch from "@/components/DomainSearch";
+import { useDomainExtensions } from "@/hooks/useDomainExtensions";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DomainSearchSection = () => {
-  const domainPrices = [
-    { extension: ".ao", price: "3.990", isPopular: true },
-    { extension: ".co.ao", price: "2.990" },
-    { extension: ".com", price: "1.490" },
-    { extension: ".net", price: "1.890" },
-  ];
-
+  const { extensions, loading } = useDomainExtensions();
+  
+  const popularExtensions = extensions.filter(ext => ext.is_popular).slice(0, 1);
+  const otherExtensions = extensions.filter(ext => !ext.is_popular).slice(0, 3);
+  const displayExtensions = [...popularExtensions, ...otherExtensions];
+  
   return (
     <section className="py-16 bg-white relative -mt-8">
       <div className="container">
@@ -20,25 +21,33 @@ const DomainSearchSection = () => {
           </div>
           <DomainSearch />
           
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {domainPrices.map((domain) => (
-              <div 
-                key={domain.extension} 
-                className={`text-center p-3 rounded-lg border ${domain.isPopular ? 'border-[#345990] bg-[#345990]/5' : 'border-gray-200'}`}
-              >
-                <span className="block text-lg font-semibold">{domain.extension}</span>
-                <div className="flex items-center justify-center gap-1 mt-1">
-                  <span className="text-sm text-gray-500">AOA</span>
-                  <span className="font-bold text-[#345990]">{domain.price}</span>
+          {loading ? (
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {displayExtensions.map((domain) => (
+                <div 
+                  key={domain.extension} 
+                  className={`text-center p-3 rounded-lg border ${domain.is_popular ? 'border-[#345990] bg-[#345990]/5' : 'border-gray-200'}`}
+                >
+                  <span className="block text-lg font-semibold">{domain.extension}</span>
+                  <div className="flex items-center justify-center gap-1 mt-1">
+                    <span className="text-sm text-gray-500">AOA</span>
+                    <span className="font-bold text-[#345990]">{(domain.price / 100).toFixed(2)}</span>
+                  </div>
+                  {domain.is_popular && (
+                    <span className="inline-block bg-[#345990] text-white text-xs px-2 py-0.5 rounded-full mt-2">
+                      Popular
+                    </span>
+                  )}
                 </div>
-                {domain.isPopular && (
-                  <span className="inline-block bg-[#345990] text-white text-xs px-2 py-0.5 rounded-full mt-2">
-                    Popular
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Decorative elements */}
