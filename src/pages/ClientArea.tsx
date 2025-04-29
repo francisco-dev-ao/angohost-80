@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
@@ -51,3 +52,4 @@ const ClientArea = () => {
 };
 
 export default ClientArea;
+
