@@ -14,6 +14,7 @@ import {
   ClipboardList,
   Users,
   Wallet,
+  Home,
 } from "lucide-react";
 
 const ClientSidebar = () => {
@@ -26,7 +27,7 @@ const ClientSidebar = () => {
   const menuItems = [
     {
       name: "Painel",
-      icon: <ClipboardList className="h-4 w-4" />,
+      icon: <Home className="h-4 w-4" />,
       path: "/client",
     },
     {
@@ -87,12 +88,12 @@ const ClientSidebar = () => {
   ];
 
   return (
-    <div className="hidden md:flex flex-col w-64 bg-white border-r h-full">
-      <div className="p-4">
+    <div className="flex flex-col w-64 bg-white border-r h-screen shadow-sm">
+      <div className="p-4 border-b">
         <h2 className="font-bold text-lg text-primary">Área do Cliente</h2>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}

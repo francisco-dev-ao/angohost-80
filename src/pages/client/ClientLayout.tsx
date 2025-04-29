@@ -5,6 +5,7 @@ import ClientSidebar from '@/components/client/ClientSidebar';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const ClientLayout = () => {
   const { user } = useSupabaseAuth();
@@ -38,6 +39,8 @@ const ClientLayout = () => {
           
         if (error) {
           console.error('Error activating client features:', error);
+        } else {
+          console.log('Client features activated successfully');
         }
       } catch (error) {
         console.error('Error in feature activation process:', error);

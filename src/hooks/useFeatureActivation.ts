@@ -45,70 +45,48 @@ export const useFeatureActivation = () => {
 
       try {
         setLoading(true);
+        console.log('Checking features for user:', user.id);
         
-        // Fetch the user's feature settings
-        const { data, error } = await supabase
-          .from('user_feature_settings')
-          .select('features_enabled')
-          .eq('user_id', user.id)
+        // Always ensure all features are enabled
+        const defaultFeatures: FeatureSettings = {
+          dashboard: true,
+          domains: true,
+          services: true,
+          invoices: true,
+          tickets: true,
+          wallet: true,
+          notifications: true,
+          promotions: true,
+          orders: true,
+          contact_profiles: true,
+          payment_methods: true,
+        };
+
+        // Check if user is admin
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
           .single();
 
-        if (error || !data) {
-          // If no settings exist, create them with all features enabled
-          const defaultFeatures: FeatureSettings = {
-            dashboard: true,
-            domains: true,
-            services: true,
-            invoices: true,
-            tickets: true,
-            wallet: true,
-            notifications: true,
-            promotions: true,
-            orders: true,
-            contact_profiles: true,
-            payment_methods: true,
-          };
+        if (profile && profile.role === 'admin') {
+          defaultFeatures.admin_access = true;
+        }
 
-          // Check if user is admin
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-          if (profile && profile.role === 'admin') {
-            defaultFeatures.admin_access = true;
-          }
-
-          // Insert default settings
-          await supabase
-            .from('user_feature_settings')
-            .upsert({
-              user_id: user.id,
-              features_enabled: defaultFeatures,
-              last_updated: new Date().toISOString()
-            });
-
-          setFeaturesEnabled(defaultFeatures);
-        } else {
-          // Use settings from database, but ensure all are enabled
-          const storedFeatures = data.features_enabled;
-          
-          // Make sure all features are enabled
-          Object.keys(storedFeatures).forEach(key => {
-            storedFeatures[key as keyof FeatureSettings] = true;
+        // Update or create user feature settings
+        const { error } = await supabase
+          .from('user_feature_settings')
+          .upsert({
+            user_id: user.id,
+            features_enabled: defaultFeatures,
+            last_updated: new Date().toISOString()
           });
-          
-          // Update in database
-          await supabase
-            .from('user_feature_settings')
-            .upsert({
-              user_id: user.id,
-              features_enabled: storedFeatures,
-              last_updated: new Date().toISOString()
-            });
-            
-          setFeaturesEnabled(storedFeatures);
+
+        if (error) {
+          console.error('Error updating feature settings:', error);
+        } else {
+          console.log('Features successfully activated');
+          setFeaturesEnabled(defaultFeatures);
         }
       } catch (error) {
         console.error('Error checking features:', error);
@@ -143,7 +121,7 @@ export const useFeatureActivation = () => {
 
   // Function to check if a specific feature is enabled
   const isFeatureEnabled = (featureName: keyof FeatureSettings): boolean => {
-    return featuresEnabled[featureName] ?? true; // Default to true if not specified
+    return true; // Always return true to ensure all features are enabled
   };
 
   return {

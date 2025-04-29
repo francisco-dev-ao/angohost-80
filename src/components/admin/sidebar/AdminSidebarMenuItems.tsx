@@ -103,6 +103,10 @@ const AdminSidebarMenuItems = ({ isOpen, isSuperAdmin }: AdminSidebarMenuItemsPr
     },
   ];
 
+  const handleNavigation = (href: string) => {
+    navigate(href);
+  };
+
   return (
     <div className="space-y-1">
       {menuItems.map((item) => {
@@ -120,7 +124,7 @@ const AdminSidebarMenuItems = ({ isOpen, isSuperAdmin }: AdminSidebarMenuItemsPr
               isSuperAdminItem && "bg-red-100 hover:bg-red-200",
               location.pathname === item.href && isSuperAdminItem && "bg-red-200"
             )}
-            onClick={() => navigate(item.href)}
+            onClick={() => handleNavigation(item.href)}
           >
             {isSuperAdminItem ? (
               <span className="text-red-600">{item.icon}</span>

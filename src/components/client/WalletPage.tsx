@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +11,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from '@/utils/formatters';
 import { toast } from 'sonner';
 import { Wallet, Plus, CreditCard, ArrowDownUp, Clock, CheckCheck } from 'lucide-react';
-import { WalletData, WalletTransaction } from '@/types/client';
+
+// Define interface for wallet transactions
+interface WalletTransaction {
+  id: string;
+  user_id: string;
+  amount: number;
+  type: 'deposit' | 'withdrawal' | 'payment' | 'refund';
+  description: string;
+  status: 'pending' | 'completed' | 'failed';
+  created_at: string;
+}
 
 const WalletPage = () => {
   const { user } = useSupabaseAuth();
@@ -32,6 +43,7 @@ const WalletPage = () => {
     
     try {
       setLoading(true);
+      console.log('Fetching wallet data for user:', user.id);
       
       // Check if wallets table exists in the database
       try {
@@ -43,24 +55,20 @@ const WalletPage = () => {
           
         if (!error) {
           // Table exists and we have data
+          console.log('Wallet found:', walletData);
           setBalance(walletData.balance || 0);
           setAutoPayEnabled(walletData.auto_pay || false);
         } else if (error.code === 'PGRST116') {
           // No wallet found for user, but table exists
+          console.log('No wallet found for user, creating new wallet');
           await createNewWallet();
-        } else if (error.code === '42P01') {
-          // Table doesn't exist, we'll create it via API later
-          console.log('Wallets table does not exist yet');
-          setBalance(0);
-          setAutoPayEnabled(false);
         } else {
           console.error('Error fetching wallet:', error);
         }
       } catch (err) {
         console.warn('Error checking wallet:', err);
-        // Assume table doesn't exist yet
-        setBalance(0);
-        setAutoPayEnabled(false);
+        // Create a wallet anyway
+        await createNewWallet();
       }
       
       // Try to fetch transactions if they exist
@@ -73,6 +81,7 @@ const WalletPage = () => {
           .limit(20);
           
         if (!txError && transactionData) {
+          console.log('Transactions found:', transactionData);
           setTransactions(transactionData as WalletTransaction[]);
         }
       } catch (err) {
@@ -91,26 +100,23 @@ const WalletPage = () => {
     if (!user) return;
     
     try {
+      console.log('Creating new wallet for user:', user.id);
       // Create wallet if it doesn't exist
       const { data: newWallet, error: createError } = await supabase
         .from('wallets')
-        .insert({
+        .upsert({
           user_id: user.id,
           balance: 0,
           auto_pay: false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .select()
-        .single();
+        .select();
         
       if (createError) {
-        if (createError.code === '42P01') {
-          console.warn('Wallets table does not exist yet');
-        } else {
-          console.error('Error creating wallet:', createError);
-        }
-      } else if (newWallet) {
+        console.error('Error creating wallet:', createError);
+      } else {
+        console.log('New wallet created:', newWallet);
         setBalance(0);
         setAutoPayEnabled(false);
       }
@@ -130,6 +136,7 @@ const WalletPage = () => {
     
     try {
       toast.success('Processando seu depósito...', { duration: 2000 });
+      console.log('Processing deposit of', depositAmount, 'for user:', user.id);
       
       // First, check if the wallet exists
       const { data: existingWallet, error: fetchError } = await supabase
@@ -143,6 +150,7 @@ const WalletPage = () => {
       if (fetchError) {
         if (fetchError.code === 'PGRST116') {
           // Wallet doesn't exist yet, create it
+          console.log('No wallet found, creating new wallet');
           const { error: createError } = await supabase
             .from('wallets')
             .insert({
@@ -162,10 +170,12 @@ const WalletPage = () => {
         }
       } else if (existingWallet) {
         currentBalance = existingWallet.balance || 0;
+        console.log('Current balance:', currentBalance);
       }
       
       // Calculate new balance
       const newBalance = currentBalance + depositAmount;
+      console.log('New balance will be:', newBalance);
       
       // Update wallet with new balance
       const { error: updateError } = await supabase
@@ -212,6 +222,7 @@ const WalletPage = () => {
     
     try {
       const newValue = !autoPayEnabled;
+      console.log('Toggling auto-pay to:', newValue);
       
       try {
         const { error } = await supabase
@@ -219,11 +230,12 @@ const WalletPage = () => {
           .update({ auto_pay: newValue })
           .eq('user_id', user.id);
           
-        if (error && error.code !== '42P01') {
+        if (error) {
+          console.error('Error updating auto-pay setting:', error);
           throw error;
         }
       } catch (err) {
-        console.warn('Could not update auto-pay setting (table may not exist):', err);
+        console.warn('Could not update auto-pay setting:', err);
       }
       
       setAutoPayEnabled(newValue);
