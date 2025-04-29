@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -11,9 +12,10 @@ import { useCart } from '@/contexts/CartContext';
 import { useSaveOrder } from '@/hooks/useSaveOrder';
 import { useContactProfiles } from '@/hooks/useContactProfiles';
 import { toast } from 'sonner';
-import { Check, CreditCard, PlusCircle, User, Banknote } from 'lucide-react';
+import { Check, CreditCard, PlusCircle, User, Banknote, FileInvoice } from 'lucide-react';
 import { formatPrice } from '@/utils/formatters';
 import { supabase } from '@/integrations/supabase/client';
+import { Switch } from "@/components/ui/switch";
 
 interface CheckoutFormProps {
   onComplete?: (orderId: string) => void;
@@ -30,6 +32,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
   const [loading, setLoading] = useState(true);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [selectedContactProfile, setSelectedContactProfile] = useState<string | null>(null);
+  const [skipPayment, setSkipPayment] = useState(false);
   
   const [formData, setFormData] = useState({
     name: user?.user_metadata?.full_name || '',
@@ -137,7 +140,7 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       return;
     }
     
-    if (!selectedPaymentMethod) {
+    if (!skipPayment && !selectedPaymentMethod) {
       toast.error('Selecione um método de pagamento');
       return;
     }
@@ -149,8 +152,9 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
     
     try {
       const orderData = {
-        paymentMethodId: selectedPaymentMethod,
+        paymentMethodId: skipPayment ? null : selectedPaymentMethod,
         contactProfileId: selectedContactProfile,
+        skipPayment: skipPayment,
         clientDetails: selectedContactProfile 
           ? profiles.find(p => p.id === selectedContactProfile) 
           : { name: formData.name, email: formData.email, phone: formData.phone, address: formData.address }
@@ -160,7 +164,11 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
       if (order) {
         onComplete?.(order.id);
         
-        toast.success('Pedido criado com sucesso! Aguardando pagamento.');
+        if (skipPayment) {
+          toast.success('Pedido criado com sucesso! Uma fatura foi gerada na sua área de cliente.');
+        } else {
+          toast.success('Pedido criado com sucesso! Aguardando pagamento.');
+        }
         navigate(`/client/orders?order=${order.id}`);
       }
     } catch (error: any) {
@@ -317,68 +325,84 @@ const CheckoutForm = ({ onComplete }: CheckoutFormProps) => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Método de pagamento</CardTitle>
-            <CardDescription>Selecione um método de pagamento</CardDescription>
+            <CardTitle>Opções de Pagamento</CardTitle>
+            <CardDescription>Selecione como deseja prosseguir com o pagamento</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="text-center py-4">Carregando métodos de pagamento...</div>
-            ) : paymentMethods.length > 0 ? (
-              <RadioGroup 
-                value={selectedPaymentMethod || undefined}
-                onValueChange={setSelectedPaymentMethod}
-              >
-                <div className="space-y-4">
-                  {paymentMethods.map((method) => (
-                    <div 
-                      key={method.id} 
-                      className={`flex items-center justify-between border rounded-md p-4 ${
-                        selectedPaymentMethod === method.id ? 'border-primary' : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
-                        <Label htmlFor={`payment-${method.id}`} className="flex items-center space-x-2">
-                          {method.payment_type === 'bank_transfer' ? (
-                            <Banknote className="h-4 w-4" />
-                          ) : (
-                            <CreditCard className="h-4 w-4" />
+            <div className="flex items-center space-x-2 mb-6 border p-4 rounded-md">
+              <Switch 
+                id="skip-payment" 
+                checked={skipPayment}
+                onCheckedChange={setSkipPayment}
+              />
+              <Label htmlFor="skip-payment" className="flex items-center cursor-pointer">
+                <FileInvoice className="h-4 w-4 mr-2" />
+                Gerar apenas fatura (sem pagamento imediato)
+              </Label>
+            </div>
+            
+            {!skipPayment && (
+              <>
+                {loading ? (
+                  <div className="text-center py-4">Carregando métodos de pagamento...</div>
+                ) : paymentMethods.length > 0 ? (
+                  <RadioGroup 
+                    value={selectedPaymentMethod || undefined}
+                    onValueChange={setSelectedPaymentMethod}
+                  >
+                    <div className="space-y-4">
+                      {paymentMethods.map((method) => (
+                        <div 
+                          key={method.id} 
+                          className={`flex items-center justify-between border rounded-md p-4 ${
+                            selectedPaymentMethod === method.id ? 'border-primary' : 'border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <RadioGroupItem value={method.id} id={`payment-${method.id}`} />
+                            <Label htmlFor={`payment-${method.id}`} className="flex items-center space-x-2">
+                              {method.payment_type === 'bank_transfer' ? (
+                                <Banknote className="h-4 w-4" />
+                              ) : (
+                                <CreditCard className="h-4 w-4" />
+                              )}
+                              <span>
+                                {method.name || 'Método de Pagamento'} 
+                                {method.payment_type === 'bank_transfer' && (
+                                  <span className="ml-2 text-sm text-muted-foreground">(Padrão)</span>
+                                )}
+                              </span>
+                            </Label>
+                          </div>
+                          {method.description && (
+                            <div className="hidden md:block text-sm text-muted-foreground">
+                              {method.description}
+                            </div>
                           )}
-                          <span>
-                            {method.name || 'Método de Pagamento'} 
-                            {method.payment_type === 'bank_transfer' && (
-                              <span className="ml-2 text-sm text-muted-foreground">(Padrão)</span>
-                            )}
-                          </span>
-                        </Label>
-                      </div>
-                      {method.description && (
-                        <div className="hidden md:block text-sm text-muted-foreground">
-                          {method.description}
                         </div>
+                      ))}
+                    </div>
+                    <div className="mt-2">
+                      {paymentMethods.find(m => m.id === selectedPaymentMethod)?.description && (
+                        <p className="md:hidden text-sm text-muted-foreground">
+                          {paymentMethods.find(m => m.id === selectedPaymentMethod)?.description}
+                        </p>
                       )}
                     </div>
-                  ))}
-                </div>
-                <div className="mt-2">
-                  {paymentMethods.find(m => m.id === selectedPaymentMethod)?.description && (
-                    <p className="md:hidden text-sm text-muted-foreground">
-                      {paymentMethods.find(m => m.id === selectedPaymentMethod)?.description}
-                    </p>
-                  )}
-                </div>
-              </RadioGroup>
-            ) : (
-              <div className="text-center py-4 space-y-4">
-                <p>Nenhum método de pagamento disponível</p>
-              </div>
+                  </RadioGroup>
+                ) : (
+                  <div className="text-center py-4 space-y-4">
+                    <p>Nenhum método de pagamento disponível</p>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button type="button" variant="ghost" onClick={() => navigate('/cart')}>
               Voltar para o carrinho
             </Button>
-            <Button type="submit" disabled={isSaving || paymentMethods.length === 0}>
+            <Button type="submit" disabled={isSaving || (!skipPayment && paymentMethods.length === 0)}>
               {isSaving ? 'Processando...' : 'Finalizar compra'}
             </Button>
           </CardFooter>

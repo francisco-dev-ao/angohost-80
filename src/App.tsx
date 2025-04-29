@@ -4,6 +4,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate
 } from "react-router-dom";
 import Index from './pages/Index';
 import About from './pages/About';
@@ -18,7 +19,6 @@ import ProfessionalEmail from './pages/ProfessionalEmail';
 import ExchangeOnline from './pages/ExchangeOnline';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
 import { Toaster } from "sonner";
 import { CartProvider } from './contexts/CartContext';
 import EnhancedCheckoutPage from './pages/EnhancedCheckout';
@@ -43,7 +43,10 @@ function App() {
           <Route path="/exchange-online" element={<ExchangeOnline />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
+          
+          {/* Redirecionar a página checkout para enhanced-checkout */}
+          <Route path="/checkout" element={<Navigate to="/enhanced-checkout" replace />} />
+          
           <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
           
           {/* Client area routes with sidebar provider */}

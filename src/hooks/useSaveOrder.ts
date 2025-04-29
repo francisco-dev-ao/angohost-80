@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
@@ -20,6 +19,7 @@ export const useSaveOrder = () => {
     paymentMethodId?: string;
     contactProfileId?: string | null;
     clientDetails?: any;
+    skipPayment?: boolean;
   }) => {
     if (!user) {
       toast.error('Você precisa estar logado para salvar o pedido');
@@ -53,12 +53,25 @@ export const useSaveOrder = () => {
         }
       }
       
+      // Prepare payment method - handle default bank transfer option specifically
+      let paymentMethodValue = null;
+      
+      if (orderData?.paymentMethodId) {
+        // If it's our default bank transfer option (which is not a UUID)
+        if (orderData.paymentMethodId === 'bank_transfer_option') {
+          paymentMethodValue = 'bank_transfer_option';
+        } else {
+          // Otherwise use the UUID as normal
+          paymentMethodValue = orderData.paymentMethodId;
+        }
+      }
+      
       const { data: order, error } = await supabase
         .from('orders')
         .insert({
           order_number: orderNumber,
           user_id: user.id,
-          status: 'pending',
+          status: orderData?.skipPayment ? 'processing' : 'pending',
           items: items.map(item => ({
             name: item.title,
             quantity: item.quantity,
@@ -67,8 +80,8 @@ export const useSaveOrder = () => {
             domain: item.domain || null
           })),
           total_amount: totalAmount,
-          payment_status: 'pending',
-          payment_method: orderData?.paymentMethodId || null,
+          payment_status: orderData?.skipPayment ? 'pending_invoice' : 'pending',
+          payment_method: paymentMethodValue,
           contact_profile_id: orderData?.contactProfileId || null,
           client_details: orderData?.clientDetails || null
         })
