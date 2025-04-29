@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSidebar } from "@/components/ui/sidebar";
+// Update this import to use the correct path for useSidebar
+import { useSidebar } from "../ui/sidebar";
 import { 
   CreditCard, 
   FileText, 

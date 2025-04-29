@@ -1,15 +1,16 @@
 
 import React from "react";
-import Layout from "@/components/Layout";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useNavigate, Routes, Route } from "react-router-dom";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ClientSidebar from "@/components/client/ClientSidebar";
+import { useClientRoutes } from "@/hooks/useClientRoutes";
 
 const ClientArea = () => {
   const { user, loading } = useSupabaseAuth();
   const navigate = useNavigate();
+  const { currentComponent } = useClientRoutes();
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -20,14 +21,12 @@ const ClientArea = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="container py-16 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Carregando...</h1>
-            <p>Por favor, aguarde enquanto carregamos suas informações.</p>
-          </div>
+      <div className="container py-16 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Carregando...</h1>
+          <p>Por favor, aguarde enquanto carregamos suas informações.</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -36,27 +35,12 @@ const ClientArea = () => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen w-full">
       <ClientSidebar />
       
       <div className="flex-1">
         <div className="container py-8">
-          <Routes>
-            <Route path="/" element={
-              <>
-                <h1 className="text-3xl font-bold mb-8">Área do Cliente</h1>
-                <p className="text-center text-muted-foreground">
-                  Esta área está em desenvolvimento. Em breve, você poderá gerenciar seus serviços aqui.
-                </p>
-                <div className="flex justify-center mt-8">
-                  <Button onClick={() => navigate('/')}>
-                    Voltar para a Página Inicial
-                  </Button>
-                </div>
-              </>
-            } />
-            {/* Add other routes here as needed */}
-          </Routes>
+          {currentComponent}
         </div>
       </div>
     </div>

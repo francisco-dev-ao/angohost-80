@@ -44,7 +44,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
           
-          {/* Redirecionar a página checkout para enhanced-checkout */}
+          {/* Redirect checkout page to enhanced-checkout */}
           <Route path="/checkout" element={<Navigate to="/enhanced-checkout" replace />} />
           
           <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
