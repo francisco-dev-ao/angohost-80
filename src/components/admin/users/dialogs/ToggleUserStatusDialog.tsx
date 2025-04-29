@@ -16,7 +16,7 @@ import {
 interface ToggleUserStatusDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: { id: string; email: string; isActive: boolean };
+  user: { id: string; email: string; isActive?: boolean }; // Changed to make isActive optional
   onSuccess: () => void;
 }
 
