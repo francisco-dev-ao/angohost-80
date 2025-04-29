@@ -21,7 +21,8 @@ import {
   Globe,
   ChevronLeft,
   ChevronRight,
-  Shield
+  Shield,
+  Receipt
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -39,6 +40,9 @@ const ClientSidebar = () => {
     user?.user_metadata?.role === 'admin' || 
     user?.email?.endsWith('@admin.com') || 
     user?.email === 'support@angohost.ao';
+    
+  // Check if user is super admin (support@angohost.ao)
+  const isSuperAdmin = user?.email === 'support@angohost.ao';
 
   const menuItems = [
     {
@@ -69,7 +73,7 @@ const ClientSidebar = () => {
     {
       title: "Faturas",
       href: "/client/invoices",
-      icon: <FileText className="h-5 w-5" />,
+      icon: <Receipt className="h-5 w-5" />,
     },
     {
       title: "Métodos de Pagamento",
@@ -106,17 +110,36 @@ const ClientSidebar = () => {
       icon: <Settings className="h-5 w-5" />,
     });
 
-    // For super admin (support@angohost.ao), add direct link to users management
-    if (user?.email === 'support@angohost.ao') {
+    // For super admin (support@angohost.ao), add direct links to key admin areas
+    if (isSuperAdmin) {
       menuItems.push({
         title: "Gerenciar Usuários",
         href: "/admin/users",
         icon: <Shield className="h-5 w-5" />,
       });
+      
       menuItems.push({
         title: "Gerenciar Pedidos",
         href: "/admin/orders",
         icon: <Package className="h-5 w-5" />,
+      });
+      
+      menuItems.push({
+        title: "Gerenciar Faturas",
+        href: "/admin/invoices",
+        icon: <Receipt className="h-5 w-5" />,
+      });
+      
+      menuItems.push({
+        title: "Configurações",
+        href: "/admin/settings",
+        icon: <Settings className="h-5 w-5" />,
+      });
+      
+      menuItems.push({
+        title: "Templates de Email",
+        href: "/admin/email-templates",
+        icon: <Mail className="h-5 w-5" />,
       });
     }
   }
@@ -144,15 +167,25 @@ const ClientSidebar = () => {
             <Avatar>
               <AvatarImage src="/placeholder.svg" />
               <AvatarFallback className={cn("bg-primary text-primary-foreground", 
-                user?.email === 'support@angohost.ao' ? "bg-red-600" : "")}>
+                isSuperAdmin ? "bg-red-600" : "")}>
                 {user?.email?.substring(0, 2).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className={cn("transition-all", !isOpen && "hidden")}>
               <div className="font-medium">
-                {user?.email === 'support@angohost.ao' ? 'Suporte (Admin)' : user?.user_metadata?.full_name || "Usuário"}
+                {isSuperAdmin ? (
+                  <span className="text-red-600 font-bold">Suporte (Admin)</span>
+                ) : (
+                  user?.user_metadata?.full_name || "Usuário"
+                )}
               </div>
-              <div className="text-xs text-muted-foreground truncate max-w-[160px]">{user?.email}</div>
+              <div className="text-xs text-muted-foreground truncate max-w-[160px]">
+                {isSuperAdmin ? (
+                  <span className="text-red-500">{user?.email}</span>
+                ) : (
+                  user?.email
+                )}
+              </div>
             </div>
           </div>
           <Button 
@@ -167,28 +200,40 @@ const ClientSidebar = () => {
         <Separator />
         <ScrollArea className="flex-1 px-3 py-4">
           <div className="space-y-1">
-            {menuItems.map((item) => (
-              <Button
-                key={item.href}
-                variant={location.pathname === item.href ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start",
-                  !isOpen && "justify-center px-2",
-                  item.title === "Área Administrativa" && user?.email === 'support@angohost.ao' && "bg-red-100 hover:bg-red-200"
-                )}
-                onClick={() => navigate(item.href)}
-              >
-                {item.icon}
-                <span
+            {menuItems.map((item) => {
+              // Special styling for admin-related items when the user is super admin
+              const isAdminItem = item.href.includes('/admin');
+              const isSuperAdminItem = isSuperAdmin && isAdminItem;
+              
+              return (
+                <Button
+                  key={item.href}
+                  variant={location.pathname === item.href ? "secondary" : "ghost"}
                   className={cn(
-                    "ml-3 transition-all",
-                    !isOpen && "hidden"
+                    "w-full justify-start",
+                    !isOpen && "justify-center px-2",
+                    isSuperAdminItem && "bg-red-100 hover:bg-red-200",
+                    location.pathname === item.href && isSuperAdminItem && "bg-red-200"
                   )}
+                  onClick={() => navigate(item.href)}
                 >
-                  {item.title}
-                </span>
-              </Button>
-            ))}
+                  {isSuperAdminItem ? (
+                    <span className="text-red-600">{item.icon}</span>
+                  ) : (
+                    item.icon
+                  )}
+                  <span
+                    className={cn(
+                      "ml-3 transition-all",
+                      !isOpen && "hidden",
+                      isSuperAdminItem && "text-red-600 font-medium"
+                    )}
+                  >
+                    {item.title}
+                  </span>
+                </Button>
+              );
+            })}
           </div>
         </ScrollArea>
         <div className="p-4">

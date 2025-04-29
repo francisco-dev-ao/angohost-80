@@ -21,13 +21,30 @@ export const useAdminSetupUtil = () => {
         if (existingUser.role !== 'admin') {
           const { error: updateError } = await supabase
             .from('profiles')
-            .update({ role: 'admin' })
+            .update({ 
+              role: 'admin',
+              is_super_admin: email === 'support@angohost.ao' // Flag for super admin with full permissions
+            })
             .eq('id', existingUser.id);
             
           if (updateError) throw updateError;
-          toast.success(`Usuário ${email} atualizado para administrador com permissões totais`);
+          
+          if (email === 'support@angohost.ao') {
+            toast.success(`Usuário ${email} configurado como super administrador com permissões totais`);
+          } else {
+            toast.success(`Usuário ${email} atualizado para administrador`);
+          }
+        } else if (email === 'support@angohost.ao') {
+          // Ensure super admin flag is set for support@angohost.ao
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ is_super_admin: true })
+            .eq('id', existingUser.id);
+            
+          if (updateError) throw updateError;
+          toast.info(`Usuário ${email} já é super administrador com permissões totais`);
         } else {
-          toast.info(`Usuário ${email} já é administrador com permissões totais`);
+          toast.info(`Usuário ${email} já é administrador`);
         }
         return;
       }
@@ -38,8 +55,9 @@ export const useAdminSetupUtil = () => {
         password: defaultPassword,
         options: {
           data: {
-            full_name: 'Suporte AngoHost',
+            full_name: email === 'support@angohost.ao' ? 'Suporte AngoHost' : 'Administrador',
             role: 'admin',
+            is_super_admin: email === 'support@angohost.ao' // Flag for super admin with full permissions
           },
         },
       });
@@ -52,13 +70,18 @@ export const useAdminSetupUtil = () => {
           .from('profiles')
           .update({ 
             role: 'admin',
-            full_name: 'Suporte AngoHost'
+            full_name: email === 'support@angohost.ao' ? 'Suporte AngoHost' : 'Administrador',
+            is_super_admin: email === 'support@angohost.ao' // Flag for super admin with full permissions
           })
           .eq('id', data.user.id);
 
         if (profileError) throw profileError;
         
-        toast.success(`Administrador ${email} criado com sucesso e permissões totais concedidas`);
+        if (email === 'support@angohost.ao') {
+          toast.success(`Super administrador ${email} criado com sucesso e permissões totais concedidas`);
+        } else {
+          toast.success(`Administrador ${email} criado com sucesso`);
+        }
       }
     } catch (error: any) {
       toast.error('Erro ao configurar administrador: ' + error.message);

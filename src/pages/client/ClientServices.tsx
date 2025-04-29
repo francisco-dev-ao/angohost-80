@@ -6,6 +6,7 @@ import { useAdminSetupUtil } from '@/hooks/useAdminSetupUtil';
 import AdminSetupDialog from '@/components/admin/AdminSetupDialog';
 import { useState } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { toast } from 'sonner';
 
 const ClientServices = () => {
   const [showAdminSetup, setShowAdminSetup] = useState(false);
@@ -17,8 +18,12 @@ const ClientServices = () => {
     if (user?.email === 'support@angohost.ao') {
       // Auto setup the admin for the support account with full permissions
       ensureAdminExists('support@angohost.ao', 'AngoHost@2025');
+      toast.success('Usuário support@angohost.ao: acesso de super administrador com permissões totais configuradas automaticamente', {
+        duration: 5000,
+        position: 'top-center',
+      });
     }
-  }, [user]);
+  }, [user, ensureAdminExists]);
   
   return (
     <motion.div

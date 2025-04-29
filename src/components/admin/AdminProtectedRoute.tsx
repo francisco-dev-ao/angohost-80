@@ -16,14 +16,18 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     if (!loading && !user) {
       toast.error('Você precisa estar logado para acessar esta página');
     } else if (!loading && user) {
-      // Check if user is admin
+      // Check if user is admin - support@angohost.ao is ALWAYS an admin with full access
+      const isSupportEmail = user.email === 'support@angohost.ao';
+      
       const isAdmin = 
+        isSupportEmail || 
         user.user_metadata?.role === 'admin' || 
-        user.email?.endsWith('@admin.com') || 
-        user.email === 'support@angohost.ao';
+        user.email?.endsWith('@admin.com');
       
       if (!isAdmin) {
         toast.error('Você não tem permissão para acessar esta área');
+      } else if (isSupportEmail) {
+        toast.success('Bem-vindo ao painel de administração com acesso completo');
       }
     }
   }, [loading, user]);
@@ -46,7 +50,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     return <Navigate to="/register" replace />;
   }
   
-  // Special treatment for support@angohost.ao - always allow access
+  // Special treatment for support@angohost.ao - always allow full access
   if (user.email === 'support@angohost.ao') {
     return <>{children}</>;
   }

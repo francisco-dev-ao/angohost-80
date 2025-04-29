@@ -22,6 +22,9 @@ import AdminServicePlans from './pages/admin/AdminServicePlans';
 import AdminPageContents from './pages/admin/AdminPageContents';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminInvoices from './pages/admin/AdminInvoices';
+import AdminEmailTemplates from './pages/admin/AdminEmailTemplates';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // Import client pages
 import ClientLayout from './pages/client/ClientLayout';
@@ -29,6 +32,7 @@ import ClientDomains from './pages/client/ClientDomains';
 import ClientProfile from './pages/client/ClientProfile';
 import ClientServices from './pages/client/ClientServices';
 import ClientArea from './pages/ClientArea';
+import ClientInvoices from './pages/client/ClientInvoices';
 import CpanelHosting from './pages/CpanelHosting';
 import ProfessionalEmail from './pages/ProfessionalEmail';
 import ExchangeOnline from './pages/ExchangeOnline';
@@ -74,6 +78,9 @@ function App() {
           <Route path="/admin/service-plans" element={<AdminProtectedRoute><AdminServicePlans /></AdminProtectedRoute>} />
           <Route path="/admin/page-contents" element={<AdminProtectedRoute><AdminPageContents /></AdminProtectedRoute>} />
           <Route path="/admin/orders" element={<AdminProtectedRoute><AdminOrders /></AdminProtectedRoute>} />
+          <Route path="/admin/invoices" element={<AdminProtectedRoute><AdminInvoices /></AdminProtectedRoute>} />
+          <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
+          <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
 
           {/* Client Routes - Support both /client/* and direct access to /client-area */}
           <Route path="/client" element={<ClientLayout />}>
@@ -82,6 +89,7 @@ function App() {
             <Route path="profile" element={<ClientProfile />} />
             <Route path="services" element={<ClientServices />} />
             <Route path="orders" element={<ClientArea />} />
+            <Route path="invoices" element={<ClientInvoices />} />
           </Route>
 
           {/* Direct routes */}
