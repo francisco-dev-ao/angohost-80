@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -98,7 +97,9 @@ const WalletPage = () => {
         .insert({
           user_id: user.id,
           balance: 0,
-          auto_pay: false
+          auto_pay: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .select()
         .single();
@@ -128,70 +129,81 @@ const WalletPage = () => {
     }
     
     try {
-      // In a real implementation, this would redirect to a payment gateway
-      toast.success('Redirecionando para o gateway de pagamento...');
+      toast.success('Processando seu depósito...', { duration: 2000 });
       
-      // Simulating a successful deposit for demo purposes
-      setTimeout(async () => {
-        try {
-          // Try to update wallet balance
-          const { data: walletData, error: fetchError } = await supabase
+      // First, check if the wallet exists
+      const { data: existingWallet, error: fetchError } = await supabase
+        .from('wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .single();
+      
+      let currentBalance = 0;
+      
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+          // Wallet doesn't exist yet, create it
+          const { error: createError } = await supabase
             .from('wallets')
-            .select('*')
-            .eq('user_id', user.id)
-            .single();
-          
-          if (fetchError) {
-            if (fetchError.code === 'PGRST116') {
-              // No wallet found, create one
-              await createNewWallet();
-            } else if (fetchError.code !== '42P01') {
-              throw fetchError;
-            }
-          }
-          
-          let currentBalance = walletData?.balance || 0;
-          const newBalance = currentBalance + depositAmount;
-          
-          // Update or insert wallet data
-          const { error: updateError } = await supabase
-            .from('wallets')
-            .upsert({ 
+            .insert({
               user_id: user.id,
-              balance: newBalance,
-              auto_pay: autoPayEnabled
+              balance: 0,
+              auto_pay: false,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             });
-          
-          if (updateError && updateError.code !== '42P01') {
-            throw updateError;
+            
+          if (createError) {
+            console.error('Error creating new wallet:', createError);
+            throw new Error('Erro ao criar carteira');
           }
-          
-          // Add transaction record if the table exists
-          try {
-            await supabase
-              .from('wallet_transactions')
-              .insert({
-                user_id: user.id,
-                amount: depositAmount,
-                type: 'deposit',
-                description: 'Depósito na carteira',
-                status: 'completed'
-              });
-          } catch (txErr) {
-            console.warn('Could not record transaction (table may not exist):', txErr);
-          }
-          
-          setBalance(newBalance);
-          toast.success(`Depósito de ${formatPrice(depositAmount)} processado com sucesso!`);
-          fetchWalletData();
-        } catch (error: any) {
-          console.error('Error processing deposit:', error);
-          toast.error('Erro ao processar depósito');
+        } else {
+          throw fetchError;
         }
-      }, 2000);
+      } else if (existingWallet) {
+        currentBalance = existingWallet.balance || 0;
+      }
+      
+      // Calculate new balance
+      const newBalance = currentBalance + depositAmount;
+      
+      // Update wallet with new balance
+      const { error: updateError } = await supabase
+        .from('wallets')
+        .update({ 
+          balance: newBalance,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+        
+      if (updateError) throw updateError;
+      
+      // Create transaction record
+      const { error: txError } = await supabase
+        .from('wallet_transactions')
+        .insert({
+          user_id: user.id,
+          amount: depositAmount,
+          type: 'deposit',
+          description: 'Depósito na carteira',
+          status: 'completed',
+          created_at: new Date().toISOString()
+        });
+        
+      if (txError) console.warn('Error recording transaction:', txError);
+      
+      // Update local state
+      setBalance(newBalance);
+      
+      // Show success message
+      toast.success(`Depósito de ${formatPrice(depositAmount)} realizado com sucesso!`);
+      
+      // Refresh wallet data
+      fetchWalletData();
+      
     } catch (error: any) {
-      console.error('Error initiating deposit:', error);
-      toast.error('Erro ao iniciar depósito');
+      console.error('Error processing deposit:', error);
+      toast.error(`Erro ao processar depósito: ${error.message || 'Tente novamente mais tarde'}`);
     }
   };
 

@@ -22,7 +22,7 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
-import { ServerIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { ServerIcon, MailIcon, GlobeIcon, FileTextIcon } from 'lucide-react';
 
 const ServicesPage = () => {
   const { services, loading, renewService, toggleAutoRenew } = useClientServices();
@@ -36,26 +36,28 @@ const ServicesPage = () => {
       case 'active':
         return (
           <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-            <CheckCircleIcon className="w-3 h-3 mr-1" />
+            <div className="w-2 h-2 rounded-full bg-green-600 mr-1"></div>
             Ativo
           </span>
         );
       case 'suspended':
         return (
           <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+            <div className="w-2 h-2 rounded-full bg-amber-600 mr-1"></div>
             Suspenso
           </span>
         );
       case 'cancelled':
         return (
           <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-            <XCircleIcon className="w-3 h-3 mr-1" />
+            <div className="w-2 h-2 rounded-full bg-red-600 mr-1"></div>
             Cancelado
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+            <div className="w-2 h-2 rounded-full bg-gray-600 mr-1"></div>
             {status || 'Desconhecido'}
           </span>
         );
@@ -69,10 +71,40 @@ const ServicesPage = () => {
     return differenceInDays <= 30;
   };
 
+  // Get service icon based on service type
+  const getServiceIcon = (serviceType: string) => {
+    switch (serviceType?.toLowerCase()) {
+      case 'hosting':
+      case 'hospedagem':
+      case 'vps':
+        return <ServerIcon className="h-4 w-4 text-primary" />;
+      case 'email':
+      case 'email-corporativo':
+      case 'corporate-email':
+        return <MailIcon className="h-4 w-4 text-blue-600" />;
+      case 'domain':
+      case 'dominio': 
+        return <GlobeIcon className="h-4 w-4 text-green-600" />;
+      case 'invoice':
+      case 'order':
+      case 'fatura':
+      case 'pedido':
+        return <FileTextIcon className="h-4 w-4 text-amber-600" />;
+      default:
+        return <ServerIcon className="h-4 w-4 text-primary" />;
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Meus Serviços</h1>
+        <Button 
+          onClick={() => window.location.href = '/domains'}
+          variant="outline"
+        >
+          Adicionar Novo Serviço
+        </Button>
       </div>
 
       {services.length === 0 ? (
@@ -84,7 +116,7 @@ const ServicesPage = () => {
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Button>Adquirir um serviço</Button>
+            <Button onClick={() => window.location.href = '/domains'}>Adquirir um serviço</Button>
           </CardFooter>
         </Card>
       ) : (
@@ -92,7 +124,7 @@ const ServicesPage = () => {
           <CardHeader>
             <CardTitle>Serviços Contratados</CardTitle>
             <CardDescription>
-              Gerencie seus serviços de hospedagem, e-mail e outros.
+              Gerencie seus serviços de hospedagem, e-mail, domínios e outros.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -113,7 +145,7 @@ const ServicesPage = () => {
                   <TableRow key={service.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center space-x-2">
-                        <ServerIcon className="h-4 w-4 text-primary" />
+                        {getServiceIcon(service.service_type)}
                         <div>
                           <p>{service.name}</p>
                           <p className="text-xs text-muted-foreground">{service.description || service.service_type}</p>

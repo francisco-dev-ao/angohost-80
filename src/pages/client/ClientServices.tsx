@@ -3,10 +3,10 @@ import React, { useEffect } from 'react';
 import ServicesPage from '@/components/client/ServicesPage';
 import { motion } from 'framer-motion';
 import { useAdminSetupUtil } from '@/hooks/useAdminSetupUtil';
-import AdminSetupDialog from '@/components/admin/AdminSetupDialog';
 import { useState } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const ClientServices = () => {
   const [showAdminSetup, setShowAdminSetup] = useState(false);
@@ -23,6 +23,42 @@ const ClientServices = () => {
         position: 'top-center',
       });
     }
+
+    // Ensure all client features are activated for the current user
+    const activateClientFeatures = async () => {
+      if (!user) return;
+      
+      try {
+        // Update or create user feature settings to enable all features
+        const { error } = await supabase
+          .from('user_feature_settings')
+          .upsert({
+            user_id: user.id,
+            features_enabled: {
+              dashboard: true,
+              domains: true,
+              services: true,
+              invoices: true,
+              tickets: true,
+              wallet: true,
+              notifications: true,
+              promotions: true,
+              orders: true,
+              contact_profiles: true,
+              payment_methods: true
+            },
+            last_updated: new Date().toISOString()
+          });
+          
+        if (error) {
+          console.error('Error activating client features:', error);
+        }
+      } catch (error) {
+        console.error('Error in feature activation process:', error);
+      }
+    };
+    
+    activateClientFeatures();
   }, [user, ensureAdminExists]);
   
   return (
@@ -32,12 +68,6 @@ const ClientServices = () => {
       transition={{ duration: 0.5 }}
     >
       <ServicesPage />
-      
-      <AdminSetupDialog 
-        isOpen={showAdminSetup} 
-        onOpenChange={setShowAdminSetup} 
-        defaultEmail="support@angohost.ao" 
-      />
     </motion.div>
   );
 };

@@ -28,14 +28,70 @@ export const useClientServices = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch regular services
+      const { data: regularServices, error: servicesError } = await supabase
         .from('client_services')
         .select('*')
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (servicesError) throw servicesError;
       
-      setServices(data || []);
+      // Fetch recent invoices and show them as services
+      const { data: invoices, error: invoicesError } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5); // Limit to 5 most recent invoices
+
+      if (invoicesError) throw invoicesError;
+
+      // Fetch recent orders and show them as services
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5); // Limit to 5 most recent orders
+
+      if (ordersError) throw ordersError;
+
+      // Convert invoices to client service format
+      const invoiceServices: ClientService[] = (invoices || []).map(invoice => ({
+        id: `invoice-${invoice.id}`,
+        name: `Fatura #${invoice.invoice_number}`,
+        description: 'Fatura de serviços',
+        service_type: 'invoice',
+        status: invoice.status === 'paid' ? 'active' : invoice.status,
+        price_monthly: 0,
+        price_yearly: invoice.amount,
+        renewal_date: invoice.due_date,
+        created_at: invoice.created_at,
+        auto_renew: false,
+      }));
+
+      // Convert orders to client service format
+      const orderServices: ClientService[] = (orders || []).map(order => ({
+        id: `order-${order.id}`,
+        name: `Pedido #${order.order_number}`,
+        description: 'Pedido de serviços',
+        service_type: 'order',
+        status: order.status === 'completed' ? 'active' : order.status,
+        price_monthly: 0,
+        price_yearly: order.total_amount,
+        renewal_date: new Date(new Date(order.created_at).setFullYear(new Date(order.created_at).getFullYear() + 1)).toISOString(),
+        created_at: order.created_at,
+        auto_renew: false,
+      }));
+
+      // Combine all services
+      const allServices = [
+        ...(regularServices || []),
+        ...invoiceServices,
+        ...orderServices
+      ];
+
+      setServices(allServices);
     } catch (error: any) {
       console.error('Error fetching client services:', error);
       toast.error('Erro ao carregar serviços');
@@ -46,6 +102,12 @@ export const useClientServices = () => {
 
   const renewService = async (serviceId: string) => {
     try {
+      // Check if this is an invoice or order service (these can't be renewed)
+      if (serviceId.startsWith('invoice-') || serviceId.startsWith('order-')) {
+        toast.info('Este item não pode ser renovado diretamente.');
+        return;
+      }
+
       toast.info('Processando renovação...');
       // Simulate renewal process
       setTimeout(() => {
@@ -58,6 +120,12 @@ export const useClientServices = () => {
 
   const toggleAutoRenew = async (serviceId: string, currentStatus: boolean) => {
     try {
+      // Check if this is an invoice or order service (these can't have auto-renew)
+      if (serviceId.startsWith('invoice-') || serviceId.startsWith('order-')) {
+        toast.info('Renovação automática não disponível para este item.');
+        return;
+      }
+
       const { error } = await supabase
         .from('client_services')
         .update({ auto_renew: !currentStatus })
@@ -102,9 +170,47 @@ export const useClientServices = () => {
         }
       )
       .subscribe();
+    
+    // Subscribe to invoice changes as well
+    const invoicesChannel = supabase
+      .channel('client-invoices-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invoices',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          console.log('Invoices changed, refreshing services...');
+          fetchServices();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to order changes
+    const ordersChannel = supabase
+      .channel('client-orders-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          console.log('Orders changed, refreshing services...');
+          fetchServices();
+        }
+      )
+      .subscribe();
       
     return () => {
       supabase.removeChannel(servicesChannel);
+      supabase.removeChannel(invoicesChannel);
+      supabase.removeChannel(ordersChannel);
     };
   }, [user]);
 
