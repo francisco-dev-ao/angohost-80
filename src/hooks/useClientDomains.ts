@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { getDomainsByUserId, updateDomain } from '@/models/domain';
+import { useAuth } from '@/hooks/mysql/useAuth';
 import { toast } from 'sonner';
-import { Domain } from '@/types/client';
+import { Domain } from '@/models/domain';
 
 export const useClientDomains = () => {
   const [domains, setDomains] = useState<Domain[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useSupabaseAuth();
+  const { user } = useAuth();
 
   const fetchDomains = async () => {
     if (!user) return;
@@ -16,11 +16,7 @@ export const useClientDomains = () => {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase
-        .from('client_domains')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      const { data, error } = await getDomainsByUserId(user.id);
 
       if (error) throw error;
       setDomains(data as Domain[] || []);
@@ -34,11 +30,7 @@ export const useClientDomains = () => {
 
   const toggleAutoRenew = async (domainId: string, currentValue: boolean) => {
     try {
-      const { error } = await supabase
-        .from('client_domains')
-        .update({ auto_renew: !currentValue })
-        .eq('id', domainId)
-        .eq('user_id', user?.id);
+      const { error } = await updateDomain(domainId, { auto_renew: !currentValue });
 
       if (error) throw error;
 
@@ -59,11 +51,7 @@ export const useClientDomains = () => {
 
   const toggleWhoisPrivacy = async (domainId: string, currentValue: boolean) => {
     try {
-      const { error } = await supabase
-        .from('client_domains')
-        .update({ whois_privacy: !currentValue })
-        .eq('id', domainId)
-        .eq('user_id', user?.id);
+      const { error } = await updateDomain(domainId, { whois_privacy: !currentValue });
 
       if (error) throw error;
 
@@ -84,11 +72,7 @@ export const useClientDomains = () => {
 
   const toggleLock = async (domainId: string, currentValue: boolean) => {
     try {
-      const { error } = await supabase
-        .from('client_domains')
-        .update({ is_locked: !currentValue })
-        .eq('id', domainId)
-        .eq('user_id', user?.id);
+      const { error } = await updateDomain(domainId, { is_locked: !currentValue });
 
       if (error) throw error;
 

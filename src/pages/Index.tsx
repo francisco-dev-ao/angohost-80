@@ -10,26 +10,26 @@ import DomainSearchSection from "@/components/home/DomainSearchSection";
 import Layout from "@/components/Layout";
 import TrustpilotSection from "@/components/home/TrustpilotSection";
 import AdminSetupDialog from "@/components/admin/AdminSetupDialog";
+import DatabaseConfigDialog from "@/components/admin/DatabaseConfigDialog";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Settings, Database } from "lucide-react";
+import { executeQuery } from "@/integrations/mysql/client";
 
 const Index = () => {
   const [isAdminSetupOpen, setIsAdminSetupOpen] = useState(false);
+  const [isDatabaseConfigOpen, setIsDatabaseConfigOpen] = useState(false);
   const [adminConfigured, setAdminConfigured] = useState(false);
   
   useEffect(() => {
     // Check if support admin is already configured
     const checkAdminUser = async () => {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role, email')
-          .eq('email', 'support@angohost.ao')
-          .eq('role', 'admin')
-          .single();
+        const { data, error } = await executeQuery(
+          'SELECT role, email FROM users WHERE email = ? AND role = ?',
+          ['support@angohost.ao', 'admin']
+        );
         
-        if (data) {
+        if (data && Array.isArray(data) && data.length > 0) {
           setAdminConfigured(true);
         }
       } catch (error) {
@@ -42,7 +42,17 @@ const Index = () => {
   
   return (
     <Layout>
-      <div className="fixed bottom-5 right-5 z-50">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2">
+        <Button 
+          variant="outline" 
+          size="icon"
+          className="h-10 w-10 rounded-full border-gray-300 bg-white shadow-md hover:bg-gray-100"
+          onClick={() => setIsDatabaseConfigOpen(true)}
+          title="Configuração do Banco de Dados"
+        >
+          <Database size={18} />
+        </Button>
+        
         <Button 
           variant="outline" 
           size="icon"
@@ -70,6 +80,11 @@ const Index = () => {
         isOpen={isAdminSetupOpen}
         onOpenChange={setIsAdminSetupOpen}
         defaultEmail="support@angohost.ao"
+      />
+      
+      <DatabaseConfigDialog
+        isOpen={isDatabaseConfigOpen}
+        onOpenChange={setIsDatabaseConfigOpen}
       />
     </Layout>
   );

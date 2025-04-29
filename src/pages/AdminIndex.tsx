@@ -1,20 +1,39 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Dashboard from "@/components/admin/Dashboard";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import SuperAdminSetupDialog from "@/components/admin/SuperAdminSetupDialog";
-import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { executeQuery } from "@/integrations/mysql/client";
+import { useAuth } from "@/hooks/mysql/useAuth";
 
 const AdminIndex = () => {
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
-  const { user } = useSupabaseAuth();
+  const { user } = useAuth();
+  const [superAdminExists, setSuperAdminExists] = useState(false);
+  
+  useEffect(() => {
+    const checkSuperAdmin = async () => {
+      try {
+        const { data } = await executeQuery(
+          'SELECT id FROM users WHERE email = ? AND role = ?',
+          ['support@angohost.ao', 'admin']
+        );
+        
+        setSuperAdminExists(data && Array.isArray(data) && data.length > 0);
+      } catch (error) {
+        console.error('Error checking super admin:', error);
+      }
+    };
+    
+    checkSuperAdmin();
+  }, []);
   
   // Verificar se o usuário atual tem permissão para criar o super admin
   // Apenas administradores podem ver este botão
   // O support@angohost.ao NÃO deve ver este botão, pois ele já é o super admin
-  const canSetupSuperAdmin = user?.email !== 'support@angohost.ao';
+  const canSetupSuperAdmin = user?.email !== 'support@angohost.ao' && !superAdminExists;
 
   return (
     <AdminLayout>
