@@ -1,104 +1,89 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CartProvider } from "./contexts/CartContext";
-import { OwnershipProvider } from "./contexts/OwnershipContext";
-import Index from "./pages/Index";
-import CpanelHosting from "./pages/CpanelHosting";
-import WordPressHosting from "./pages/WordPressHosting";
-import VpsHosting from "./pages/VpsHosting";
-import DedicatedServers from "./pages/DedicatedServers";
-import ProfessionalEmail from "./pages/ProfessionalEmail";
-import ExchangeOnline from "./pages/ExchangeOnline";
-import ClientArea from "./pages/ClientArea";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import NotFound from "./pages/NotFound";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Domains from "./pages/Domains";
-import DomainTransfer from "./pages/DomainTransfer";
-import Register from "./pages/Register";
-import AdminIndex from "./pages/AdminIndex";
-import AdminStats from "./pages/admin/AdminStats";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminDomains from "./pages/admin/AdminDomains";
-import AdminHosting from "./pages/admin/AdminHosting";
-import CreateHosting from "./pages/admin/CreateHosting";
-import EditHosting from "./pages/admin/EditHosting";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminInvoices from "./pages/admin/AdminInvoices";
-import AdminTickets from "./pages/admin/AdminTickets";
-import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
-import AdminAbandonedCarts from "./pages/admin/AdminAbandonedCarts";
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
+import Index from './pages/Index';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Domains from './pages/Domains';
+import DomainTransfer from './pages/DomainTransfer';
+import WordPressHosting from './pages/WordPressHosting';
+import VpsHosting from './pages/VpsHosting';
+import CpanelHosting from './pages/CpanelHosting';
+import DedicatedServers from './pages/DedicatedServers';
+import ProfessionalEmail from './pages/ProfessionalEmail';
+import ExchangeOnline from './pages/ExchangeOnline';
+import Register from './pages/Register';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import { Toaster } from "sonner";
+import ClientDomains from './pages/client/ClientDomains';
+import ClientInvoices from './pages/client/ClientInvoices';
+import ClientOrders from './pages/client/ClientOrders';
+import ClientContactProfiles from './pages/client/ClientContactProfiles';
+import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import EnhancedCheckoutPage from './pages/EnhancedCheckout';
 
-const queryClient = new QueryClient();
+function App() {
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/domains" element={<Domains />} />
+        <Route path="/domain-transfer" element={<DomainTransfer />} />
+        <Route path="/wordpress-hosting" element={<WordPressHosting />} />
+        <Route path="/vps-hosting" element={<VpsHosting />} />
+        <Route path="/cpanel-hosting" element={<CpanelHosting />} />
+        <Route path="/dedicated-servers" element={<DedicatedServers />} />
+        <Route path="/professional-email" element={<ProfessionalEmail />} />
+        <Route path="/exchange-online" element={<ExchangeOnline />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/enhanced-checkout" element={<EnhancedCheckoutPage />} />
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <CartProvider>
-      <OwnershipProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products/cpanel" element={<CpanelHosting />} />
-              <Route path="/products/wordpress" element={<WordPressHosting />} />
-              <Route path="/products/vps" element={<VpsHosting />} />
-              <Route path="/products/dedicated" element={<DedicatedServers />} />
-              <Route path="/products/email" element={<ProfessionalEmail />} />
-              <Route path="/products/exchange" element={<ExchangeOnline />} />
-              <Route path="/domains" element={<Domains />} />
-              <Route path="/domain-transfer" element={<DomainTransfer />} />
-              <Route path="/client" element={<ClientArea />} />
-              <Route path="/client/profile" element={<ClientArea />} />
-              <Route path="/client/domains" element={<ClientArea />} />
-              <Route path="/client/services" element={<ClientArea />} />
-              <Route path="/client/invoices" element={<ClientArea />} />
-              <Route path="/client/payment-methods" element={<ClientArea />} />
-              <Route path="/client/support" element={<ClientArea />} />
-              <Route path="/client/notifications" element={<ClientArea />} />
-              <Route path="/client/promotions" element={<ClientArea />} />
-              <Route path="/client/contact-profiles" element={<ClientArea />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/cart/shared/:token" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/client/orders" element={<ClientArea />} />
-              
-              <Route path="/admin" element={<AdminIndex />} />
-              <Route path="/admin/stats" element={<AdminStats />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/products" element={<AdminProducts />} />
-              <Route path="/admin/domains" element={<AdminDomains />} />
-              <Route path="/admin/hosting" element={<AdminHosting />} />
-              <Route path="/admin/hosting/create" element={<CreateHosting />} />
-              <Route path="/admin/hosting/edit/:id" element={<EditHosting />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/invoices" element={<AdminInvoices />} />
-              <Route path="/admin/tickets" element={<AdminTickets />} />
-              <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/admin/payment-methods" element={<AdminPaymentMethods />} />
-              <Route path="/admin/services" element={<AdminHosting />} />
-              <Route path="/admin/abandoned-carts" element={<AdminAbandonedCarts />} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </OwnershipProvider>
-    </CartProvider>
-  </QueryClientProvider>
-);
+        <Route
+          path="/client/domains"
+          element={
+            <ProtectedRoute>
+              <ClientDomains />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/client/invoices"
+          element={
+            <ProtectedRoute>
+              <ClientInvoices />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/client/orders"
+          element={
+            <ProtectedRoute>
+              <ClientOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/client/contact-profiles"
+          element={
+            <ProtectedRoute>
+              <ClientContactProfiles />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+      <Toaster position="top-center" />
+    </>
+  );
+}
 
 export default App;
