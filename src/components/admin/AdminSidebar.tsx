@@ -11,14 +11,8 @@ import AdminSidebarLogout from "./sidebar/AdminSidebarLogout";
 
 const AdminSidebar = () => {
   const { isOpen, setIsOpen } = useSidebar();
-  const { user } = useSupabaseAuth();
+  const { user, isAdmin } = useSupabaseAuth();
   
-  // Check if user is administrator
-  const isAdmin = 
-    user?.user_metadata?.role === 'admin' || 
-    user?.email?.endsWith('@admin.com') || 
-    user?.email === 'support@angohost.ao';
-    
   // Check if user is super admin (support@angohost.ao)
   const isSuperAdmin = user?.email === 'support@angohost.ao';
 

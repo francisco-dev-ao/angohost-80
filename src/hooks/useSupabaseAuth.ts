@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -5,20 +6,74 @@ import { useLoginTracker } from './useLoginTracker';
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   
   // Integra o rastreador de login
   useLoginTracker(user?.id);
+
+  // Verifica se um usuário é administrador
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      // Métodos para verificar se é admin:
+      // 1. Verificar se o e-mail é support@angohost.ao (super admin)
+      if (user?.email === 'support@angohost.ao') {
+        setIsAdmin(true);
+        return true;
+      }
+      
+      // 2. Verificar meta dados do usuário
+      if (user?.user_metadata?.role === 'admin') {
+        setIsAdmin(true);
+        return true;
+      }
+      
+      // 3. Verificar a tabela profiles
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (!error && profile?.role === 'admin') {
+        setIsAdmin(true);
+        return true;
+      }
+      
+      // 4. Verificar no campo admin_permissions
+      const { data: permissions, error: permError } = await supabase
+        .from('admin_permissions')
+        .select('full_access')
+        .eq('user_id', userId)
+        .single();
+      
+      if (!permError && permissions?.full_access === true) {
+        setIsAdmin(true);
+        return true;
+      }
+      
+      setIsAdmin(false);
+      return false;
+    } catch (error) {
+      console.error('Erro ao verificar status de administrador:', error);
+      setIsAdmin(false);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session && session.user) {
         setUser(session.user);
         
+        // Verificar status de administrador
+        await checkAdminStatus(session.user.id);
+        
         // Automatically activate all features when a user logs in
         await activateAllFeaturesForUser(session.user.id);
       } else {
         setUser(null);
+        setIsAdmin(false);
       }
       setLoading(false);
     });
@@ -27,6 +82,9 @@ export const useSupabaseAuth = () => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session && session.user) {
         setUser(session.user);
+        
+        // Verificar status de administrador
+        await checkAdminStatus(session.user.id);
         
         // Automatically activate all features for existing sessions
         await activateAllFeaturesForUser(session.user.id);
@@ -98,6 +156,12 @@ export const useSupabaseAuth = () => {
       }
 
       toast.success('Login realizado com sucesso!');
+      
+      if (data.user) {
+        // Verificar status de administrador após login
+        await checkAdminStatus(data.user.id);
+      }
+      
       return data;
     } catch (error: any) {
       toast.error(error.message || 'Erro ao realizar login');
@@ -175,6 +239,7 @@ export const useSupabaseAuth = () => {
         throw error;
       }
       
+      setIsAdmin(false);
       toast.success('Sessão encerrada com sucesso');
     } catch (error: any) {
       toast.error(error.message || 'Erro ao encerrar sessão');
@@ -185,9 +250,11 @@ export const useSupabaseAuth = () => {
   return {
     user,
     loading,
+    isAdmin,
     signIn: handleSignIn,
     signUp: handleSignUp,
     resetPassword: handleResetPassword,
     signOut: handleSignOut,
+    checkAdminStatus
   };
 };

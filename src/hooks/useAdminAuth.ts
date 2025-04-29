@@ -1,54 +1,49 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useSupabaseAuth } from './useSupabaseAuth';
 import { toast } from 'sonner';
 
 export const useAdminAuth = () => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const { user, loading, isAdmin } = useSupabaseAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      setIsLoading(true);
-      
+    const checkAdminAccess = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          setIsAdmin(false);
-          navigate('/register');
-          toast.error('Você precisa estar logado para acessar o painel administrativo');
-          return;
-        }
-        
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
+        setIsLoading(true);
+
+        if (!loading) {
+          // Se o usuário não estiver autenticado, redirecionar para login
+          if (!user) {
+            toast.error('Você precisa estar logado para acessar esta página');
+            navigate('/register');
+            return;
+          }
+
+          // Se não for admin, redirecionar para área do cliente
+          if (!isAdmin) {
+            toast.error('Você não tem permissão para acessar esta área');
+            navigate('/client');
+            return;
+          }
           
-        if (!profile || profile.role !== 'admin') {
-          setIsAdmin(false);
-          navigate('/');
-          toast.error('Você não tem permissão para acessar o painel administrativo');
-          return;
+          // Sucesso - usuário é admin
+          if (user.email === 'support@angohost.ao') {
+            console.log('Super admin access granted');
+          }
         }
-        
-        setIsAdmin(true);
       } catch (error) {
-        console.error('Error checking admin status:', error);
-        setIsAdmin(false);
-        navigate('/');
-        toast.error('Erro ao verificar permissões de administrador');
+        console.error('Erro ao verificar permissões de administrador:', error);
+        navigate('/register');
       } finally {
         setIsLoading(false);
       }
     };
-    
-    checkAdminStatus();
-  }, [navigate]);
-  
+
+    checkAdminAccess();
+  }, [user, loading, isAdmin, navigate]);
+
   return { isAdmin, isLoading };
 };

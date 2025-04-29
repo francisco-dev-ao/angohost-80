@@ -11,18 +11,13 @@ interface AdminProtectedRouteProps {
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useSupabaseAuth();
+  const { user, loading, isAdmin } = useSupabaseAuth();
 
   useEffect(() => {
     const setupAdminAccess = async () => {
       if (!loading && user) {
         // Check if user is admin - support@angohost.ao is ALWAYS an admin with full access
         const isSupportEmail = user.email === 'support@angohost.ao';
-        
-        const isAdmin = 
-          isSupportEmail || 
-          user.user_metadata?.role === 'admin' || 
-          user.email?.endsWith('@admin.com');
         
         if (isAdmin) {
           try {
@@ -62,7 +57,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
           if (isSupportEmail) {
             toast.success('Bem-vindo ao painel de administração com acesso completo');
           }
-        } else {
+        } else if (!loading) {
           toast.error('Você não tem permissão para acessar esta área');
         }
       } else if (!loading && !user) {
@@ -71,7 +66,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     };
     
     setupAdminAccess();
-  }, [loading, user]);
+  }, [loading, user, isAdmin]);
 
   // Display loading while checking authentication
   if (loading) {
@@ -97,7 +92,6 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   }
   
   // Check normal admin roles for other users
-  const isAdmin = user.user_metadata?.role === 'admin' || user.email?.endsWith('@admin.com');
   if (!isAdmin) {
     return <Navigate to="/client" replace />;
   }
