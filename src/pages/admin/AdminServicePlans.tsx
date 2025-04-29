@@ -73,10 +73,8 @@ const AdminServicePlans = () => {
   const [featureKey, setFeatureKey] = useState("");
   const [featureValue, setFeatureValue] = useState("");
 
-  // Extract unique service types
   const serviceTypes = Array.from(new Set(servicePlans.map(plan => plan.service_type)));
 
-  // Filter plans based on search term and selected type
   const filteredPlans = servicePlans.filter(
     (plan) => 
       (selectedType === "all" || plan.service_type === selectedType) && 
@@ -319,7 +317,6 @@ const AdminServicePlans = () => {
         </Card>
       </div>
 
-      {/* Edit/Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
@@ -457,7 +454,7 @@ const AdminServicePlans = () => {
                         {Object.entries(formData.features).map(([key, value]) => (
                           <div key={key} className="flex items-center justify-between bg-muted p-2 rounded-md">
                             <div>
-                              <span className="font-medium">{key}:</span> {value}
+                              <span className="font-medium">{key}:</span> {String(value)}
                             </div>
                             <Button
                               type="button"
@@ -487,7 +484,6 @@ const AdminServicePlans = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
