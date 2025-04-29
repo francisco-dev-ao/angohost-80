@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { LoginForm } from '@/components/auth/LoginForm';
@@ -10,7 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 
 const Auth = ({ type }: { type: 'login' | 'register' | 'forgot-password' }) => {
-  const { user } = useSupabaseAuth();
+  const { user, loading, signIn, signUp, resetPassword } = useSupabaseAuth();
   const { items } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,6 +18,7 @@ const Auth = ({ type }: { type: 'login' | 'register' | 'forgot-password' }) => {
   // Get the return URL from location state, if available
   const returnUrl = location.state?.returnUrl || '/client';
   const hasItemsInCart = items && items.length > 0;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // If user is already logged in
@@ -33,30 +34,83 @@ const Auth = ({ type }: { type: 'login' | 'register' | 'forgot-password' }) => {
     }
   }, [user, navigate, returnUrl, hasItemsInCart]);
   
+  const handleLogin = async (email: string, password: string) => {
+    setIsSubmitting(true);
+    try {
+      await signIn(email, password);
+      toast.success('Login realizado com sucesso');
+      if (hasItemsInCart) {
+        navigate('/enhanced-checkout');
+      } else {
+        navigate(returnUrl);
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast.error(`Erro ao realizar login: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleRegister = async (email: string, password: string, fullName: string) => {
+    setIsSubmitting(true);
+    try {
+      await signUp(email, password, fullName);
+      toast.success('Cadastro realizado com sucesso');
+      if (hasItemsInCart) {
+        navigate('/enhanced-checkout');
+      } else {
+        navigate(returnUrl);
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast.error(`Erro ao realizar cadastro: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleForgotPassword = async (email: string) => {
+    setIsSubmitting(true);
+    try {
+      await resetPassword(email);
+      toast.success('Instruções de redefinição de senha enviadas para seu email');
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      toast.error(`Erro ao enviar instruções: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
   // Render the appropriate form based on the type
   const renderForm = () => {
     switch (type) {
       case 'login':
-        return <LoginForm onSubmit={async (email, password) => {
-          return Promise.resolve();
-        }} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <LoginForm onSubmit={handleLogin} isLoading={isSubmitting} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
       case 'register':
-        return <RegisterForm onSubmit={async (email, password, fullName) => {
-          return Promise.resolve();
-        }} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <RegisterForm onSubmit={handleRegister} isLoading={isSubmitting} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
       case 'forgot-password':
-        return <ForgotPasswordForm onSubmit={async (email) => {
-          return Promise.resolve();
-        }} isLoading={false} />;
+        return <ForgotPasswordForm onSubmit={handleForgotPassword} isLoading={isSubmitting} />;
       default:
-        return <LoginForm onSubmit={async (email, password) => {
-          return Promise.resolve();
-        }} isLoading={false} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
+        return <LoginForm onSubmit={handleLogin} isLoading={isSubmitting} returnUrl={hasItemsInCart ? '/enhanced-checkout' : returnUrl} />;
     }
   };
   
+  const title = type === 'login' 
+    ? 'Entre na sua conta' 
+    : type === 'register' 
+      ? 'Criar uma conta'
+      : 'Recuperar senha';
+      
+  const subtitle = type === 'login'
+    ? 'Faça login para continuar'
+    : type === 'register'
+      ? 'Preencha seus dados para criar uma conta'
+      : 'Enviaremos instruções para redefinir sua senha';
+  
   return (
-    <AuthLayout title="Entre na sua conta" subtitle="Faça login ou crie uma conta para continuar">
+    <AuthLayout title={title} subtitle={subtitle}>
       {renderForm()}
     </AuthLayout>
   );

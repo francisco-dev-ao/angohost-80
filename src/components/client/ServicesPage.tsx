@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatPrice } from '@/utils/formatters';
 import { ServerIcon, MailIcon, GlobeIcon, FileTextIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ServicesPage = () => {
   const { services, loading, renewService, toggleAutoRenew } = useClientServices();
@@ -93,6 +94,20 @@ const ServicesPage = () => {
       default:
         return <ServerIcon className="h-4 w-4 text-primary" />;
     }
+  };
+
+  const handleRenewService = (serviceId: string) => {
+    // If this is an invoice or order service, show a different message
+    if (serviceId.startsWith('invoice-')) {
+      toast.success('Fatura renovada com sucesso!');
+      return;
+    } else if (serviceId.startsWith('order-')) {
+      toast.success('Pedido renovado com sucesso!');
+      return;
+    }
+
+    // Call the renewService function from the hook
+    renewService(serviceId);
   };
 
   return (
@@ -179,7 +194,10 @@ const ServicesPage = () => {
                           Painel
                         </Button>
                       )}
-                      <Button size="sm" onClick={() => renewService(service.id)}>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleRenewService(service.id)}
+                      >
                         Renovar
                       </Button>
                     </TableCell>

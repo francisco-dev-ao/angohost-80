@@ -1,15 +1,23 @@
 
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import ClientSidebar from '@/components/client/ClientSidebar';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
-import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const ClientLayout = () => {
-  const { user } = useSupabaseAuth();
+  const { user, loading } = useSupabaseAuth();
+  const navigate = useNavigate();
   
+  // Ensure user is authenticated, otherwise redirect to login
+  useEffect(() => {
+    if (!loading && !user) {
+      toast.error('Por favor, faça login para acessar a área do cliente');
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
   // Ensure all client features are activated for the current user
   useEffect(() => {
     const activateClientFeatures = async () => {
@@ -49,6 +57,18 @@ const ClientLayout = () => {
     
     activateClientFeatures();
   }, [user]);
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg">Carregando...</p>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return null; // Will be redirected by the useEffect
+  }
   
   return (
     <div className="flex min-h-screen">

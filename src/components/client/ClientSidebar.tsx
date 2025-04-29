@@ -16,13 +16,11 @@ import {
   Wallet,
   Home,
 } from "lucide-react";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 const ClientSidebar = () => {
   const location = useLocation();
-
-  const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
-  };
+  const { user } = useSupabaseAuth();
 
   const menuItems = [
     {
@@ -87,8 +85,12 @@ const ClientSidebar = () => {
     },
   ];
 
+  if (!user) {
+    return null; // Don't render the sidebar if there is no authenticated user
+  }
+
   return (
-    <div className="flex flex-col w-64 bg-white border-r h-screen shadow-sm">
+    <div className="flex flex-col w-64 bg-white border-r h-screen shadow-md">
       <div className="p-4 border-b">
         <h2 className="font-bold text-lg text-primary">Área do Cliente</h2>
       </div>
@@ -112,6 +114,18 @@ const ClientSidebar = () => {
           </NavLink>
         ))}
       </nav>
+
+      <div className="p-4 border-t">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary/10 w-8 h-8 flex items-center justify-center">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div className="text-sm">
+            <p className="font-medium">{user?.email}</p>
+            <p className="text-xs text-muted-foreground">Cliente</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
