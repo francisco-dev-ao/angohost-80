@@ -9,11 +9,11 @@ import { Toaster, toast } from 'sonner';
 // Initialize database connection and schema
 const initApp = async () => {
   try {
-    // Test database connection with the new password
+    // Test database connection with the password
     const connectionTest = await testConnection();
     if (connectionTest.success) {
       console.log('Database connection successful!', connectionTest);
-      toast.success('Conexão com o banco de dados estabelecida!');
+      toast.success(`Conexão com o banco de dados estabelecida! Versão MySQL: ${connectionTest.version}`);
       
       // Initialize schema if needed
       await initializeSchema();

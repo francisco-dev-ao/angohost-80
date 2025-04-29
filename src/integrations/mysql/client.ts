@@ -23,6 +23,9 @@ export const getConnection = async () => {
   
   // Create the connection pool if it doesn't exist
   if (!pool) {
+    console.log('Tentando criar pool de conexão com o banco de dados...');
+    console.log('Host: 194.163.146.215, Database: angodb11, User:', user);
+    
     pool = mysql.createPool({
       host: '194.163.146.215',
       database: 'angodb11',
@@ -33,7 +36,7 @@ export const getConnection = async () => {
       queueLimit: 0
     });
     
-    console.log('Database connection pool created with user:', user);
+    console.log('Pool de conexão com o banco de dados criado com sucesso!');
   }
   
   return pool;
@@ -66,8 +69,11 @@ export const executeQuery = async (query: string, params: any[] = []) => {
 // Test connection function that returns detailed status
 export const testConnection = async () => {
   try {
+    console.log('Testando conexão com o banco de dados...');
     const connection = await getConnection();
     const [rows] = await connection.execute('SELECT NOW() as timestamp, VERSION() as version');
+    console.log('Conexão bem sucedida! Versão do MySQL:', rows[0]?.version);
+    
     return { 
       success: true, 
       message: 'Conexão com banco de dados realizada com sucesso',
@@ -77,6 +83,7 @@ export const testConnection = async () => {
       database: 'angodb11'
     };
   } catch (error: any) {
+    console.error('Falha ao testar conexão:', error.message);
     return { 
       success: false, 
       message: `Falha na conexão: ${error.message}`,
