@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from 'sonner';
-import { supabase } from "@/integrations/supabase/client";
 
 interface SecuritySettingsProps {
   settings: {
@@ -24,26 +23,18 @@ interface SecuritySettingsProps {
     enforceStrongPassword: boolean;
   };
   onSettingsChange: (settings: any) => void;
+  onSave: () => Promise<boolean>;
 }
 
-export const SecuritySettingsForm = ({ settings, onSettingsChange }: SecuritySettingsProps) => {
+export const SecuritySettingsForm = ({ settings, onSettingsChange, onSave }: SecuritySettingsProps) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('admin_settings')
-        .upsert({ 
-          id: 'security', 
-          settings: settings 
-        }, { 
-          onConflict: 'id' 
-        });
-
-      if (error) throw error;
-      toast.success("Configurações de segurança atualizadas com sucesso");
+      const success = await onSave();
+      if (!success) throw new Error("Failed to save settings");
     } catch (error) {
       console.error("Error saving security settings:", error);
       toast.error("Erro ao salvar configurações de segurança");
@@ -68,24 +59,37 @@ export const SecuritySettingsForm = ({ settings, onSettingsChange }: SecuritySet
               checked={settings.enableTwoFactor}
               onCheckedChange={checked => onSettingsChange({...settings, enableTwoFactor: checked})}
             />
-            <Label htmlFor="enableTwoFactor">Ativar autenticação de dois fatores</Label>
+            <div className="grid gap-1.5 leading-none">
+              <Label htmlFor="enableTwoFactor">Ativar autenticação de dois fatores</Label>
+              <p className="text-sm text-muted-foreground">
+                Requer verificação adicional no login
+              </p>
+            </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="passwordExpiryDays">Expiração de senha (dias)</Label>
+            <Label htmlFor="passwordExpiryDays">Expiração de senha</Label>
             <Input 
               id="passwordExpiryDays" 
               type="number"
+              min={0}
               value={settings.passwordExpiryDays}
-              onChange={e => onSettingsChange({...settings, passwordExpiryDays: parseInt(e.target.value)})}
+              onChange={e => onSettingsChange({...settings, passwordExpiryDays: parseInt(e.target.value) || 0})}
+              suffix="dias"
+              aria-describedby="password-expiry-description"
             />
+            <p id="password-expiry-description" className="text-sm text-muted-foreground">
+              Dias até que uma senha precise ser alterada (0 para desativar)
+            </p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sessionTimeout">Tempo limite da sessão (minutos)</Label>
+            <Label htmlFor="sessionTimeout">Tempo limite da sessão</Label>
             <Input 
               id="sessionTimeout" 
               type="number"
+              min={1}
               value={settings.sessionTimeout}
-              onChange={e => onSettingsChange({...settings, sessionTimeout: parseInt(e.target.value)})}
+              onChange={e => onSettingsChange({...settings, sessionTimeout: parseInt(e.target.value) || 60})}
+              suffix="minutos"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -94,7 +98,12 @@ export const SecuritySettingsForm = ({ settings, onSettingsChange }: SecuritySet
               checked={settings.autoLogout}
               onCheckedChange={checked => onSettingsChange({...settings, autoLogout: checked})}
             />
-            <Label htmlFor="autoLogout">Logout automático após tempo limite</Label>
+            <div className="grid gap-1.5 leading-none">
+              <Label htmlFor="autoLogout">Logout automático após tempo limite</Label>
+              <p className="text-sm text-muted-foreground">
+                Encerra a sessão após período de inatividade
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <Switch 
@@ -102,7 +111,12 @@ export const SecuritySettingsForm = ({ settings, onSettingsChange }: SecuritySet
               checked={settings.enforceStrongPassword}
               onCheckedChange={checked => onSettingsChange({...settings, enforceStrongPassword: checked})}
             />
-            <Label htmlFor="enforceStrongPassword">Exigir senhas fortes</Label>
+            <div className="grid gap-1.5 leading-none">
+              <Label htmlFor="enforceStrongPassword">Exigir senhas fortes</Label>
+              <p className="text-sm text-muted-foreground">
+                Senhas devem conter letras maiúsculas, minúsculas, números e símbolos
+              </p>
+            </div>
           </div>
         </CardContent>
         <CardFooter>

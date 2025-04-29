@@ -89,6 +89,38 @@ export const useAdminSettings = () => {
     
     loadSettings();
   }, []);
+
+  const saveSettings = async (category: string, settings: any) => {
+    try {
+      const { error } = await supabase
+        .from('admin_settings')
+        .upsert({ 
+          id: category, 
+          settings: settings 
+        }, { 
+          onConflict: 'id' 
+        });
+
+      if (error) throw error;
+      toast.success(`Configurações de ${getCategoryName(category)} atualizadas com sucesso`);
+      return true;
+    } catch (error) {
+      console.error(`Error saving ${category} settings:`, error);
+      toast.error(`Erro ao salvar configurações de ${getCategoryName(category)}`);
+      return false;
+    }
+  };
+
+  const getCategoryName = (category: string) => {
+    const names: Record<string, string> = {
+      'general': 'gerais',
+      'security': 'segurança',
+      'payment': 'pagamento',
+      'notification': 'notificação',
+      'smtp': 'SMTP'
+    };
+    return names[category] || category;
+  };
   
   return {
     loading,
@@ -101,6 +133,7 @@ export const useAdminSettings = () => {
     setSecuritySettings,
     setPaymentSettings,
     setNotificationSettings,
-    setSmtpSettings
+    setSmtpSettings,
+    saveSettings
   };
 };
