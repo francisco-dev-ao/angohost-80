@@ -9,7 +9,7 @@ import { Toaster, toast } from 'sonner';
 // Renderizar a aplicação primeiro para evitar tela em branco
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <Toaster />
+    <Toaster position="top-right" richColors />
     <App />
   </React.StrictMode>,
 );
@@ -21,21 +21,23 @@ const initDbConnection = async () => {
     const connectionTest = await testConnection();
     if (connectionTest.success) {
       console.log('Conexão com o banco de dados bem sucedida!', connectionTest);
-      toast.success(`Conexão com o banco de dados estabelecida! Versão MySQL: ${connectionTest.version}`);
+      toast.success(`Conexão com o banco de dados estabelecida! Versão MySQL: ${connectionTest.version}`, {
+        duration: 5000
+      });
       
       // Inicializar schema se necessário
       await initializeSchema();
     } else {
       console.error('Falha na conexão com o banco de dados:', connectionTest.message);
-      toast.error(`Falha na conexão com o banco de dados: ${connectionTest.message}`);
+      // Não mostrar toast de erro aqui para evitar confundir o usuário quando a página carrega
     }
   } catch (error: any) {
     console.error('Erro ao inicializar aplicação:', error);
-    toast.error(`Erro ao conectar ao banco de dados: ${error.message}`);
+    // Não mostrar toast de erro aqui para evitar confundir o usuário quando a página carrega
   }
 };
 
 // Iniciar tentativa de conexão com o banco de dados após um pequeno delay
 setTimeout(() => {
   initDbConnection();
-}, 1000);
+}, 1500);

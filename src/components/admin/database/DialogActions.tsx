@@ -23,6 +23,7 @@ const DialogActions = ({
         disabled={isConnecting}
         variant="outline"
         type="button"
+        className="border-blue-400 text-blue-600 hover:bg-blue-50"
       >
         {isConnecting ? "Testando..." : "Testar Conexão"}
       </Button>
@@ -37,6 +38,7 @@ const DialogActions = ({
         onClick={onSave} 
         disabled={isConnecting}
         type="button"
+        className="bg-blue-600 hover:bg-blue-700"
       >
         {isConnecting ? "Salvando..." : "Salvar Configuração"}
       </Button>

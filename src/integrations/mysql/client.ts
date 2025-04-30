@@ -4,10 +4,15 @@ import mysql from 'mysql2/promise';
 // Database connection pool
 let pool: mysql.Pool | null = null;
 
+// Reset pool function to force a new connection after credential changes
+export const resetPool = () => {
+  pool = null;
+};
+
 export const getConnection = async () => {
   // Valores padrão para credenciais
-  let user = 'placeholder_username';
-  let password = 'Bayathu60@@'; // Senha padrão
+  let user = '';
+  let password = '';
 
   try {
     // Só tentar acessar localStorage em ambiente de navegador
@@ -23,10 +28,17 @@ export const getConnection = async () => {
         }
       } catch (storageError) {
         console.error('Erro ao acessar localStorage:', storageError);
+        throw new Error('Não foi possível acessar as credenciais do banco de dados');
       }
     }
+    
+    // Verificar se temos credenciais válidas
+    if (!user || !password) {
+      throw new Error('Credenciais de banco de dados não configuradas');
+    }
   } catch (error) {
-    console.error('Erro ao verificar ambiente:', error);
+    console.error('Erro ao verificar ambiente ou credenciais:', error);
+    throw error;
   }
   
   try {
@@ -72,6 +84,24 @@ export const executeQuery = async (query: string, params: any[] = []) => {
 // Função para testar conexão que retorna status detalhado
 export const testConnection = async () => {
   try {
+    // Verificar se temos credenciais
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedCredentials = localStorage.getItem('db_credentials');
+      if (!storedCredentials) {
+        return { 
+          success: false, 
+          message: 'Credenciais de banco de dados não configuradas'
+        };
+      }
+      const credentials = JSON.parse(storedCredentials);
+      if (!credentials.username || !credentials.password) {
+        return { 
+          success: false, 
+          message: 'Credenciais de banco de dados incompletas'
+        };
+      }
+    }
+
     console.log('Testando conexão com o banco de dados...');
     const connection = await getConnection();
     
@@ -80,7 +110,7 @@ export const testConnection = async () => {
     
     // Definindo um timeout de 5 segundos para a consulta
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout ao conectar ao banco de dados')), 5000);
+      setTimeout(() => reject(new Error('Timeout ao conectar ao banco de dados')), 8000);
     });
     
     // Executando a consulta com timeout
@@ -99,9 +129,22 @@ export const testConnection = async () => {
     };
   } catch (error: any) {
     console.error('Falha ao testar conexão:', error.message);
+    
+    // Mensagem mais amigável baseada no erro
+    let mensagemErro = error.message;
+    if (error.message.includes('Access denied')) {
+      mensagemErro = 'Acesso negado. Verifique seu nome de usuário e senha.';
+    } else if (error.message.includes('ECONNREFUSED')) {
+      mensagemErro = 'Não foi possível conectar ao servidor MySQL. Verifique se o servidor está disponível.';
+    } else if (error.message.includes('Timeout')) {
+      mensagemErro = 'O tempo limite para conexão foi excedido. O servidor pode estar sobrecarregado ou inacessível.';
+    } else if (error.message.includes('Credenciais')) {
+      mensagemErro = error.message;
+    }
+    
     return { 
       success: false, 
-      message: `Falha na conexão: ${error.message}`,
+      message: `Falha na conexão: ${mensagemErro}`,
       error: error.message
     };
   }

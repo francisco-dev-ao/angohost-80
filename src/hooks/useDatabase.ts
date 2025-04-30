@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { testConnection } from '@/integrations/mysql/client';
+import { testConnection, resetPool } from '@/integrations/mysql/client';
 
 export interface DatabaseCredentials {
   username: string;
@@ -18,7 +18,7 @@ export interface ConnectionStatus {
 export const useDatabase = (onConnectionSuccess?: () => void) => {
   const [credentials, setCredentials] = useState<DatabaseCredentials>({
     username: '',
-    password: 'Bayathu60@@', // Senha padrão
+    password: '', 
   });
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
@@ -36,7 +36,7 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
           const parsed = JSON.parse(storedCredentials);
           setCredentials({
             username: parsed.username || '',
-            password: parsed.password || 'Bayathu60@@',
+            password: parsed.password || '',
           });
         } catch (error) {
           console.error('Erro ao analisar credenciais armazenadas:', error);
@@ -79,6 +79,8 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
     }
 
     setIsConnecting(true);
+    setConnectionStatus(null); // Limpar resultado anterior
+    
     try {
       // Salvar as credenciais temporariamente para teste
       try {
@@ -87,6 +89,9 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
           password: credentials.password,
           timestamp: new Date().toISOString()
         }));
+        
+        // Reset pool para forçar nova conexão com novas credenciais
+        resetPool();
       } catch (error) {
         console.error('Erro ao salvar no localStorage:', error);
       }
@@ -133,6 +138,9 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
           password: credentials.password,
           timestamp: new Date().toISOString()
         }));
+        
+        // Reset pool para forçar nova conexão com novas credenciais
+        resetPool();
       } catch (error) {
         console.error('Erro ao salvar no localStorage:', error);
         toast.error('Erro ao salvar configurações no navegador');
@@ -153,7 +161,10 @@ export const useDatabase = (onConnectionSuccess?: () => void) => {
           onConnectionSuccess();
         }
         // Em uma implementação real, seria necessário recarregar o app ou atualizar o pool de conexão
-        setTimeout(() => window.location.reload(), 1500);
+        toast.info('A página será recarregada para aplicar as configurações...', {
+          duration: 2000
+        });
+        setTimeout(() => window.location.reload(), 2000);
         return true;
       } else {
         toast.error('Erro ao conectar ao banco de dados. Verifique as credenciais.');
